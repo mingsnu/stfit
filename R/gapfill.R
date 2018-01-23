@@ -10,6 +10,11 @@
 #' @param doyrange vector of two elements, minimum and maximum value of DOY
 #' @param pve percent of variance explained of the selected eigen values
 #' @param mc.cores number of cores to use for computation
+#' 
+#' @return a list
+#' 
+#' @export
+#' @examples 
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr,
                     pve = 0.99, mc.cores = parallel::detectCores()){
@@ -111,28 +116,6 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
 
 
 
-#' The following function deals with the imputation using sparse pca. 
-#' 
-
-PACE = function(mat, ev.vec, sigma2, ev.val, mc.cores){
-  xi.mat = foreach (i = 1:nrow(mat), .combine = cbind) %dopar%{
-    nonna.idx = !is.na(mat[i,])
-    non.na.num = sum(nonna.idx)
-    sigma2 = max(0.5, sigma2)
-    diag.mat = diag(sigma2, non.na.num, non.na.num)
-    if(length(ev.val) == 1){
-      xi.result = ev.val * t(ev.vec[nonna.idx, ]) %*%
-        solve(ev.val* ev.vec[nonna.idx, ] %*% t(ev.vec[nonna.idx, ]) +  diag.mat) %*%
-        mat[i,nonna.idx]
-    } else{
-      phi = ev.vec[nonna.idx,, drop=FALSE]
-      tmp = t(phi) * ev.val
-      xi.result =tmp %*% solve(phi %*% tmp + diag.mat) %*% mat[i,nonna.idx]
-    }
-    xi.result
-  }
-  t(ev.vec %*% xi.mat)
-}
 
 
 

@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 sparse_cov_est <- function(X, nRow, nCol, nnr) {
-    .Call(`_Gapfill_sparse_cov_est`, X, nRow, nCol, nnr)
+    .Call('_Gapfill_sparse_cov_est', PACKAGE = 'Gapfill', X, nRow, nCol, nnr)
 }
 
 mean_est <- function(X, nRow, nCol, W) {
-    .Call(`_Gapfill_mean_est`, X, nRow, nCol, W)
+    .Call('_Gapfill_mean_est', PACKAGE = 'Gapfill', X, nRow, nCol, W)
 }
 

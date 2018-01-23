@@ -1,7 +1,7 @@
-#' Mean estimation
+#' Local constant estimation for image mean
 #'
 #' @param mat a matrix, each column is a stacked values of an image
-#' @param h bandwidth
+#' @param wmat weight matrix
 #'
 #' @return
 #' @export
