@@ -6,15 +6,15 @@
 using namespace Rcpp;
 
 // sparse_cov_est
-DataFrame sparse_cov_est(NumericMatrix X, int nRow, int nCol, int nnr);
+DataFrame sparse_cov_est(NumericMatrix X, size_t nRow, size_t nCol, size_t nnr);
 RcppExport SEXP _Gapfill_sparse_cov_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
-    Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
-    Rcpp::traits::input_parameter< int >::type nnr(nnrSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nRow(nRowSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nCol(nColSEXP);
+    Rcpp::traits::input_parameter< size_t >::type nnr(nnrSEXP);
     rcpp_result_gen = Rcpp::wrap(sparse_cov_est(X, nRow, nCol, nnr));
     return rcpp_result_gen;
 END_RCPP

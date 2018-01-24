@@ -97,7 +97,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ## The following uses the sparse pca to impute the missing values.
   cat("Estimating the principal component scores...\n")
   
-  partial_imputed = PACE(resid.mat[1:length(idx2),], ev.vec, sigma2, ev.val, mc.cores)
+  partial_imputed = PACE(resid.mat[1:length(idx2),], ev.vec, sigma2, ev.val)
   
   for(i in 1:length(idx2)){
     miss.idx = is.na(mat[idx2[i],])

@@ -1,6 +1,10 @@
 ##### Test for Landsat data
 library(feather)
 library(dplyr)
+library(doParallel)
+library(Matrix)
+library(raster)
+library(rasterVis)
 df = read_feather("../data/features_106_wide.feather")
 
 ## focus on year >= 2000 for test purpose
@@ -9,7 +13,7 @@ year = df$year
 doy = df$doy
 mat = as.matrix(df[,-c(1:2)])
 ## res = gapfill(year, doy, mat, 31,31,h=0, doyrange=1:90, nnr=5)
-res = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=30)
+res = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=15)
 
 ## temporal trend visulization
 r.list = list()
@@ -19,12 +23,6 @@ for(i in 1:365){
 s = stack(r.list)
 levelplot(s[[seq(1, 365, 10)]], par.settings = RdBuTheme)
 
-s = raster(matrix(res$temporal.mean[1,], 31))
-for(i in seq(2,365,length.out = 30)){
-  r = raster(matrix(res$temporal.mean[i,], 31))
-  s = stack(s,r)
-}
-levelplot(s, par.settings = RdBuTheme)
 
 ## the i-th partial missing images
 for(i in 1:length(res$ids$ids.partialmissing)){

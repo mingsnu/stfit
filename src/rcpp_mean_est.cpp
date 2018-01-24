@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include <stdlib.h>
+#include <vector>
 using namespace Rcpp;
 
 double sumKernel(
@@ -27,27 +28,13 @@ double sumKernel(
   size_t l_local;
   
   /* the starts */
-  if( i < dRow/2 ) {
-    k_start = 0; 
-  } else {
-    k_start = i - dRow/2 ;
-  }
-  if( j < dCol/2 ) {
-    l_start = 0; 
-  } else {
-    l_start = j - dCol/2 ;
-  }
+  k_start = std::max(i - dRow/2, (size_t)0);
+  l_start = std::max(j - dCol/2, (size_t)0);
+
   /* the stops */
-  if( i + dRow/2 + 1 > nRow ) {
-    k_stop = nRow; 
-  } else {
-    k_stop = i + dRow/2 + 1;
-  }
-  if( j + dCol/2 + 1  > nCol ) {
-    l_stop = nCol; 
-  } else {
-    l_stop = j + dCol/2 + 1;
-  }
+  k_stop = std::min(i + dRow/2 + 1, nRow);
+  l_stop = std::min(j + dCol/2 + 1, nCol);
+  
   for(n = 0; n < X.nrow(); n++){
     for(k=k_start, k_local=k_start - i + (dRow/2); 
         k < k_stop; k++, k_local++) {
