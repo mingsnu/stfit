@@ -5,17 +5,46 @@
 
 using namespace Rcpp;
 
-// sparse_cov_est
-DataFrame sparse_cov_est(NumericMatrix X, size_t nRow, size_t nCol, size_t nnr);
-RcppExport SEXP _Gapfill_sparse_cov_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+// nbr
+NumericVector nbr(int ii, int nRow, int nCol, int nnr);
+RcppExport SEXP _Gapfill_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type ii(iiSEXP);
+    Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
+    Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
+    Rcpp::traits::input_parameter< int >::type nnr(nnrSEXP);
+    rcpp_result_gen = Rcpp::wrap(nbr(ii, nRow, nCol, nnr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sparse_emp_cov_est
+DataFrame sparse_emp_cov_est(NumericMatrix X, int nRow, int nCol, int nnr);
+RcppExport SEXP _Gapfill_sparse_emp_cov_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nRow(nRowSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nCol(nColSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nnr(nnrSEXP);
-    rcpp_result_gen = Rcpp::wrap(sparse_cov_est(X, nRow, nCol, nnr));
+    Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
+    Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
+    Rcpp::traits::input_parameter< int >::type nnr(nnrSEXP);
+    rcpp_result_gen = Rcpp::wrap(sparse_emp_cov_est(X, nRow, nCol, nnr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// sparse_lc_cov_est
+DataFrame sparse_lc_cov_est(NumericMatrix X, NumericMatrix W, int nRow, int nCol, int nnr);
+RcppExport SEXP _Gapfill_sparse_lc_cov_est(SEXP XSEXP, SEXP WSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type W(WSEXP);
+    Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
+    Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
+    Rcpp::traits::input_parameter< int >::type nnr(nnrSEXP);
+    rcpp_result_gen = Rcpp::wrap(sparse_lc_cov_est(X, W, nRow, nCol, nnr));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -35,7 +64,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Gapfill_sparse_cov_est", (DL_FUNC) &_Gapfill_sparse_cov_est, 4},
+    {"_Gapfill_nbr", (DL_FUNC) &_Gapfill_nbr, 4},
+    {"_Gapfill_sparse_emp_cov_est", (DL_FUNC) &_Gapfill_sparse_emp_cov_est, 4},
+    {"_Gapfill_sparse_lc_cov_est", (DL_FUNC) &_Gapfill_sparse_lc_cov_est, 5},
     {"_Gapfill_mean_est", (DL_FUNC) &_Gapfill_mean_est, 4},
     {NULL, NULL, 0}
 };

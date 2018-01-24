@@ -13,8 +13,10 @@ year = df$year
 doy = df$doy
 mat = as.matrix(df[,-c(1:2)])
 ## res = gapfill(year, doy, mat, 31,31,h=0, doyrange=1:90, nnr=5)
-res = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=15)
+res1 = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=15)
+res = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=15, method="emp")
 
+res = res1
 ## temporal trend visulization
 r.list = list()
 for(i in 1:365){

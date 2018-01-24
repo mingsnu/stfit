@@ -16,7 +16,7 @@
 #' @export
 #' @examples 
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
-                    doyrange = seq(min(doy), max(doy)), nnr,
+                    doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
                     pve = 0.99, mc.cores = parallel::detectCores()){
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
@@ -77,7 +77,11 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ###################################################
   cat("Estimating the covariance matrix...\n")
   ## using fully observed + partially observed - outlier images for covariance estimation
-  covest = sparse_cov_est(resid.mat, img.nrow, img.ncol, nnr)
+  method <- match.arg(method)
+  if(method == "emp")
+    covest = sparse_emp_cov_est(resid.mat, img.nrow, img.ncol, nnr) else
+      if(method == "lc")
+        covest = sparse_lc_cov_est(resid.mat, wmat, img.nrow, img.ncol, nnr)
   scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
                          dims = c(N, N), symmetric = TRUE)
   varest = apply(resid.mat, 2, var, na.rm=TRUE)

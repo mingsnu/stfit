@@ -9,7 +9,7 @@ mat = t(values(r)) ## note that the image value is stacked row-wise
 missIdx = apply(mat, 1, function(x) all(is.na(x)))
 mat = mat[!missIdx, ]
 
-covest = sparse_cov_est(mat, 31,31,1)
+covest = sparse_emp_cov_est(mat, 31,31,1)
 scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, dims = c(961, 961), symmetric = TRUE)
 image(scovest)
 image(scovest[1:50, 1:50])
@@ -22,16 +22,27 @@ image(matrix(scovest.eigen$vectors[,4], 31))
 
 
 
-#### Validating sparse_cov_est function
+#### Validating sparse_emp_cov_est function
 mat = matrix(rnorm(100), 25)
 mat = t(mat - apply(mat,1, mean))
-tmp = sparse_cov_est(mat, 5, 5, 2)
+tmp = sparse_emp_cov_est(mat, 5, 5, 2)
+
 stmp = sparseMatrix(tmp$ridx, tmp$cidx, x = tmp$value, dims = c(25,25), symmetric = TRUE)
 stmp
 image(stmp)
 stmp[1:5,1:5]
 aa = cov(mat)
 aa[1:5,1:5]
+
+wmat = weightMatrix(1)
+tmp1 = sparse_lc_cov_est(mat, wmat, 5, 5, 2)
+stmp1 = sparseMatrix(tmp1$ridx, tmp1$cidx, x = tmp1$value, dims = c(25,25), symmetric = TRUE)
+stmp1
+image(stmp1)
+stmp1[1:5,1:5]
+aa = cov(mat)
+aa[1:5,1:5]
+
 
 ##
 df1 = readRDS("df1.rds")
@@ -45,7 +56,7 @@ head(mean)
 head(mce$mean.curve)
 
 mat = mat - mean
-covest = sparse_cov_est(mat, 31, 31, 5)
+covest = sparse_emp_cov_est(mat, 31, 31, 5)
 scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, dims = c(961, 961), symmetric = TRUE)
 image(scovest)
 scovest[1:10, 1:10]

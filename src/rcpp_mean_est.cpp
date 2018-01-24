@@ -17,23 +17,18 @@ double sumKernel(
   /* adjustment that must be applied for edge effects */
   size_t k, l, n;
   
-  size_t k_start;
-  size_t k_stop;
-  size_t l_start;
-  size_t l_stop;
-  
   double sumYK = 0, sumK = 0;
   
   size_t k_local;
   size_t l_local;
   
   /* the starts */
-  k_start = std::max(i - dRow/2, (size_t)0);
-  l_start = std::max(j - dCol/2, (size_t)0);
+  size_t k_start = std::max(i - dRow/2, (size_t)0);
+  size_t l_start = std::max(j - dCol/2, (size_t)0);
 
   /* the stops */
-  k_stop = std::min(i + dRow/2 + 1, nRow);
-  l_stop = std::min(j + dCol/2 + 1, nCol);
+  size_t k_stop = std::min(i + dRow/2 + 1, nRow);
+  size_t l_stop = std::min(j + dCol/2 + 1, nCol);
   
   for(n = 0; n < X.nrow(); n++){
     for(k=k_start, k_local=k_start - i + (dRow/2); 
