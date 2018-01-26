@@ -23,25 +23,40 @@ image(matrix(scovest.eigen$vectors[,4], 31))
 
 
 #### Validating sparse_emp_cov_est function
-mat = matrix(rnorm(100), 25)
-mat = t(mat - apply(mat,1, mean))
-tmp = sparse_emp_cov_est(mat, 5, 5, 2)
+library(gstat)
+library(raster)
+nrow = ncol = 5
+xy <- expand.grid(1:nrow, 1:ncol)
+names(xy) <- c('x','y')
+g.dummy <- gstat(formula=z~1, locations=~x+y, dummy=T, beta=1, 
+                 model=vgm(psill=0.025, range=5, model='Exp'), nmax=20)
+yy <- predict(g.dummy, newdata=xy, nsim=30)
+gridded(yy) = ~x+y
+spplot(obj=yy[1])
 
-stmp = sparseMatrix(tmp$ridx, tmp$cidx, x = tmp$value, dims = c(25,25), symmetric = TRUE)
-stmp
+mat = yy@data
+## empirical covariance estimation
+mat = t(mat - apply(mat,1, mean))
+tmp = sparse_emp_cov_est(mat, nrow, ncol, 5)
+stmp = sparseMatrix(tmp$ridx, tmp$cidx, x = tmp$value, 
+                    dims = c(nrow*ncol,nrow*ncol), symmetric = TRUE)
 image(stmp)
 stmp[1:5,1:5]
+## "same" as stmp
 aa = cov(mat)
 aa[1:5,1:5]
-
+## local constant estimation
 wmat = weightMatrix(1)
-tmp1 = sparse_lc_cov_est(mat, wmat, 5, 5, 2)
-stmp1 = sparseMatrix(tmp1$ridx, tmp1$cidx, x = tmp1$value, dims = c(25,25), symmetric = TRUE)
-stmp1
+tmp1 = sparse_lc_cov_est(mat, wmat, nrow, ncol, 5)
+stmp1 = sparseMatrix(tmp1$ridx, tmp1$cidx, x = tmp1$value, 
+                     dims = c(nrow*ncol,nrow*ncol), symmetric = TRUE)
 image(stmp1)
 stmp1[1:5,1:5]
-aa = cov(mat)
-aa[1:5,1:5]
+
+library(dplyr)
+x = tmp %>% filter(ridx != cidx) %>% .[["value"]]
+y = tmp1 %>% filter(ridx != cidx) %>% .[["value"]]
+plot(x, y)
 
 
 ##

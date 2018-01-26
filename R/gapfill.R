@@ -84,14 +84,17 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
         covest = sparse_lc_cov_est(resid.mat, wmat, img.nrow, img.ncol, nnr)
   scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
                          dims = c(N, N), symmetric = TRUE)
+  cat("Estimating the variance function...\n")
   varest = apply(resid.mat, 2, var, na.rm=TRUE)
   sigma2 = max(0, mean(varest - Matrix::diag(scovest))) # This is the estimated sigma_u^2 for the white noise associated with W
   
+  cat("Doing eigen decomposition on covariance matrix...\n")
   ## Eigen decomposition of the covariance matrix; may be improved later using rARPACK
   ev = eigen(scovest)
   ev$values[ev$values < 0] = 0
-  
+
   ev.idx = which.min(cumsum(ev$values)/sum(ev$values) < pve)
+  cat("The first ", ev.idx, " eigen values are used...\n")
   ev.vec = ev$vectors[, 1:ev.idx, drop=FALSE]
   ev.val = ev$values[1:ev.idx]
   
@@ -99,10 +102,9 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ######### Missing value imputation ############
   ###############################################
   ## The following uses the sparse pca to impute the missing values.
-  cat("Estimating the principal component scores...\n")
-  
+  cat("Estimating the principal component scores for partially missing images...\n")
   partial_imputed = PACE(resid.mat[1:length(idx2),], ev.vec, sigma2, ev.val)
-  
+  cat("Gapfilling partially missing images...\n")
   for(i in 1:length(idx2)){
     miss.idx = is.na(mat[idx2[i],])
     mat[idx2[i], miss.idx] = partial_imputed[i, miss.idx] + 

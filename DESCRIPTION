@@ -11,9 +11,8 @@ License: GPL (>= 2)
 Imports: dplyr,
     ggplot2,
     fda,
-    Rcpp (>= 0.12.14)
+    Rcpp (>= 0.12.14),
+    Matrix
 LinkingTo: Rcpp
 Suggests: doParallel
 RoxygenNote: 6.0.1
-
-

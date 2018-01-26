@@ -1,9 +1,9 @@
 ##### Test for MODIS data
+library(dplyr)
+library(doParallel)
+library(Matrix)
 library(raster)
 library(rasterVis)
-library(devtools)
-library(refund)
-load_all()
 
 files = list.files("../data/MODIS2003", "*.tif$", full.names = TRUE)
 ## brick.list contains a list of bricks at different 
@@ -12,7 +12,7 @@ for(i in 1:length(files)){
   brick.list[[i]] = brick(files[i])
 }
 brick.list
-
+## Only use 1 and 3 for test purpose
 #############################################
 ###### Temporal difference estimation #######
 #############################################
@@ -39,14 +39,6 @@ levelplot(br3[[1:21]], col.regions = cols,
           main="MOD11A1Day2003_100x100",
           names.attr = rnames[1:21])
 
-#############################################################
-###### Combine br1 and br3 for the following analysis #######
-#############################################################
-df = as.data.frame(rbind(t(values(br1)), t(values(br3))))
-colnames(df) = paste0("pixel", 1:10000)
-df$year = rep(2003, nrow(df))
-df$doy = rep(1:365, 2)
-
 #######################################
 ###### Temporal mean estimation #######
 #######################################
@@ -58,18 +50,25 @@ brick.list.tm <- lapply(brick.list, function(rst) doyMeanEst(rst))
 ##################################
 ###### Residual estimation #######
 ##################################
-# br1.resid = br1 - brick.list.tm[[1]]
-# br3.resid = br3 - brick.list.tm[[3]]
-br1.resid = brick.list[[1]] - brick.list.tm[[1]]
-br3.resid = brick.list[[3]] - brick.list.tm[[3]]
+br1.resid = br1 - brick.list.tm[[1]]
+br3.resid = br3 - brick.list.tm[[3]]
 
-#######################################
-###### Residual mean estimation #######
-#######################################
+#############################################################
+###### Combine br1 and br3 for the following analysis #######
+#############################################################
+resid.mat = rbind(t(values(br1.resid)), t(values(br3.resid)))
+year = rep(2003, nrow(resid.mat))
+doy = rep(1:365, 2)
 
 #############################################
 ###### Residual covariance estimation #######
 #############################################
+wmat = weightMatrix(1)
+covest = sparse_lc_cov_est(resid.mat, wmat, 100, 100, 10)
+scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
+                       dims = c(10000, 10000), symmetric = TRUE)
+
+
 ##################################
 ###### Residual prediction #######
 ##################################
