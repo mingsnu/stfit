@@ -25,7 +25,7 @@ image(matrix(scovest.eigen$vectors[,4], 31))
 #### Validating sparse_emp_cov_est function
 library(gstat)
 library(raster)
-nrow = ncol = 5
+nrow = ncol = 50
 xy <- expand.grid(1:nrow, 1:ncol)
 names(xy) <- c('x','y')
 g.dummy <- gstat(formula=z~1, locations=~x+y, dummy=T, beta=1, 
@@ -37,7 +37,7 @@ spplot(obj=yy[1])
 mat = yy@data
 ## empirical covariance estimation
 mat = t(mat - apply(mat,1, mean))
-tmp = sparse_emp_cov_est(mat, nrow, ncol, 5)
+tmp = sparse_emp_cov_est(mat, nrow, ncol, 2)
 stmp = sparseMatrix(tmp$ridx, tmp$cidx, x = tmp$value, 
                     dims = c(nrow*ncol,nrow*ncol), symmetric = TRUE)
 image(stmp)

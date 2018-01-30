@@ -173,13 +173,24 @@ getMissingLayers <- function(rst.list){
     return(lapply(1:length(rst.list), function(i) 
       which(is.infinite(rst.list[[i]]@data@min) | is.na(rst.list[[i]]@data@min))))
 }
-getMask <- function(rst.list){
-  n.rst.list = length(rst.list)
-  if(!ident(lapply(rst.list, dim)))
-    stop("getMask: elemetns of rst.list should have the same dimension")
-  if(!ident(lapply(rst.list, nlayers)))
-    warning("getMask: elements of rst.list have different number of layers")
-  m = all(brick(lapply(rst.list, function(x) all(is.na(x)))))
-  m[m] = NA
-  m
+
+#' Get the missing pattern (mask) of x
+#'
+#' @param x a matrix, RasterStack or RasterBrick
+#'
+#' @return a vector or RasterLayer object with TRUE and FALSE, TRUE means missing
+#' @export
+#'
+#' @examples
+getMask <- function (x, ...) {
+  UseMethod("getMask", x)
+}
+getMask.matrix <- function(x){
+  apply(x, 2, function(x) all(is.na(x)))
+}
+getMask.RasterStack <- function(x){
+  all(is.na(x))
+}
+getMask.RasterBrick <- function(x){
+  all(is.na(x))
 }
