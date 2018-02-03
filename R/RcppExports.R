@@ -9,8 +9,16 @@ sparse_emp_cov_est <- function(X, nRow, nCol, nnr) {
     .Call(`_Gapfill_sparse_emp_cov_est`, X, nRow, nCol, nnr)
 }
 
+sparse_emp_cov_est1 <- function(X, nRow, nCol, nnr, pidx) {
+    .Call(`_Gapfill_sparse_emp_cov_est1`, X, nRow, nCol, nnr, pidx)
+}
+
 sparse_lc_cov_est <- function(X, W, nRow, nCol, nnr) {
     .Call(`_Gapfill_sparse_lc_cov_est`, X, W, nRow, nCol, nnr)
+}
+
+sparse_lc_cov_est1 <- function(X, W, nRow, nCol, nnr, pidx) {
+    .Call(`_Gapfill_sparse_lc_cov_est1`, X, W, nRow, nCol, nnr, pidx)
 }
 
 mean_est <- function(X, nRow, nCol, W) {

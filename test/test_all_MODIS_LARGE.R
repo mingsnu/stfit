@@ -2,20 +2,58 @@
 ## Also take care of the case where there are "black holes" in the image.
 dat = readRDS("../data/dat_300x300.rds")
 ## can use getMask function to get the 'black holes'
-msk = getMask(dat)
-plot(raster(matrix(msk, 300, 300, byrow=TRUE)))
+msk0 = getMask(dat)
+plot(raster(matrix(msk0, 300, 300, byrow=TRUE)))
+
+################################################
+### Break down into 30x30 and do gapfilling ####
+################################################
+year = rep(2003, 365)
+doy = 1:365
+idx = 100:250
+
+idx.mat = matrix(1:90000, 300, byrow = TRUE)
+nrow = 30; ncol=30;
+
+res.list = list()
+k=1
+for(i in 1:4){
+  for(j in 1:4){
+    mat = dat[, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))]
+    res.list[[k]] = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=2, method="lc")
+    k = k + 1
+  }
+}
 
 
 
-## Test mosaic function
-nrow = 25; ncol=25;
 i = j = 1
-MODIS1 = crop(MODIS, extent(MODIS, 1+(i-1)*nrow, i*nrow, 1+(j-1)*ncol, j*ncol))
-plot(MODIS1[[1:40]])
-i = 1; j = 2
-MODIS2 = crop(MODIS, extent(MODIS, 1+(i-1)*nrow, i*nrow, 1+(j-1)*ncol, j*ncol))
-plot(MODIS2[[1:40]])
+mat = dat[, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))]
+levelplot(raster(matrix(dat1[2,], nrow)))
+msk = getMask(mat)
+plot(raster(matrix(msk, nrow, ncol, byrow=TRUE)))
 
+# r = raster(matrix(dat[2,], 300))
+# levelplot(r)
+# levelplot(crop(r, extent(r, 1+(i-1)*nrow, i*nrow, 1+(j-1)*ncol, j*ncol)))
+
+res = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=2, method="lc")
+
+
+## the i-th partial missing images
+for(i in 1:length(res$idx$idx.partialmissing)){
+  r1 = raster(matrix(mat[idx,][res$idx$idx.partialmissing[i],], nrow))
+  r2 = raster(matrix(res$imputed.partial[i,], nrow))
+  s = stack(r1, r2)
+  print(levelplot(s, par.settings = RdBuTheme))
+  Sys.sleep(2)
+}
+
+
+
+################################
+######## Merge together ########
+################################
 MODIS_merge = mosaic(MODIS1, MODIS2, fun = mean)
 plot(MODIS_merge[[1:40]])
 

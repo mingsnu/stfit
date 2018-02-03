@@ -29,8 +29,8 @@ levelplot(s[[seq(1, 365, 10)]], par.settings = RdBuTheme)
 #### Imputed partial missing images ######
 ##########################################
 pdf("landsat_partial_nnr5.pdf")
-for(i in 1:length(res$ids$ids.partialmissing)){
-  r1 = raster(matrix(mat[res$ids$ids.partialmissing[i],], 31))
+for(i in 1:length(res$idx$idx.partialmissing)){
+  r1 = raster(matrix(mat[res$idx$idx.partialmissing[i],], 31))
   r2 = raster(matrix(res$imputed.partial[i,], 31))
   s = stack(r1, r2)
   print(levelplot(s, par.settings = RdBuTheme))
@@ -38,8 +38,8 @@ for(i in 1:length(res$ids$ids.partialmissing)){
 }
 dev.off()
 pdf("landsat_partial_resid_nnr5.pdf")
-for(i in 1:length(res$ids$ids.partialmissing)){
-  idx = res$ids$ids.partialmissing[i]
+for(i in 1:length(res$idx$idx.partialmissing)){
+  idx = res$idx$idx.partialmissing[i]
   m = res$temporal.mean[doy[idx],]
   r1 = raster(matrix(mat[idx,] - m, 31))
   r2 = raster(matrix(res$imputed.partial[i,] - m, 31))
@@ -52,8 +52,8 @@ dev.off()
 ##########################
 #### Outlier images ######
 ##########################
-for(i in 1:length(res$ids$ids.outlier)){
-  r = raster(matrix(mat[res$ids$ids.outlier[i],], 31))
+for(i in 1:length(res$idx$idx.outlier)){
+  r = raster(matrix(mat[res$idx$idx.outlier[i],], 31))
   print(levelplot(r, par.settings = RdBuTheme))
   Sys.sleep(2)
 }
@@ -68,8 +68,8 @@ doy = df$doy
 mat = as.matrix(df[,-c(1:2)])
 set.seed(20180124)
 n = 3
-fidx = sample(res$ids$ids.fullyobserved, n)
-pidx = sample(res$ids$ids.partialmissing, n)
+fidx = sample(res$idx$idx.fullyobserved, n)
+pidx = sample(res$idx$idx.partialmissing, n)
 
 r.list = list()
 for(i in 1:n){
@@ -94,7 +94,7 @@ for(k in 1:30){
   
   ## imputed images
   for(i in 1:n){
-    r.list[[i+2*n]] = raster(matrix(res$imputed.partial[which(res$ids$ids.partialmissing == fidx[i]),], 31))
+    r.list[[i+2*n]] = raster(matrix(res$imputed.partial[which(res$idx$idx.partialmissing == fidx[i]),], 31))
   }
   s1 = stack(r.list)
   # levelplot(s1, par.settings = RdBuTheme, layout=c(3,3))

@@ -3,6 +3,29 @@
 #include <vector>
 using namespace Rcpp;
 
+int which_equal(NumericVector x, int y){
+  // return idx of x: which x equals y
+  int idx = -1;
+  NumericVector::iterator it = std::find(x.begin(), x.end(), y);
+  if (it != x.end())
+    idx = std::distance(x.begin(), it);
+  return idx;
+}
+bool contains(NumericVector x, int y) {
+  int idx;
+  idx = which_equal(x, y);
+  return idx >= 0; 
+}
+
+std::vector<int> intersect(std::vector<int> x, NumericVector y){
+  std::vector<int> v;
+  // should make sure x and y are sorted; in our case it should be
+  // sort(x.begin(), x.end());
+  // sort(y.begin(), y.end());
+  std::set_intersection(x.begin(),x.end(),y.begin(),y.end(), back_inserter(v));
+  return v;
+}
+
 std::vector<int> nbr_(int ii, int nRow, int nCol, int nnr){
     // The "following" neighorhood pixel indexes (including ii)
     // (i, j) is the current point coordinates
@@ -43,6 +66,7 @@ std::vector<int> nbr_(int ii, int nRow, int nCol, int dRow, int dCol){
   // where ii is the centroid of the rectangle.
   // nRow, nCol are the data matrix dimension
   // dRow, dCol are the Weight matrix dimension.
+  // The output is sorted (small to large)
   int k, l;
   int i = ii / nCol;
   int j = ii % nCol;
@@ -117,6 +141,8 @@ double lc_cov_(const NumericMatrix &X, const NumericMatrix &W,
               l2 < l2_stop; l2++, l2_local++) {
             if(NumericVector::is_na(X(n, k2 * nCol + l2)))
               continue;
+            if(k1 == k2 && l1 == l2)
+              continue;
             sumEEKK += X(n, k1 * nCol + l1) * W(k1_local, l1_local) * X(n, k2 * nCol + l2) * W(k2_local, l2_local);
             sumKK += W(k1_local, l1_local) * W(k2_local, l2_local);
           }
@@ -124,8 +150,79 @@ double lc_cov_(const NumericMatrix &X, const NumericMatrix &W,
       }
     }
   }
-  if(sumKK == 0.0){
-    return NA_REAL;
+  if(sumKK == 0.0){ // a standalone point, in this case ii should be equal to jj
+    for(int n = 0; n < X.nrow(); n++){
+      sumEEKK = X(n, ii) * X(n, jj);
+      sumKK += 1;
+    }
+    return sumEEKK/sumKK;
+  } else{
+    return sumEEKK/sumKK;
+  }
+}
+
+double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
+               int ii, int jj, int nRow, int nCol, NumericVector &pidx){
+  // sparse local constant covariance estimation for points i and j
+  // X: data matrix, each row is a row stacked image with black hole columns removed
+  // W: weight matrix
+  // ii: first pixel index; jj: second pixel index IN X
+  int dRow = W.nrow();
+  int dCol = W.ncol();
+  
+  double sumEEKK = 0.0, sumKK = 0.0;
+  
+  int k1, l1, k2, l2, idx1, idx2;
+  int k1_local, l1_local, k2_local, l2_local;
+  
+  int i1 = (int)pidx[ii] / nCol; //row index for the first pixel
+  int j1 = (int)pidx[ii] % nCol; //column index for the first pixel
+  int i2 = (int)pidx[jj] / nCol;
+  int j2 = (int)pidx[jj] % nCol;
+  
+  /* the starts */
+  int k1_start = std::max(i1 - dRow/2, (int)0);
+  int l1_start = std::max(j1 - dCol/2, (int)0);
+  int k2_start = std::max(i2 - dRow/2, (int)0);
+  int l2_start = std::max(j2 - dCol/2, (int)0);
+  
+  /* the stops */
+  int k1_stop = std::min(i1 + dRow/2 + 1, nRow);
+  int l1_stop = std::min(j1 + dCol/2 + 1, nCol);
+  int k2_stop = std::min(i2 + dRow/2 + 1, nRow);
+  int l2_stop = std::min(j2 + dCol/2 + 1, nCol);
+  
+  for(int n = 0; n < X.nrow(); n++){
+    for(k1 = k1_start, k1_local = k1_start - i1 + (dRow/2); 
+        k1 < k1_stop; k1++, k1_local++) {
+      for(l1 = l1_start, l1_local=l1_start - j1 + (dCol/2);
+          l1 < l1_stop; l1++, l1_local++) {
+        idx1 = which_equal(pidx, k1 * nCol + l1);
+        // if 'k1 * nCol + l1' is a point in black hole or it is a missing value, skip the current loop
+        if(idx1 < 0 || NumericVector::is_na(X(n, idx1)))
+          continue;
+        for(k2 = k2_start, k2_local = k2_start - i2 + (dRow/2); 
+            k2 < k2_stop; k2++, k2_local++) {
+          for(l2 = l2_start, l2_local=l2_start - j2 + (dCol/2);
+              l2 < l2_stop; l2++, l2_local++) {
+            idx2 = which_equal(pidx, k2 * nCol + l2);
+            if(idx2 < 0 || NumericVector::is_na(X(n, idx2)))
+              continue;
+            if(k1 == k2 && l1 == l2)
+              continue;
+            sumEEKK += X(n, idx1) * W(k1_local, l1_local) * X(n, idx2) * W(k2_local, l2_local);
+            sumKK += W(k1_local, l1_local) * W(k2_local, l2_local);
+          }
+        }
+      }
+    }
+  }
+  if(sumKK == 0.0){ // a standalone point, in this case ii should be equal to jj
+    for(int n = 0; n < X.nrow(); n++){
+      sumEEKK = X(n, ii) * X(n, jj);
+      sumKK += 1;
+    }
+    return sumEEKK/sumKK;
   } else{
     return sumEEKK/sumKK;
   }
@@ -157,6 +254,33 @@ DataFrame sparse_emp_cov_est(NumericMatrix X, int nRow, int nCol, int nnr) {
 }
 
 // [[Rcpp::export]]
+DataFrame sparse_emp_cov_est1(NumericMatrix X, int nRow, int nCol, int nnr, NumericVector pidx) {
+  // X.nrow() == nRow * nCol
+  // each row of X is a row stacked image
+  std::vector<int> ridx;
+  std::vector<int> cidx;
+  std::vector<int> ii_nbr;
+  std::vector<double> value;
+
+  int ii, jj, jj1;
+  for(ii = 0; ii < pidx.size(); ii++){
+    ii_nbr = nbr_(pidx[ii], nRow, nCol, nnr);
+    ii_nbr = intersect(ii_nbr, pidx);
+    for(jj = 0; jj < ii_nbr.size(); jj++){
+      ridx.push_back(ii + 1);
+      jj1 = which_equal(pidx, ii_nbr[jj]);
+      cidx.push_back(jj1 + 1);
+      value.push_back(emp_cov_(X, ii, jj1));
+    }
+  }
+  return DataFrame::create( 
+    _["ridx"]  = ridx, 
+    _["cidx"]  = cidx, 
+    _["value"] = value
+  );
+}
+
+// [[Rcpp::export]]
 DataFrame sparse_lc_cov_est(NumericMatrix X, NumericMatrix W, int nRow, int nCol, int nnr) {
   // X.nrow() == nRow * nCol
   // each row of X is a row stacked image
@@ -167,12 +291,39 @@ DataFrame sparse_lc_cov_est(NumericMatrix X, NumericMatrix W, int nRow, int nCol
   
   int ii, jj;
   for(ii = 0; ii < nRow*nCol; ii++){
-    ii_nbr = nbr_(ii, nRow, nCol, nnr);
+    ii_nbr = nbr_(ii, nRow, nCol, nnr); //pixel indexes following the ii-th pixel
     for(jj = 0; jj < ii_nbr.size(); jj++){
       ridx.push_back(ii + 1);
       cidx.push_back(ii_nbr[jj] + 1);
       value.push_back(lc_cov_(X, W, ii, ii_nbr[jj], nRow, nCol));
     }
+  }
+  return DataFrame::create( 
+    _["ridx"]  = ridx, 
+    _["cidx"]  = cidx, 
+    _["value"] = value
+  );
+}
+
+// [[Rcpp::export]]
+DataFrame sparse_lc_cov_est1(NumericMatrix X, NumericMatrix W, int nRow, int nCol, int nnr, NumericVector pidx) {
+  // X.nrow() == nRow * nCol
+  // each row of X is a row stacked image
+  std::vector<int> ridx;
+  std::vector<int> cidx;
+  std::vector<int> ii_nbr;
+  std::vector<double> value;
+  
+  int ii, jj, jj1;
+  for(ii = 0; ii < pidx.size(); ii++){
+    ii_nbr = nbr_(pidx[ii], nRow, nCol, nnr);
+    ii_nbr = intersect(ii_nbr, pidx);
+      for(jj = 0; jj < ii_nbr.size(); jj++){
+        ridx.push_back(ii + 1);
+        jj1 = which_equal(pidx, ii_nbr[jj]);
+        cidx.push_back(jj1 + 1);
+        value.push_back(lc_cov1_(X, W, ii, jj1, nRow, nCol, pidx));
+      }
   }
   return DataFrame::create( 
     _["ridx"]  = ridx, 

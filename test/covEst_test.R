@@ -21,8 +21,9 @@ image(matrix(scovest.eigen$vectors[,2], 31))
 image(matrix(scovest.eigen$vectors[,4], 31))
 
 
-
-#### Validating sparse_emp_cov_est function
+############################################################
+######### Validating sparse_emp_cov_est function############
+############################################################
 library(gstat)
 library(raster)
 nrow = ncol = 50
@@ -94,15 +95,73 @@ which.min(cumsum(ev)/sum(ev) < 0.99)
 plot(ev)
 
 
-10 x 10 sparse Matrix of class "dsCMatrix"
+# 10 x 10 sparse Matrix of class "dsCMatrix"
+# 
+# [1,] 15287.192 11528.618  9949.501  8640.314  8605.827  8155.825     .         .        .        .   
+# [2,] 11528.618 21418.839  6996.810 10050.090 10342.738  9789.687  9428.786     .        .        .   
+# [3,]  9949.501  6996.810 25543.845 10882.351 11404.107 10796.227 10298.889 10334.90     .        .   
+# [4,]  8640.314 10050.090 10882.351 18148.897 17375.807 17253.214 16534.326 16024.77 15857.49     .   
+# [5,]  8605.827 10342.738 11404.107 17375.807 20466.958 19981.791 19346.404 18760.51 18020.95 18298.81
+# [6,]  8155.825  9789.687 10796.227 17253.214 19981.791 20661.165 19819.846 19012.31 18091.70 18532.20
+# [7,]     .      9428.786 10298.889 16534.326 19346.404 19819.846 20904.765 19508.50 18314.66 18368.21
+# [8,]     .         .     10334.903 16024.771 18760.505 19012.313 19508.504 19421.92 17761.69 17746.44
+# [9,]     .         .         .     15857.494 18020.948 18091.702 18314.663 17761.69 17595.06 17049.94
+# [10,]     .         .         .         .     18298.811 18532.200 18368.212 17746.44 17049.94 18031.37
 
-[1,] 15287.192 11528.618  9949.501  8640.314  8605.827  8155.825     .         .        .        .   
-[2,] 11528.618 21418.839  6996.810 10050.090 10342.738  9789.687  9428.786     .        .        .   
-[3,]  9949.501  6996.810 25543.845 10882.351 11404.107 10796.227 10298.889 10334.90     .        .   
-[4,]  8640.314 10050.090 10882.351 18148.897 17375.807 17253.214 16534.326 16024.77 15857.49     .   
-[5,]  8605.827 10342.738 11404.107 17375.807 20466.958 19981.791 19346.404 18760.51 18020.95 18298.81
-[6,]  8155.825  9789.687 10796.227 17253.214 19981.791 20661.165 19819.846 19012.31 18091.70 18532.20
-[7,]     .      9428.786 10298.889 16534.326 19346.404 19819.846 20904.765 19508.50 18314.66 18368.21
-[8,]     .         .     10334.903 16024.771 18760.505 19012.313 19508.504 19421.92 17761.69 17746.44
-[9,]     .         .         .     15857.494 18020.948 18091.702 18314.663 17761.69 17595.06 17049.94
-[10,]     .         .         .         .     18298.811 18532.200 18368.212 17746.44 17049.94 18031.37
+
+
+
+############################################################
+######### Validating sparse_emp_cov_est1 function ##########
+############################################################
+library(gstat)
+library(raster)
+nrow = ncol = 10
+xy <- expand.grid(1:nrow, 1:ncol)
+names(xy) <- c('x','y')
+g.dummy <- gstat(formula=z~1, locations=~x+y, dummy=T, beta=1, 
+                 model=vgm(psill=0.025, range=5, model='Exp'), nmax=20)
+yy <- predict(g.dummy, newdata=xy, nsim=30)
+gridded(yy) = ~x+y
+spplot(obj=yy[1])
+
+mat = yy@data
+## empirical covariance estimation
+mat = t(mat - apply(mat,1, mean, na.rm=TRUE))
+## make black holes
+mat[, c(7,8,12,13)] = NA
+msk = getMask(mat)
+pidx = (1:ncol(mat))[!msk]
+tmp = sparse_emp_cov_est1(mat[,!msk], nrow, ncol, 2, pidx-1)
+stmp = sparseMatrix(tmp$ridx, tmp$cidx, x = tmp$value, 
+                    dims = c(sum(!msk), sum(!msk)), symmetric = TRUE)
+image(stmp)
+stmp[1:5,1:5]
+## "same" as stmp
+aa = cov(mat)
+aa[1:5,1:5]
+aa = aa[-c(7,8,12,13), -c(7,8,12,13)]
+levelplot(raster(aa))
+aa[as.matrix(stmp==0)] = 0
+plot(c(as.matrix(stmp)), c(aa))
+
+## local constant estimation
+wmat = weightMatrix(1)
+tmp1 = sparse_lc_cov_est1(mat, wmat, nrow, ncol, 2, pidx-1)
+stmp1 = sparseMatrix(tmp1$ridx, tmp1$cidx, x = tmp1$value,
+                     dims = c(sum(!msk), sum(!msk)), symmetric = TRUE)
+image(stmp1)
+stmp1[1:5,1:5]
+
+library(dplyr)
+x = tmp %>% filter(ridx != cidx) %>% .[["value"]]
+y = tmp1 %>% filter(ridx != cidx) %>% .[["value"]]
+plot(x, y)
+abline(a=0,b=1)
+
+r = raster(as.matrix(stmp))
+r1 = raster(as.matrix(stmp1))
+s = stack(r, r1)
+levelplot(s)
+
+

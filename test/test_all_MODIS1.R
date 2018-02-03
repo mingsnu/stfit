@@ -48,23 +48,50 @@ mat = t(values(br0))
 year = rep(2003, 365)
 doy = 1:365
 idx = 100:250
-res = gapfill(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="lc")
-
-res0 = res
+res = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="lc")
+res1 = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="emp")
 ## the i-th partial missing images
-for(i in 1:length(res$ids$ids.partialmissing)){
-  r1 = raster(matrix(mat[idx,][res$ids$ids.partialmissing[i],], nrow))
+for(i in 1:length(res$idx$idx.partialmissing)){
+  r1 = raster(matrix(mat[idx,][res$idx$idx.partialmissing[i],], nrow))
   r2 = raster(matrix(res$imputed.partial[i,], nrow))
   s = stack(r1, r2)
   print(levelplot(s, par.settings = RdBuTheme))
   Sys.sleep(2)
 }
 
+for(i in 1:length(res1$idx$idx.partialmissing)){
+  r1 = raster(matrix(mat[idx,][res$idx$idx.partialmissing[i],], nrow))
+  r2 = raster(matrix(res$imputed.partial[i,], nrow))
+  r3 = raster(matrix(mat[idx,][res1$idx$idx.partialmissing[i],], nrow))
+  r4 = raster(matrix(res1$imputed.partial[i,], nrow))
+  s = stack(r1, r2, r3, r4)
+  print(levelplot(s, par.settings = RdBuTheme))
+  Sys.sleep(2)
+}
 
+## mean plot
+r.list = list()
+for(i in 1:nrow(res$temporal.mean)){
+  r.list[[i]] = raster(matrix(res$temporal.mean[i,], 30, byrow = TRUE))
+}
+s = stack(r.list)
+levelplot(s[[1:30]])
+
+## original image
+r1.list = list()
+for(i in 1:nrow(res$temporal.mean)){
+  r1.list[[i]] = raster(matrix(mat[idx,][i,], 30, byrow = TRUE))
+}
+s1 = stack(r1.list)
+levelplot(s1[[1:30]])
+
+##################
+###### MSE #######
+##################
 set.seed(20180124)
 n = 3
-fidx = sample(res$ids$ids.fullyobserved, n)
-pidx = sample(res$ids$ids.partialmissing, n)
+fidx = sample(res$idx$idx.fullyobserved, n)
+pidx = sample(res$idx$idx.partialmissing, n)
 
 r.list = list()
 for(i in 1:n){
@@ -88,7 +115,7 @@ for(k in 1:30){
 
   ## imputed images
   for(i in 1:n){
-    r.list[[i+2*n]] = raster(matrix(res$imputed.partial[which(res$ids$ids.partialmissing == fidx[i]),], nrow))
+    r.list[[i+2*n]] = raster(matrix(res$imputed.partial[which(res$idx$idx.partialmissing == fidx[i]),], nrow))
   }
   s1 = stack(r.list)
   # levelplot(s1, par.settings = RdBuTheme, layout=c(3,3))
