@@ -133,7 +133,10 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
   }
   if(N == N1){
-    return(list(imputed.partial = mat[idx2,],
+    return(list(
+      year = year, 
+      doy = doy,
+      imputed.partial = mat[idx2,],
          idx = list(idx.allmissing = idx1,
                     idx.partialmissing = idx2,
                     idx.fullyobserved = idx3,
@@ -145,7 +148,10 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     mmat = matrix(NA, nrow(mean.mat), length(msk))
     mmat[,!msk] = mean.mat
     # imputed_all_missing = data.frame(pixel = 1:N, df1_mean$ymean + resid_mean)
-    return(list(imputed.partial = pmat,
+    return(list(
+      year = year, 
+      doy = doy,
+      imputed.partial = pmat,
          idx = list(idx.allmissing = idx1,
                     idx.partialmissing = idx2,
                     idx.fullyobserved = idx3,
