@@ -48,23 +48,21 @@ mat = t(values(br0))
 year = rep(2003, 365)
 doy = 1:365
 idx = 100:250
-res = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="lc")
-res1 = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="emp")
+res = gapfill(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=5, method="lc", outlier.tol = 0.03)
+
 ## the i-th partial missing images
 for(i in 1:length(res$idx$idx.partialmissing)){
   r1 = raster(matrix(mat[idx,][res$idx$idx.partialmissing[i],], nrow))
-  r2 = raster(matrix(res$imputed.partial[i,], nrow))
+  r2 = raster(matrix(res$imputed.mat[res$idx$idx.partialmissing[i],], nrow))
   s = stack(r1, r2)
   print(levelplot(s, par.settings = RdBuTheme))
   Sys.sleep(2)
 }
-
-for(i in 1:length(res1$idx$idx.partialmissing)){
-  r1 = raster(matrix(mat[idx,][res$idx$idx.partialmissing[i],], nrow))
-  r2 = raster(matrix(res$imputed.partial[i,], nrow))
-  r3 = raster(matrix(mat[idx,][res1$idx$idx.partialmissing[i],], nrow))
-  r4 = raster(matrix(res1$imputed.partial[i,], nrow))
-  s = stack(r1, r2, r3, r4)
+## the i-th outlier images
+for(i in 1:length(res$idx$idx.outlier)){
+  r1 = raster(matrix(mat[idx,][res$idx$idx.outlier[i],], nrow))
+  r2 = raster(matrix(res$imputed.mat[res$idx$idx.outlier[i],], nrow))
+  s = stack(r1, r2)
   print(levelplot(s, par.settings = RdBuTheme))
   Sys.sleep(2)
 }
