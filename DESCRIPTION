@@ -12,7 +12,9 @@ Imports: dplyr,
     ggplot2,
     fda,
     Rcpp (>= 0.12.14),
-    Matrix
+    Matrix,
+    raster,
+    doParallel
 LinkingTo: Rcpp
 Suggests: doParallel
 RoxygenNote: 6.0.1

@@ -16,14 +16,49 @@ idx.mat = matrix(1:90000, 300, byrow = TRUE)
 nrow = 30; ncol=30;
 
 res.list = list()
-k=1
-for(i in 1:4){
-  for(j in 1:4){
-    mat = dat[, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))]
-    res.list[[k]] = gapfill1(year[idx], doy[idx], mat[idx,], nrow, ncol, h = 1, doyrange = doy[idx], nnr=2, method="lc")
-    k = k + 1
+k=0
+for(i in 1:1){
+  for(j in 1:2){
+    k = k+1
+    mat = dat[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))]
+    res.list[[k]] = gapfill(year[idx], doy[idx], mat, nrow, ncol, h = 1, doyrange = doy[idx], nnr=1, method="lc")
   }
 }
+k=0
+for(i in 1:1){
+  for(j in 1:2){
+    k = k + 1
+    for(l in res.list[[k]]$idx$idx.partialmissing){
+      r1 = raster(matrix(dat[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))][l,], 30))
+      r2 = raster(matrix(res.list[[k]]$imputed.mat[l,], 30))
+      s = stack(r1, r2)
+      print(levelplot(s))
+      Sys.sleep(2)
+    }
+  }
+}
+
+dat.imputed = dat
+k=0
+for(i in 1:1){
+  for(j in 1:2){
+    k = k+1
+    dat.imputed[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))] =
+      res.list[[k]]$imputed.mat
+    }
+}
+levelplot(raster(matrix(dat.imputed[idx[6],], 300, byrow = TRUE)))
+
+
+## the i-th outlier images
+for(i in 1:2){
+  r1 = raster(matrix(dat[idx,][i,], 300))
+  r2 = raster(matrix(imp.dat[idx,][i,], 300))
+  s = stack(r1, r2)
+  print(levelplot(s, par.settings = RdBuTheme))
+  Sys.sleep(2)
+}
+plot(raster(matrix(imp.dat[i,], 300, 300, byrow=TRUE)))
 
 
 

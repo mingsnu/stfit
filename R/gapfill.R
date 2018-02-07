@@ -26,22 +26,23 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   msk = getMask(mat) # idx for 'black holes'
   N = img.nrow * img.ncol ## total number of pixels (including black holes)
   N1 = sum(!msk) # number of 'actual' pixels for each image (except for black holes)
-  pidx = (1:N)[!msk] ## 'actual' pixel indexes
-  ## keep 'actual' pixels only, 
-  ## The i-th column in the old mat correspones to the
-  ## `which(pidx == i)`th column in the new mat
-  mat = mat[,!msk] ## now 'mat' has N1 columns
   if(N1 == 0){ ## a black hole image
     return(list(
       year = year, 
       doy = doy,
-      imputed.partial = NULL,
-         idx = list(idx.allmissing = idx,
-                    idx.partialmissing = c(),
-                    idx.fullyobserved = c(),
-                    idx.outlier = c()),
-         temporal.mean = NULL))
+      imputed.mat = mat,
+      idx = list(idx.allmissing = idx,
+                 idx.partialmissing = c(),
+                 idx.fullyobserved = c(),
+                 idx.outlier = c()),
+      temporal.mean = NULL))
   }
+  
+  pidx = (1:N)[!msk] ## 'actual' pixel indexes
+  ## keep 'actual' pixels only, 
+  ## The i-th column in the old mat correspones to the
+  ## `which(pidx == i)`th column in the new mat
+  mat = mat[,!msk, drop=FALSE] ## now 'mat' has N1 columns
 
   ## remove images that have 100% missing pixels
   pct_missing = apply(mat, 1, function(x) {sum(is.na(x))/N1})
@@ -156,7 +157,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
   }
   outlier.action <- match.arg(outlier.action)
-  outlier.resid.mat = mat[idx0,]
+  outlier.resid.mat = mat[idx0,, drop=FALSE]
   if(outlier.action == "ac"){
     cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
     ## use NA instead of the outlier pixel values both in original data and residual data
@@ -204,15 +205,15 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     idx.partialmissing = idx2,
                     idx.fullyobserved = idx3,
                     idx.outlier = idx0),
-      outlier.lst = outlier.res$outlst,
+      outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
       temporal.mean = mean.mat,
       eigen.vec = ev.vec, 
       sigma2 = sigma2, 
       eigen.val = ev.val))
   } else{
     impmat = matrix(NA, nrow(mat), length(msk))
-    impmat[idx2,!msk] = mat[idx2,]
-    impmat[idx0,!msk] = mat[idx0,]
+    impmat[, !msk] = mat
+    
     mmat = matrix(NA, nrow(mean.mat), length(msk))
     mmat[,!msk] = mean.mat
     # imputed_all_missing = data.frame(pixel = 1:N, df1_mean$ymean + resid_mean)
@@ -224,7 +225,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     idx.partialmissing = idx2,
                     idx.fullyobserved = idx3,
                     idx.outlier = idx0),
-      outlier.lst = outlier.res$outlst,
+      outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
       temporal.mean = mmat,
       eigen.vec = ev.vec, 
       sigma2 = sigma2, 
