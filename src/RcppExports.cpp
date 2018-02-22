@@ -80,14 +80,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // mean_est
-NumericVector mean_est(NumericMatrix X, size_t nRow, size_t nCol, NumericMatrix W);
+NumericVector mean_est(NumericMatrix X, int nRow, int nCol, NumericMatrix W);
 RcppExport SEXP _Gapfill_mean_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP WSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nRow(nRowSEXP);
-    Rcpp::traits::input_parameter< size_t >::type nCol(nColSEXP);
+    Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
+    Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type W(WSEXP);
     rcpp_result_gen = Rcpp::wrap(mean_est(X, nRow, nCol, W));
     return rcpp_result_gen;

@@ -80,7 +80,10 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ######### Outlier detection using the residuals ###########
   ###########################################################
   outlier.res = outlier(resid.mat, outlier.tol)
-  idx0 = idx1c[outlier.res$outidx] ## outlier images indexes;
+  ## outlier images indexes;
+  if(length(outlier.res$outidx) > 0)
+    idx0 = idx1c[outlier.res$outidx] else
+      idx0 = c()
   ## partially missing image indexes after removing outliers;
   idx2 = setdiff(idx[(pct_missing > 0) & (pct_missing < 1)], idx0)
   ## no missing images indexes after removing outliers;
@@ -156,44 +159,45 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     mat[idx2[i], miss.idx] = partial_imputed[i, miss.idx] + 
       mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
   }
-  outlier.action <- match.arg(outlier.action)
-  outlier.resid.mat = mat[idx0,, drop=FALSE]
-  if(outlier.action == "ac"){
-    cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
-    ## use NA instead of the outlier pixel values both in original data and residual data
-    for(i in 1:length(outlier.res$outlst)){
-      mat[idx0[i], outlier.res$outlst[[i]]] = NA
-      outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
+  if(length(outlier.res$outidx) > 0){
+    outlier.action <- match.arg(outlier.action)
+    outlier.resid.mat = mat[idx0,, drop=FALSE]
+    if(outlier.action == "ac"){
+      cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
+      ## use NA instead of the outlier pixel values both in original data and residual data
+      for(i in 1:length(outlier.res$outlst)){
+        mat[idx0[i], outlier.res$outlst[[i]]] = NA
+        outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
+      }
+    } else if(outlier.action == "keep"){
+      cat("Outlier pixels are kept...\n")
+      for(i in 1:length(outlier.res$outlst)){
+        outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
+      }
+    } else
+      stop("not defined method for outlier.action.")
+    for (i in 1:nrow(outlier.resid.mat)) {
+      outlier.resid.mat[i, ] = outlier.resid.mat[i, ] - mean.mat[which(doyrange == doy[idx0][i]), ]
     }
-  } else if(outlier.action == "keep"){
-    cat("Outlier pixels are kept...\n")
-    for(i in 1:length(outlier.res$outlst)){
-      outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
+    ## if all pixels of an image are outliers, the image is imputed with mean
+    tmpidx = outlier.res$outpct == 1
+    if (sum(tmpidx) > 0) {
+      cat("All pixels in image with doy = ", doy[idx0][tmpidx],
+          " are outliers. Temporal mean surface is used to impute it.")
+      # outlier.resid.mat[tmpidx,] = mean.mat[which(doyrange == doy[idx0][tmpidx]),]
+      outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
+      cat("Estimating the principal component scores for outlier missing images...\n")
+      outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx, ], ev.vec, sigma2, ev.val)
+    } else{
+      cat("Estimating the principal component scores for outlier missing images...\n")
+      outlier_imputed = PACE(outlier.resid.mat, ev.vec, sigma2, ev.val)
     }
-  } else
-    stop("not defined method for outlier.action.")
-  for (i in 1:nrow(outlier.resid.mat)) {
-    outlier.resid.mat[i, ] = outlier.resid.mat[i, ] - mean.mat[which(doyrange == doy[idx0][i]), ]
-  }
-  ## if all pixels of an image are outliers, the image is imputed with mean
-  tmpidx = outlier.res$outpct == 1
-  if (sum(tmpidx) > 0) {
-    cat("All pixels in image with doy = ", doy[idx0][tmpidx],
-      " are outliers. Temporal mean surface is used to impute it.")
-    # outlier.resid.mat[tmpidx,] = mean.mat[which(doyrange == doy[idx0][tmpidx]),]
-    outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
-    cat("Estimating the principal component scores for outlier missing images...\n")
-    outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx, ], ev.vec, sigma2, ev.val)
-  } else{
-    cat("Estimating the principal component scores for outlier missing images...\n")
-    outlier_imputed = PACE(outlier.resid.mat, ev.vec, sigma2, ev.val)
-  }
-  
-  cat("Gapfilling outlier missing images...\n")
-  for(i in 1:length(idx0)){
-    miss.idx = is.na(mat[idx0[i],])
-    mat[idx0[i], miss.idx] = outlier_imputed[i, miss.idx] + 
-      mean.mat[which(doyrange == doy[idx0][i]), miss.idx]
+    cat("Gapfilling outlier missing images...\n")
+    for(i in 1:length(idx0)){
+      miss.idx = is.na(mat[idx0[i],])
+      mat[idx0[i], miss.idx] = outlier_imputed[i, miss.idx] + 
+        mean.mat[which(doyrange == doy[idx0][i]), miss.idx]
+    }
   }
   
   if(N == N1){

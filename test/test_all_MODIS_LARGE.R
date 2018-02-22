@@ -1,3 +1,5 @@
+library(raster)
+library(rasterVis)
 ## Divide 300x300 image into 30x30 images and combine together after imputation seperately
 ## Also take care of the case where there are "black holes" in the image.
 dat = readRDS("../data/dat_300x300.rds")
@@ -14,19 +16,31 @@ idx = 100:250
 
 idx.mat = matrix(1:90000, 300, byrow = TRUE)
 nrow = 30; ncol=30;
+# nrow = 50; ncol=50;
 
 res.list = list()
 k=0
-for(i in 1:1){
-  for(j in 1:2){
+for(i in 1:6){
+  cat("i = ", i, "\n")
+  for(j in 1:6){
+    cat("j = ", j, "\n")
     k = k+1
+    if(i + j ==2) next
     mat = dat[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))]
     res.list[[k]] = gapfill(year[idx], doy[idx], mat, nrow, ncol, h = 1, doyrange = doy[idx], nnr=1, method="lc")
   }
 }
+# saveRDS(res.list, file = "../data/dat_300x300_30x30block_result.rds")
+
+
+#######################################
+### Imputed images: block by block ####
+#######################################
+res.list = readRDS("../data/dat_300x300_30x30block_result.rds")
+## imputation results, block by block
 k=0
-for(i in 1:1){
-  for(j in 1:2){
+for(i in 1:5){
+  for(j in 1:5){
     k = k + 1
     for(l in res.list[[k]]$idx$idx.partialmissing){
       r1 = raster(matrix(dat[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))][l,], 30))
@@ -38,16 +52,30 @@ for(i in 1:1){
   }
 }
 
+#################################
+### Imputed images: combined ####
+#################################
 dat.imputed = dat
 k=0
-for(i in 1:1){
-  for(j in 1:2){
+for(i in 1:10){
+  for(j in 1:10){
     k = k+1
     dat.imputed[idx, c(t(idx.mat[seq(1+(i-1)*nrow, i*nrow), seq(1+(j-1)*ncol, j*ncol)]))] =
       res.list[[k]]$imputed.mat
     }
 }
-levelplot(raster(matrix(dat.imputed[idx[6],], 300, byrow = TRUE)))
+dat.imputed[dat.imputed <0 | dat.imputed>40000] = NA
+
+pdf("MODIS_30x30_plot.pdf")
+for(t in 1:length(idx)){
+  if(all(is.na(dat[idx[t],]))) next
+  r1 = raster(matrix(dat[idx[t],], 300, byrow = TRUE))
+  r2 = raster(matrix(dat.imputed[idx[t], ], 300, byrow = TRUE))
+  plot(levelplot(stack(r1, r2)))
+  print(t)
+}
+dev.off()
+
 
 
 ## the i-th outlier images

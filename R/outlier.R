@@ -29,12 +29,15 @@ outlier <- function(mat, outlier.tol){
   tot = apply(mat[idx, ], 1, function(x) sum(!is.na(x)))
   outpct = tbl/tot
   outidx = idx[outpct > outlier.tol]
-  outlst = vector("list", length(outidx))
-  for(i in 1:length(outidx)){
-    for(j in 1:length(lst)){
-      if(outidx[i] %in% lst[[j]])
-        outlst[[i]] = c(outlst[[i]], j)
+  if(length(outidx) > 0){
+    outlst = vector("list", length(outidx))
+    for(i in 1:length(outidx)){
+      for(j in 1:length(lst)){
+        if(outidx[i] %in% lst[[j]])
+          outlst[[i]] = c(outlst[[i]], j)
+      }
     }
-  }
+  } else
+    outlst = NULL
   return(list(outidx = outidx, outpct = outpct[outpct > outlier.tol], outlst = outlst))
 }

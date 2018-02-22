@@ -9,8 +9,6 @@ Maintainer: Weicheng Zhu<mingsnu@gmail.com>
 Description: Tools to fill missing values in satellite data.
 License: GPL (>= 2)
 Imports: dplyr,
-    ggplot2,
-    fda,
     Rcpp (>= 0.12.14),
     Matrix,
     raster,

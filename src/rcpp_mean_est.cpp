@@ -6,30 +6,30 @@ using namespace Rcpp;
 double sumKernel(
     const NumericMatrix& X,    /* naip image */
   const NumericMatrix& W,    /* pre computed spatial weights */
-  size_t i,      /* current location in rows */
-  size_t j,      /* current location in columns */
-  size_t nRow,   /* number of Rows */
-  size_t nCol    /* number of Columns */
+  int i,      /* current location in rows */
+  int j,      /* current location in columns */
+  int nRow,   /* number of Rows */
+  int nCol    /* number of Columns */
 ) {
-  size_t dRow = W.nrow();
-  size_t dCol = W.ncol();
+  int dRow = W.nrow();
+  int dCol = W.ncol();
   
   /* adjustment that must be applied for edge effects */
-  size_t k, l, n;
+  int k, l, n;
   
   double sumYK = 0, sumK = 0;
   
-  size_t k_local;
-  size_t l_local;
+  int k_local;
+  int l_local;
   
   /* the starts */
-  size_t k_start = std::max(i - dRow/2, (size_t)0);
-  size_t l_start = std::max(j - dCol/2, (size_t)0);
+  int k_start = std::max(i - dRow/2, (int)0);
+  int l_start = std::max(j - dCol/2, (int)0);
 
   /* the stops */
-  size_t k_stop = std::min(i + dRow/2 + 1, nRow);
-  size_t l_stop = std::min(j + dCol/2 + 1, nCol);
-  
+  int k_stop = std::min(i + dRow/2 + 1, nRow);
+  int l_stop = std::min(j + dCol/2 + 1, nCol);
+
   for(n = 0; n < X.nrow(); n++){
     for(k=k_start, k_local=k_start - i + (dRow/2); 
         k < k_stop; k++, k_local++) {
@@ -50,15 +50,17 @@ double sumKernel(
 
 
 // [[Rcpp::export]]
-NumericVector mean_est(NumericMatrix X, size_t nRow, size_t nCol, NumericMatrix W) {
+NumericVector mean_est(NumericMatrix X, int nRow, int nCol, NumericMatrix W) {
   // each row of X is a row stacked image
   // X.ncol() == nRow * nCol
-  size_t i,j;
+  int i,j;
   NumericVector mu(nRow*nCol);
   
   for( i=0; i < nRow; i++) {
     for( j=0; j < nCol; j++) {
-      mu[i*nCol + j] = sumKernel(X, W, i, j, nRow, nCol); 
+      Rcpp::Rcout << "i = " << i << std::endl;
+      Rcpp::Rcout << "j = " << j << std::endl;
+      mu[i*nCol + j] = sumKernel(X, W, i, j, nRow, nCol);
     }
   }
   return mu;
