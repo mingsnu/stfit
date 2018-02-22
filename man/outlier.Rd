@@ -4,7 +4,7 @@
 \alias{outlier}
 \title{Title}
 \usage{
-outlier(mat)
+outlier(mat, outlier.tol)
 }
 \arguments{
 \item{mat}{data matrix. Each row is a row stacked image.}

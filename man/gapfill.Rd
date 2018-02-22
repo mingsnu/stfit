@@ -5,7 +5,8 @@
 \title{Gapfill missing values for a sequence of images}
 \usage{
 gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
-  max(doy)), nnr, pve = 0.99, mc.cores = parallel::detectCores())
+  max(doy)), nnr, method = c("lc", "emp"), pve = 0.99, outlier.tol = 0.2,
+  outlier.action = c("ac", "keep"), mc.cores = parallel::detectCores())
 }
 \arguments{
 \item{year}{vector of year index}
@@ -27,7 +28,10 @@ gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
 \item{mc.cores}{number of cores to use for computation}
 }
 \value{
-a list
+a list containing the following components:
+`year` same as input `year`
+`doy` same as input `doy`
+`imputed.partial`
 }
 \description{
 Gapfill missing values for a sequence of images
