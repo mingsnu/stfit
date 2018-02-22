@@ -14,5 +14,5 @@ Imports: dplyr,
     raster,
     doParallel
 LinkingTo: Rcpp
-Suggests: doParallel
+Suggests: rasterVis
 RoxygenNote: 6.0.1

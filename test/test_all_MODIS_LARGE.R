@@ -1,8 +1,11 @@
 library(raster)
 library(rasterVis)
+library(Gapfill)
+library(Matrix)
+library(doParallel)
 ## Divide 300x300 image into 30x30 images and combine together after imputation seperately
 ## Also take care of the case where there are "black holes" in the image.
-dat = readRDS("../data/dat_300x300.rds")
+dat = readRDS("./data/dat_300x300.rds")
 ## can use getMask function to get the 'black holes'
 msk0 = getMask(dat)
 plot(raster(matrix(msk0, 300, 300, byrow=TRUE)))
@@ -20,9 +23,9 @@ nrow = 30; ncol=30;
 
 res.list = list()
 k=0
-for(i in 1:6){
+for(i in 1:10){
   cat("i = ", i, "\n")
-  for(j in 1:6){
+  for(j in 1:10){
     cat("j = ", j, "\n")
     k = k+1
     if(i + j ==2) next

@@ -185,12 +185,15 @@ getMissingLayers <- function(rst.list){
 getMask <- function (x, ...) {
   UseMethod("getMask", x)
 }
-getMask.matrix <- function(x){
+#' @rdname getMask
+getMask.matrix <- function(x, ...){
   apply(x, 2, function(x) all(is.na(x)))
 }
-getMask.RasterStack <- function(x){
+#' @rdname getMask
+getMask.RasterStack <- function(x, ...){
   all(is.na(x))
 }
-getMask.RasterBrick <- function(x){
+#' @rdname getMask
+getMask.RasterBrick <- function(x, ...){
   all(is.na(x))
 }

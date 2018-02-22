@@ -2,26 +2,26 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 nbr <- function(ii, nRow, nCol, nnr) {
-    .Call(`_Gapfill_nbr`, ii, nRow, nCol, nnr)
+    .Call('_Gapfill_nbr', PACKAGE = 'Gapfill', ii, nRow, nCol, nnr)
 }
 
 sparse_emp_cov_est <- function(X, nRow, nCol, nnr) {
-    .Call(`_Gapfill_sparse_emp_cov_est`, X, nRow, nCol, nnr)
+    .Call('_Gapfill_sparse_emp_cov_est', PACKAGE = 'Gapfill', X, nRow, nCol, nnr)
 }
 
 sparse_emp_cov_est1 <- function(X, nRow, nCol, nnr, pidx) {
-    .Call(`_Gapfill_sparse_emp_cov_est1`, X, nRow, nCol, nnr, pidx)
+    .Call('_Gapfill_sparse_emp_cov_est1', PACKAGE = 'Gapfill', X, nRow, nCol, nnr, pidx)
 }
 
 sparse_lc_cov_est <- function(X, W, nRow, nCol, nnr) {
-    .Call(`_Gapfill_sparse_lc_cov_est`, X, W, nRow, nCol, nnr)
+    .Call('_Gapfill_sparse_lc_cov_est', PACKAGE = 'Gapfill', X, W, nRow, nCol, nnr)
 }
 
 sparse_lc_cov_est1 <- function(X, W, nRow, nCol, nnr, pidx) {
-    .Call(`_Gapfill_sparse_lc_cov_est1`, X, W, nRow, nCol, nnr, pidx)
+    .Call('_Gapfill_sparse_lc_cov_est1', PACKAGE = 'Gapfill', X, W, nRow, nCol, nnr, pidx)
 }
 
 mean_est <- function(X, nRow, nCol, W) {
-    .Call(`_Gapfill_mean_est`, X, nRow, nCol, W)
+    .Call('_Gapfill_mean_est', PACKAGE = 'Gapfill', X, nRow, nCol, W)
 }
 

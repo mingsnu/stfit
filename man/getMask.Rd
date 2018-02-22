@@ -2,9 +2,18 @@
 % Please edit documentation in R/fun.R
 \name{getMask}
 \alias{getMask}
+\alias{getMask.matrix}
+\alias{getMask.RasterStack}
+\alias{getMask.RasterBrick}
 \title{Get the missing pattern (mask) of x}
 \usage{
 getMask(x, ...)
+
+\method{getMask}{matrix}(x, ...)
+
+\method{getMask}{RasterStack}(x, ...)
+
+\method{getMask}{RasterBrick}(x, ...)
 }
 \arguments{
 \item{x}{a matrix, RasterStack or RasterBrick}
