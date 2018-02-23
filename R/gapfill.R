@@ -152,7 +152,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ###############################################
   ## The following uses the sparse pca to impute the missing values.
   cat("Estimating the principal component scores for partially missing images...\n")
-  partial_imputed = PACE(resid.mat[1:length(idx2),], ev.vec, sigma2, ev.val)
+  partial_imputed = PACE(resid.mat[1:length(idx2),, drop = FALSE], ev.vec, sigma2, ev.val)
   cat("Gapfilling partially missing images...\n")
   for(i in 1:length(idx2)){
     miss.idx = is.na(mat[idx2[i],])
@@ -187,7 +187,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       # outlier.resid.mat[tmpidx,] = mean.mat[which(doyrange == doy[idx0][tmpidx]),]
       outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
       cat("Estimating the principal component scores for outlier missing images...\n")
-      outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx, ], ev.vec, sigma2, ev.val)
+      outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx,,drop=FALSE], ev.vec, sigma2, ev.val)
     } else{
       cat("Estimating the principal component scores for outlier missing images...\n")
       outlier_imputed = PACE(outlier.resid.mat, ev.vec, sigma2, ev.val)
