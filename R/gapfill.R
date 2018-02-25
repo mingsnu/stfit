@@ -185,9 +185,12 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       cat("All pixels in image with doy = ", doy[idx0][tmpidx],
           " are outliers. Temporal mean surface is used to impute it.")
       # outlier.resid.mat[tmpidx,] = mean.mat[which(doyrange == doy[idx0][tmpidx]),]
-      outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
-      cat("Estimating the principal component scores for outlier missing images...\n")
-      outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx,,drop=FALSE], ev.vec, sigma2, ev.val)
+      if(sum(tmpidx) != length(tmpidx)){
+        outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
+        cat("Estimating the principal component scores for outlier missing images...\n")
+        outlier_imputed[!tmpidx, ] = PACE(outlier.resid.mat[!tmpidx,,drop=FALSE], ev.vec, sigma2, ev.val)
+      } else
+        outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
     } else{
       cat("Estimating the principal component scores for outlier missing images...\n")
       outlier_imputed = PACE(outlier.resid.mat, ev.vec, sigma2, ev.val)
