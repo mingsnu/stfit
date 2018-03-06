@@ -56,11 +56,6 @@ std::vector<int> nbr_(int ii, int nRow, int nCol, int nnr){
     }
 }
 
-// [[Rcpp::export]]
-NumericVector nbr(int ii, int nRow, int nCol, int nnr){
-  return wrap(nbr_(ii, nRow, nCol, nnr));
-}
-
 std::vector<int> nbr_(int ii, int nRow, int nCol, int dRow, int dCol){
   // All neiborhood pixel indexes (including ii) within a given dRow x dCol rectangle
   // where ii is the centroid of the rectangle.
@@ -77,6 +72,11 @@ std::vector<int> nbr_(int ii, int nRow, int nCol, int dRow, int dCol){
     }
   }
   return vec;
+}
+
+// [[Rcpp::export]]
+NumericVector nbr(int ii, int nRow, int nCol, int dRow, int dCol){
+  return wrap(nbr_(ii, nRow, nCol, dRow, dCol));
 }
 
 double emp_cov_(const NumericMatrix &X, int ii, int jj){

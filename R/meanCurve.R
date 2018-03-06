@@ -10,7 +10,14 @@
 #' @examples 
 meanCurve <- function(x, y, x.eval, plot = FALSE) {
   ## y = f(x)
+  ## TODO: x.eval should be witin certain range.
   nonna.idx = !is.na(y)
-  splfit <- smooth.spline(x[nonna.idx], y[nonna.idx])
-  predict(splfit, x.eval)$y
+  if(sum(nonna.idx) > 4){
+    splfit <- smooth.spline(x[nonna.idx], y[nonna.idx])
+    res = predict(splfit, x.eval)$y
+    res[x.eval < min(x) | x.eval > max(x)] = NA
+    return(res)
+  } else{
+    return(rep(NA, length(x.eval)))
+  }
 }

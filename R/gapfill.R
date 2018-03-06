@@ -71,6 +71,25 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   }
   ## mean.mat: columns are pixel index, rows are doy index (ex. 365 x 961)
   mean.mat = do.call("cbind", mean.mat)
+  ## find columns that have NA values
+  napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+  if(length(napixel.idx) > 0){
+    for(i in napixel.idx){
+      d = 3
+      ## neighbor pixel indexes
+      nbrpixel.idx = nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1
+      while(all(intersect(nbrpixel.idx, pidx) %in% napixel.idx)){
+        d = d + 2
+        nbrpixel.idx = nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1
+      }
+      nbrpixel.idx = intersect(nbrpixel.idx, pidx)
+      col.idx = which(pidx %in% nbrpixel.idx)
+      ## mean of neighborhood pixels
+      mm = apply(mean.mat[,col.idx], 1, mean, na.rm=TRUE)
+      mm.miss.idx = is.na(mean.mat[,i])
+      mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+    }
+  }
   ## residual matrix
   resid.mat = mat[idx1c,]
   for(i in 1:nrow(resid.mat)){

@@ -6,16 +6,17 @@
 using namespace Rcpp;
 
 // nbr
-NumericVector nbr(int ii, int nRow, int nCol, int nnr);
-RcppExport SEXP _Gapfill_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+NumericVector nbr(int ii, int nRow, int nCol, int dRow, int dCol);
+RcppExport SEXP _Gapfill_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP dRowSEXP, SEXP dColSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type ii(iiSEXP);
     Rcpp::traits::input_parameter< int >::type nRow(nRowSEXP);
     Rcpp::traits::input_parameter< int >::type nCol(nColSEXP);
-    Rcpp::traits::input_parameter< int >::type nnr(nnrSEXP);
-    rcpp_result_gen = Rcpp::wrap(nbr(ii, nRow, nCol, nnr));
+    Rcpp::traits::input_parameter< int >::type dRow(dRowSEXP);
+    Rcpp::traits::input_parameter< int >::type dCol(dColSEXP);
+    rcpp_result_gen = Rcpp::wrap(nbr(ii, nRow, nCol, dRow, dCol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -95,7 +96,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Gapfill_nbr", (DL_FUNC) &_Gapfill_nbr, 4},
+    {"_Gapfill_nbr", (DL_FUNC) &_Gapfill_nbr, 5},
     {"_Gapfill_sparse_emp_cov_est", (DL_FUNC) &_Gapfill_sparse_emp_cov_est, 4},
     {"_Gapfill_sparse_emp_cov_est1", (DL_FUNC) &_Gapfill_sparse_emp_cov_est1, 5},
     {"_Gapfill_sparse_lc_cov_est", (DL_FUNC) &_Gapfill_sparse_lc_cov_est, 5},
