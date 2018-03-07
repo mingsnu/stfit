@@ -186,8 +186,10 @@ getMask <- function (x, ...) {
   UseMethod("getMask", x)
 }
 #' @rdname getMask
-getMask.matrix <- function(x, ...){
-  apply(x, 2, function(x) all(is.na(x)))
+getMask.matrix <- function(x, tol = 0.95, ...){
+  apply(x, 2, function(x, tol) {
+    sum(is.na(x))/length(x) >= tol
+    })
 }
 #' @rdname getMask
 getMask.RasterStack <- function(x, ...){
