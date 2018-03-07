@@ -199,7 +199,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                          dims = c(N1, N1), symmetric = TRUE)
   cat("Estimating the variance function...\n")
   varest = apply(resid.mat, 2, var, na.rm=TRUE)
-  sigma2 = max(0, mean(varest - Matrix::diag(scovest))) # This is the estimated sigma_u^2 for the white noise associated with W
+  sigma2 = max(0, mean(varest - Matrix::diag(scovest), na.rm=TRUE)) # This is the estimated sigma_u^2 for the white noise associated with W
   
   cat("Doing eigen decomposition on covariance matrix...\n")
   ## Eigen decomposition of the covariance matrix; may be improved later using rARPACK
