@@ -21,6 +21,7 @@
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
                     pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), mc.cores = parallel::detectCores()){
+
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
   msk = getMask(mat) # idx for 'black holes'
@@ -46,9 +47,11 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
 
   ## remove images that have 100% missing pixels
   pct_missing = apply(mat, 1, function(x) {sum(is.na(x))/N1})
+  
   ## Index
   idx1 = idx[pct_missing == 1] ## all missing images indexes;
   idx1c = setdiff(idx, idx1) ## not all missing images indexes;
+  
   if (length(idx1) > 0)
     message(
       paste0(
@@ -65,14 +68,26 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ###########################################################
   ## Estimate the mean curves for each pixel
   cat("Estimating mean curve for each pixel...\n")
-  ## using fully observed + partially observed images for mean estimation
-  mean.mat = foreach(i = 1:N1) %dopar% {
-    meanCurve(doy[idx1c], mat[idx1c, i], doyrange)
+  
+  ## special operation is needed when all missing pixel images are at the beginning or at the end
+  rle.miss = rle(pct_missing==1)
+  rle.miss.n = length(rle.miss$values)
+  sidx = 1; eidx = length(doy)
+  if(rle.miss$values[1]){
+    sidx = rle.miss$lengths[1]+1
   }
-  ## mean.mat: columns are pixel index, rows are doy index (ex. 365 x 961)
-  mean.mat = do.call("cbind", mean.mat)
+  if(rle.miss$values[rle.miss.n]){
+    eidx = length(doy) - rle.miss$lengths[rle.miss.n]
+  }
+  
+  ## using fully observed + partially observed images for mean estimation
+  mean.mat1 = foreach(i = 1:N1) %dopar% {
+    meanCurve(doy[idx1c], mat[idx1c, i], doyrange[sidx:eidx])
+  }
+  ## mean.mat1: columns are pixel index, rows are doy index (ex. 365 x 961)
+  mean.mat1 = do.call("cbind", mean.mat1)
   ## find columns that have NA values
-  napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+  napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
   while(length(napixel.idx) > 0){
     for(i in napixel.idx){
       d = 3
@@ -80,16 +95,22 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
       col.idx = which(pidx %in% nbrpixel.idx)
       ## mean of neighborhood pixels
-      mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
+      mm = apply(mean.mat1[,col.idx], 1, FUN = function(x){
         if(all(is.na(x)))
           return(NA) else
             return(mean(x, na.rm = TRUE))
       })
-      mm.miss.idx = is.na(mean.mat[,i])
-      mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+      mm.miss.idx = is.na(mean.mat1[,i])
+      mean.mat1[mm.miss.idx, i] = mm[mm.miss.idx]
     }
-    napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+    napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
   }
+  if(sidx != 1 | eidx != length(doy)){
+    mean.mat = matrix(NA, length(doy), N1)
+    mean.mat[sidx:eidx,] = mean.mat1
+  } else
+    mean.mat = mean.mat1
+  
   ## residual matrix
   resid.mat = mat[idx1c,]
   for(i in 1:nrow(resid.mat)){
@@ -113,12 +134,12 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   if(length(outlier.res$outidx) > 0){
     cat("Re-estimating mean curve for each pixel...\n")
     ## using fully observed + partially observed - outlier images for mean estimation
-    mean.mat = foreach(i = 1:N1) %dopar% {
-      meanCurve(doy[idx4], mat[idx4, i], doyrange)
+    mean.mat1 = foreach(i = 1:N1) %dopar% {
+      meanCurve(doy[idx4], mat[idx4, i], doyrange[sidx:eidx])
     }
-    mean.mat = do.call("cbind", mean.mat)
+    mean.mat1 = do.call("cbind", mean.mat1)
     ## find columns that have NA values
-    napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+    napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
     while(length(napixel.idx) > 0){
       for(i in napixel.idx){
         d = 3
@@ -126,16 +147,21 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
         nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
         col.idx = which(pidx %in% nbrpixel.idx)
         ## mean of neighborhood pixels
-        mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
+        mm = apply(mean.mat1[,col.idx], 1, FUN = function(x){
           if(all(is.na(x)))
             return(NA) else
               return(mean(x, na.rm = TRUE))
         })
-        mm.miss.idx = is.na(mean.mat[,i])
-        mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+        mm.miss.idx = is.na(mean.mat1[,i])
+        mean.mat1[mm.miss.idx, i] = mm[mm.miss.idx]
       }
-      napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+      napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
     }
+    if(sidx != 1 | eidx != length(doy)){
+      mean.mat = matrix(NA, length(doy), N1)
+      mean.mat[sidx:eidx,] = mean.mat1
+    } else
+      mean.mat = mean.mat1
     resid.mat = mat[idx4,]
     for(i in 1:nrow(resid.mat)){
       resid.mat[i,] = resid.mat[i,] - mean.mat[which(doyrange == doy[idx4][i]),]
