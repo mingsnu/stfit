@@ -175,27 +175,23 @@ getMissingLayers <- function(rst.list){
 }
 
 #' Get the missing pattern (mask) of x
-#'
-#' @param x a matrix, RasterStack or RasterBrick
-#'
-#' @return a vector or RasterLayer object with TRUE and FALSE, TRUE means missing
-#' @export
-#'
-#' @examples
-getMask <- function (x, ...) {
-  UseMethod("getMask", x)
-}
+#' @name getMask
 #' @rdname getMask
-getMask.matrix <- function(x, tol = 0.95, ...){
-  apply(x, 2, function(x, tol) {
-    sum(is.na(x))/length(x) >= tol
-    })
-}
+#' @exportMethod getMask
+setGeneric (
+  name = "getMask",
+  def = function(object, ...) {
+    standardGeneric("getMask")
+  }
+)
+
 #' @rdname getMask
-getMask.RasterStack <- function(x, ...){
-  all(is.na(x))
-}
-#' @rdname getMask
-getMask.RasterBrick <- function(x, ...){
-  all(is.na(x))
-}
+#' @aliases getMask,matrix-method
+setMethod("getMask", "matrix",
+  definition = function(object, tol = 0.95, ...) {
+    return(
+      apply(object, 2, function(x) {
+      sum(is.na(x))/length(x) >= tol
+    }))
+  }
+)
