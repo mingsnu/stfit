@@ -89,9 +89,9 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   mean.mat1 = do.call("cbind", mean.mat1)
   ## find columns that have NA values
   napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
+  d = 3
   while(length(napixel.idx) > 0){
     for(i in napixel.idx){
-      d = 3
       ## neighbor pixel indexes
       nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
       col.idx = which(pidx %in% nbrpixel.idx)
@@ -105,6 +105,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       mean.mat1[mm.miss.idx, i] = mm[mm.miss.idx]
     }
     napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
+    d = d + 1
   }
   if(sidx != 1 | eidx != length(doy)){
     mean.mat = matrix(NA, length(doy), N1)
@@ -141,9 +142,9 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     mean.mat1 = do.call("cbind", mean.mat1)
     ## find columns that have NA values
     napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
+    d = 3
     while(length(napixel.idx) > 0){
       for(i in napixel.idx){
-        d = 3
         ## neighbor pixel indexes
         nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
         col.idx = which(pidx %in% nbrpixel.idx)
@@ -157,6 +158,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
         mean.mat1[mm.miss.idx, i] = mm[mm.miss.idx]
       }
       napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
+      d = d + 1
     }
     if(sidx != 1 | eidx != length(doy)){
       mean.mat = matrix(NA, length(doy), N1)
