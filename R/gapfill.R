@@ -96,7 +96,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
       col.idx = which(pidx %in% nbrpixel.idx)
       ## mean of neighborhood pixels
-      mm = apply(mean.mat1[,col.idx], 1, FUN = function(x){
+      mm = apply(mean.mat1[,col.idx, drop=FALSE], 1, FUN = function(x){
         if(all(is.na(x)))
           return(NA) else
             return(mean(x, na.rm = TRUE))
@@ -148,7 +148,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
         nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
         col.idx = which(pidx %in% nbrpixel.idx)
         ## mean of neighborhood pixels
-        mm = apply(mean.mat1[,col.idx], 1, FUN = function(x){
+        mm = apply(mean.mat1[,col.idx, drop=FALSE], 1, FUN = function(x){
           if(all(is.na(x)))
             return(NA) else
               return(mean(x, na.rm = TRUE))
