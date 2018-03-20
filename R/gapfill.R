@@ -20,10 +20,11 @@
 #' @examples 
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
-                    pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), mc.cores = parallel::detectCores()){
+                    pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), 
+                    msk.tol = 0.95, mc.cores = parallel::detectCores()){
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
-  msk = getMask(mat) # idx for 'black holes'
+  msk = getMask(mat, tol = msk.tol) # idx for 'black holes'
   N = img.nrow * img.ncol ## total number of pixels (including black holes)
   N1 = sum(!msk) # number of 'actual' pixels for each image (except for black holes)
   if(N1 == 0){ ## a black hole image
@@ -173,7 +174,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                          dims = c(N1, N1), symmetric = TRUE)
   cat("Estimating the variance function...\n")
   varest = apply(resid.mat, 2, var, na.rm=TRUE)
-  sigma2 = max(0, mean(varest - Matrix::diag(scovest))) # This is the estimated sigma_u^2 for the white noise associated with W
+  sigma2 = max(0, mean(varest - Matrix::diag(scovest), na.rm=TRUE)) # This is the estimated sigma_u^2 for the white noise associated with W
   
   cat("Doing eigen decomposition on covariance matrix...\n")
   ## Eigen decomposition of the covariance matrix; may be improved later using rARPACK
