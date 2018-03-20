@@ -71,16 +71,11 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   cat("Estimating mean curve for each pixel...\n")
   
   ## special operation is needed when all missing pixel images are at the beginning or at the end
-  rle.miss = rle(pct_missing==1)
-  rle.miss.n = length(rle.miss$values)
-  sidx = 1; eidx = length(doy)
-  if(rle.miss$values[1]){
-    sidx = rle.miss$lengths[1]+1
-  }
-  if(rle.miss$values[rle.miss.n]){
-    eidx = length(doy) - rle.miss$lengths[rle.miss.n]
-  }
-  
+  ## observed DOYs
+  doy.obs = doy[pct_missing != 1]
+  sidx = which(doyrange == min(doy.obs))
+  eidx = which(doyrange == max(doy.obs))
+
   ## using fully observed + partially observed images for mean estimation
   mean.mat1 = foreach(i = 1:N1) %dopar% {
     meanCurve(doy[idx1c], mat[idx1c, i], doyrange[sidx:eidx])
@@ -107,8 +102,8 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
     d = d + 1
   }
-  if(sidx != 1 | eidx != length(doy)){
-    mean.mat = matrix(NA, length(doy), N1)
+  if(sidx != 1 | eidx != length(doyrange)){
+    mean.mat = matrix(NA, length(doyrange), N1)
     mean.mat[sidx:eidx,] = mean.mat1
   } else
     mean.mat = mean.mat1
@@ -160,8 +155,8 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       napixel.idx = which(apply(mean.mat1, 2, function(x) any(is.na(x))))
       d = d + 1
     }
-    if(sidx != 1 | eidx != length(doy)){
-      mean.mat = matrix(NA, length(doy), N1)
+    if(sidx != 1 | eidx != length(doyrange)){
+      mean.mat = matrix(NA, length(doyrange), N1)
       mean.mat[sidx:eidx,] = mean.mat1
     } else
       mean.mat = mean.mat1
