@@ -186,6 +186,10 @@ setGeneric (
   }
 )
 
+#' @param matrix each row is am image; each column is the stacked values of an image
+#' @param tol If the percentage of missing values for a pixel over time is greater than this
+#' value, this pixel is treated as a mask value.
+#'
 #' @rdname getMask
 #' @aliases getMask,matrix-method
 setMethod("getMask", "matrix",

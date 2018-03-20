@@ -10,6 +10,15 @@
 #' @param doyrange vector of two elements, minimum and maximum value of DOY
 #' @param pve percent of variance explained of the selected eigen values
 #' @param mc.cores number of cores to use for computation
+#' @param nnr maximum of nearest neibors used to calculate correlation
+#' @param method "lc" for local constant covariance estimation and "emp" for empirical covariance estimation
+#' @param outlier.tol the tolerance value in defining an image as outlier. The percent of 
+#' outlier pixels in an image exceed this value is regarded as outlier image.
+#' @param outlier.action "ac" for auto correction and "keep" for keep the original values.
+#' @param msk optional logistic matrix. TRUE for mask values.
+#' @param msk.tol if 'msk' is not given, the program will determine the mask using 'getMask'
+#' function. If the percentage of missing values for a pixel over time is greater than this
+#' value, this pixel is treated as a mask value.
 #' 
 #' @return a list containing the following components:
 #' `year` same as input `year`
@@ -21,10 +30,17 @@
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
                     pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), 
-                    msk.tol = 0.95, mc.cores = parallel::detectCores()){
+                    msk = NULL, msk.tol = 0.95, mc.cores = parallel::detectCores()){
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
-  msk = getMask(mat, tol = msk.tol) # idx for 'black holes'
+  if(is.null(msk)){
+    msk = getMask(mat, tol = msk.tol) # idx for 'black holes'
+  } else {
+    if(!is.matrix(msk))
+      stop("msk should be a matrix.")
+    if(nrow(msk) != img.nrow | ncol(msk) != img.ncol)
+      stop("msk dimension is not correct.")
+  }
   N = img.nrow * img.ncol ## total number of pixels (including black holes)
   N1 = sum(!msk) # number of 'actual' pixels for each image (except for black holes)
   if(N1 == 0){ ## a black hole image
