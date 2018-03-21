@@ -19,6 +19,9 @@
 #' @param msk.tol if 'msk' is not given, the program will determine the mask using 'getMask'
 #' function. If the percentage of missing values for a pixel over time is greater than this
 #' value, this pixel is treated as a mask value.
+#' @param cluster optional matrix defining clusters of pixels. If NULL, temporal mean estimation
+#' is conducted on each pixel, otherwise all pixels from the same cluster are combined for
+#' temporal mean estimation.
 #' 
 #' @return a list containing the following components:
 #' `year` same as input `year`
@@ -30,18 +33,22 @@
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
                     pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), 
-                    msk = NULL, msk.tol = 0.95, mc.cores = parallel::detectCores()){
+                    msk = NULL, msk.tol = 0.95, cluster = NULL, 
+                    mc.cores = parallel::detectCores()){
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
+  
+  N = img.nrow * img.ncol ## total number of pixels (including black holes)
+  
   if(is.null(msk)){
     msk = getMask(mat, tol = msk.tol) # idx for 'black holes'
   } else {
-    if(!is.matrix(msk))
-      stop("msk should be a matrix.")
-    if(nrow(msk) != img.nrow | ncol(msk) != img.ncol)
+    if(!is.vector(msk))
+      stop("msk should be a vector.")
+    if(length(msk) != N)
       stop("msk dimension is not correct.")
   }
-  N = img.nrow * img.ncol ## total number of pixels (including black holes)
+  
   N1 = sum(!msk) # number of 'actual' pixels for each image (except for black holes)
   if(N1 == 0){ ## a black hole image
     return(list(
@@ -77,36 +84,55 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       )
     )
   
-  ###########################################################
-  ######### Pixel-wise Temporal trend estimation ############
-  ###########################################################
-  ## Estimate the mean curves for each pixel
-  cat("Estimating mean curve for each pixel...\n")
-  ## using fully observed + partially observed images for mean estimation
-  mean.mat = foreach(i = 1:N1) %dopar% {
-    meanCurve(doy[idx1c], mat[idx1c, i], doyrange)
-  }
-  ## mean.mat: columns are pixel index, rows are doy index (ex. 365 x 961)
-  mean.mat = do.call("cbind", mean.mat)
-  ## find columns that have NA values
-  napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
-  while(length(napixel.idx) > 0){
-    for(i in napixel.idx){
-      d = 3
-      ## neighbor pixel indexes
-      nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
-      col.idx = which(pidx %in% nbrpixel.idx)
-      ## mean of neighborhood pixels
-      mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
-        if(all(is.na(x)))
-          return(NA) else
-            return(mean(x, na.rm = TRUE))
-      })
-      mm.miss.idx = is.na(mean.mat[,i])
-      mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+  ##################################################################
+  ######### Cluster/Pixel-wise Temporal trend estimation ###########
+  ##################################################################
+  if(is.null(cluster)){
+    ## Estimate the mean curves for each pixel
+    cat("Estimating mean curve for each pixel...\n")
+    ## using fully observed + partially observed images for mean estimation
+    mean.mat = foreach(i = 1:N1) %dopar% {
+      meanCurve(doy[idx1c], mat[idx1c, i], doyrange)
     }
+    ## mean.mat: columns are pixel index, rows are doy index (ex. 365 x 961)
+    mean.mat = do.call("cbind", mean.mat)
+    ## find columns that have NA values
     napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+    while(length(napixel.idx) > 0){
+      for(i in napixel.idx){
+        d = 3
+        ## neighbor pixel indexes
+        nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
+        col.idx = which(pidx %in% nbrpixel.idx)
+        ## mean of neighborhood pixels
+        mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
+          if(all(is.na(x)))
+            return(NA) else
+              return(mean(x, na.rm = TRUE))
+        })
+        mm.miss.idx = is.na(mean.mat[,i])
+        mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+      }
+      napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+    }
+  } else{
+    if(!is.vector(cluster))
+      stop("cluster should be a vector.")
+    if(length(cluster) != N)
+      stop("cluster dimension is not correct.")
+    cluster = cluster[!msk]
+    uc = unique(cluster) ## unique clusters
+    ## Estimate the mean curves for each cluster
+    cat("Estimating mean curves for each cluster...\n")
+    
+    ## using fully observed + partially observed images for mean estimation
+    mean.mat = matrix(NA, length(doyrange), N1)
+    for(cl in uc){
+      clidx = cluster == cl
+      mean.mat[, clidx] = meanCurve(rep(doy[idx1c], sum(clidx)), c(mat[idx1c, clidx]), doyrange)
+    }
   }
+  
   ## residual matrix
   resid.mat = mat[idx1c,]
   for(i in 1:nrow(resid.mat)){
@@ -128,30 +154,41 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   
   ## Redo pixel-wise temporal trend estimation after removing outliers
   if(length(outlier.res$outidx) > 0){
-    cat("Re-estimating mean curve for each pixel...\n")
-    ## using fully observed + partially observed - outlier images for mean estimation
-    mean.mat = foreach(i = 1:N1) %dopar% {
-      meanCurve(doy[idx4], mat[idx4, i], doyrange)
-    }
-    mean.mat = do.call("cbind", mean.mat)
-    ## find columns that have NA values
-    napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
-    while(length(napixel.idx) > 0){
-      for(i in napixel.idx){
-        d = 3
-        ## neighbor pixel indexes
-        nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
-        col.idx = which(pidx %in% nbrpixel.idx)
-        ## mean of neighborhood pixels
-        mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
-          if(all(is.na(x)))
-            return(NA) else
-              return(mean(x, na.rm = TRUE))
-        })
-        mm.miss.idx = is.na(mean.mat[,i])
-        mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+    if(is.null(cluster)){
+      cat("Re-estimating mean curve for each pixel...\n")
+      ## using fully observed + partially observed - outlier images for mean estimation
+      mean.mat = foreach(i = 1:N1) %dopar% {
+        meanCurve(doy[idx4], mat[idx4, i], doyrange)
       }
+      mean.mat = do.call("cbind", mean.mat)
+      ## find columns that have NA values
       napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+      while(length(napixel.idx) > 0){
+        for(i in napixel.idx){
+          d = 3
+          ## neighbor pixel indexes
+          nbrpixel.idx = intersect(nbr(pidx[i]-1, img.nrow, img.ncol, d, d) + 1, pidx)
+          col.idx = which(pidx %in% nbrpixel.idx)
+          ## mean of neighborhood pixels
+          mm = apply(mean.mat[,col.idx], 1, FUN = function(x){
+            if(all(is.na(x)))
+              return(NA) else
+                return(mean(x, na.rm = TRUE))
+          })
+          mm.miss.idx = is.na(mean.mat[,i])
+          mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+        }
+        napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+      }
+    }else{
+      ## Estimate the mean curves for each pixel
+      cat("Re-estimating mean curves for each cluster...\n")
+      ## using fully observed + partially observed images for mean estimation
+      mean.mat = matrix(NA, length(doyrange), N1)
+      for(cl in uc){
+        clidx = cluster == cl
+        mean.mat[, clidx] = meanCurve(rep(doy[idx4], sum(clidx)), c(mat[idx4, clidx]), doyrange)
+      }
     }
     resid.mat = mat[idx4,]
     for(i in 1:nrow(resid.mat)){

@@ -15,7 +15,7 @@ meanCurve <- function(x, y, x.eval, plot = FALSE) {
   if(sum(nonna.idx) > 4){
     splfit <- smooth.spline(x[nonna.idx], y[nonna.idx])
     res = predict(splfit, x.eval)$y
-    res[x.eval < min(x) | x.eval > max(x)] = NA
+    # res[x.eval < min(x) | x.eval > max(x)] = NA
     return(res)
   } else{
     return(rep(NA, length(x.eval)))
