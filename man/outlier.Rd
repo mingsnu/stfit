@@ -8,6 +8,9 @@ outlier(mat, outlier.tol)
 }
 \arguments{
 \item{mat}{data matrix. Each row is a row stacked image.}
+
+\item{outlier.tol}{the tolerance value in defining an image as outlier. The percent of 
+outlier pixels in an image exceed this value is regarded as outlier image.}
 }
 \value{
 row indexes for outlier images

@@ -2,13 +2,17 @@
 useDynLib(Gapfill)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
+
 export(doyMeanEst)
 export(gapfill)
-export(getMask)
 export(getMissingLayers)
+export(mat2stack)
 export(meanCurve)
+export(opts)
 export(outlier)
 export(pctMissing)
 export(rmOutlier)
 export(similarity_mat)
 export(tod_impute)
+exportMethods(getMask)
+

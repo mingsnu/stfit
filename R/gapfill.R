@@ -37,7 +37,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     mc.cores = parallel::detectCores()){
   idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
-  
+  temporal_mean_est = Gapfill::opts$get("temporal_mean_est")
   N = img.nrow * img.ncol ## total number of pixels (including black holes)
   
   if(is.null(msk)){
@@ -92,7 +92,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     cat("Estimating mean curve for each pixel...\n")
     ## using fully observed + partially observed images for mean estimation
     mean.mat = foreach(i = 1:N1) %dopar% {
-      meanCurve(doy[idx1c], mat[idx1c, i], doyrange)
+      temporal_mean_est(doy[idx1c], mat[idx1c, i], doyrange)
     }
     ## mean.mat: columns are pixel index, rows are doy index (ex. 365 x 961)
     mean.mat = do.call("cbind", mean.mat)
@@ -129,7 +129,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
     mean.mat = matrix(NA, length(doyrange), N1)
     for(cl in uc){
       clidx = cluster == cl
-      mean.mat[, clidx] = meanCurve(rep(doy[idx1c], sum(clidx)), c(mat[idx1c, clidx]), doyrange)
+      mean.mat[, clidx] = temporal_mean_est(rep(doy[idx1c], sum(clidx)), c(mat[idx1c, clidx]), doyrange)
     }
   }
   
@@ -158,7 +158,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       cat("Re-estimating mean curve for each pixel...\n")
       ## using fully observed + partially observed - outlier images for mean estimation
       mean.mat = foreach(i = 1:N1) %dopar% {
-        meanCurve(doy[idx4], mat[idx4, i], doyrange)
+        temporal_mean_est(doy[idx4], mat[idx4, i], doyrange)
       }
       mean.mat = do.call("cbind", mean.mat)
       ## find columns that have NA values
@@ -187,7 +187,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       mean.mat = matrix(NA, length(doyrange), N1)
       for(cl in uc){
         clidx = cluster == cl
-        mean.mat[, clidx] = meanCurve(rep(doy[idx4], sum(clidx)), c(mat[idx4, clidx]), doyrange)
+        mean.mat[, clidx] = temporal_mean_est(rep(doy[idx4], sum(clidx)), c(mat[idx4, clidx]), doyrange)
       }
     }
     resid.mat = mat[idx4,]

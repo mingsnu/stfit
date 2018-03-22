@@ -6,7 +6,8 @@
 \usage{
 gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
   max(doy)), nnr, method = c("lc", "emp"), pve = 0.99, outlier.tol = 0.2,
-  outlier.action = c("ac", "keep"), mc.cores = parallel::detectCores())
+  outlier.action = c("ac", "keep"), msk = NULL, msk.tol = 0.95,
+  cluster = NULL, mc.cores = parallel::detectCores())
 }
 \arguments{
 \item{year}{vector of year index}
@@ -23,7 +24,26 @@ gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
 
 \item{doyrange}{vector of two elements, minimum and maximum value of DOY}
 
+\item{nnr}{maximum of nearest neibors used to calculate correlation}
+
+\item{method}{"lc" for local constant covariance estimation and "emp" for empirical covariance estimation}
+
 \item{pve}{percent of variance explained of the selected eigen values}
+
+\item{outlier.tol}{the tolerance value in defining an image as outlier. The percent of 
+outlier pixels in an image exceed this value is regarded as outlier image.}
+
+\item{outlier.action}{"ac" for auto correction and "keep" for keep the original values.}
+
+\item{msk}{optional logistic matrix. TRUE for mask values.}
+
+\item{msk.tol}{if 'msk' is not given, the program will determine the mask using 'getMask'
+function. If the percentage of missing values for a pixel over time is greater than this
+value, this pixel is treated as a mask value.}
+
+\item{cluster}{optional matrix defining clusters of pixels. If NULL, temporal mean estimation
+is conducted on each pixel, otherwise all pixels from the same cluster are combined for
+temporal mean estimation.}
 
 \item{mc.cores}{number of cores to use for computation}
 }
