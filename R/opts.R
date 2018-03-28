@@ -40,7 +40,7 @@ new_defaults = function(value = list()) {
 #' Options for gapfill
 #'
 #' @export
-#' @examples opts$get('meanCurve')
+#' @examples opts$get('smooth_spline')
 opts = new_defaults(list(
-  temporal_mean_est = meanCurve
+  temporal_mean_est = smooth_spline
 ))

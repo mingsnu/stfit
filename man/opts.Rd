@@ -4,7 +4,7 @@
 \name{opts}
 \alias{opts}
 \title{Options for gapfill}
-\format{An object of class \code{list} of length 2.}
+\format{An object of class \code{list} of length 5.}
 \usage{
 opts
 }
@@ -12,6 +12,6 @@ opts
 Options for gapfill
 }
 \examples{
-opts$get('meanCurve')
+opts$get('smooth_spline')
 }
 \keyword{datasets}

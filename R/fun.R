@@ -201,7 +201,6 @@ setMethod("getMask", "matrix",
           }
 )
 
-
 #' Matrix to stack object
 #'
 #' @param mat each row corresponse to an image

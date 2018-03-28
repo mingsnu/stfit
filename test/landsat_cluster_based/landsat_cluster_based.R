@@ -171,19 +171,21 @@ MSE
 
 ### MSE using "lc" method, loess
 MSE = matrix(0, 5, 3)
-Gapfill::opts$set(temporal_mean_est = function(x, y, x.eval, plot = FALSE){
-  nonna.idx = !is.na(y)
-  if(sum(nonna.idx) > 4){
-    x = x[nonna.idx]
-    y = y[nonna.idx]
-    loessfit <- loess(y~x, span = 0.1, control = loess.control(surface = "direct"))
-    res = predict(loessfit, data.frame(x = x.eval))
-    # res[x.eval < min(x) | x.eval > max(x)] = NA
-    return(res)
-  } else{
-    return(rep(NA, length(x.eval)))
-  }
-})
+Gapfill::opts$set(temporal_mean_est = llreg)
+Gapfill::opts$set(temporal_mean_est = lpreg)
+# function(x, y, x.eval, plot = FALSE){
+#   nonna.idx = !is.na(y)
+#   if(sum(nonna.idx) > 4){
+#     x = x[nonna.idx]
+#     y = y[nonna.idx]
+#     loessfit <- loess(y~x, span = 0.1, control = loess.control(surface = "direct"))
+#     res = predict(loessfit, data.frame(x = x.eval))
+#     # res[x.eval < min(x) | x.eval > max(x)] = NA
+#     return(res)
+#   } else{
+#     return(rep(NA, length(x.eval)))
+#   }
+# }
 for(k in 1:5){
   ## Gapfill
   res = gapfill(year, doy, mat, 31,31, h=0, doyrange=1:365, nnr=k, method = "lc", cluster = cres$cluster)
@@ -211,6 +213,12 @@ MSE
 # [3,]  9482.812  9341.619 5073.503
 # [4,] 15129.848  9185.436 5433.924
 # [5,] 19338.603 11023.234 4661.543
+# [,1]     [,2]     [,3]
+# [1,] 19572.41 14424.70 3648.579
+# [2,] 17742.11 14815.96 3834.272
+# [3,] 17701.20 16178.37 3769.953
+# [4,] 12887.35 13593.87 4760.713
+# [5,] 20251.94 13413.21 4224.410
 ### MSE using "lc" method, loess
 # [,1]     [,2]     [,3]
 # [1,] 12446.05  9834.94 6719.890
@@ -218,7 +226,12 @@ MSE
 # [3,] 17178.59 12981.21 6399.325
 # [4,] 22545.50 16104.49 6472.858
 # [5,] 30258.83 16777.37 6219.564
-
+# [,1]     [,2]     [,3]
+# [1,] 11170.162 14737.80 5050.032
+# [2,] 11358.858 15714.91 5347.452
+# [3,] 13660.099 17226.81 4853.116
+# [4,]  9989.565 14173.28 5070.335
+# [5,] 19086.853 13555.67 5033.158
 #################################################
 ######### MSE using year >= 2010 data ###########
 #################################################
