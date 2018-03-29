@@ -34,7 +34,7 @@ smooth_spline <- function(x, y, x.eval=x, ...) {
 #'
 #' @examples
 #' 
-llreg <- function(x, y, x.eval=x, h=2, Kern=epan){
+llreg <- function(x, y, x.eval=x, h=20, Kern=epan){
   nonna.idx = !is.na(y)
   if(sum(nonna.idx) > 4){
     x = x[nonna.idx]

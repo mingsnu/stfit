@@ -5,6 +5,7 @@ library(doParallel)
 library(Matrix)
 library(raster)
 library(rasterVis)
+library(Gapfill)
 df = read_feather("../data/features_106_wide.feather")
 
 ## focus on year >= 2000 for test purpose
@@ -29,6 +30,7 @@ levelplot(ss, par.settings = colthm)
 ##########################################################
 #### gapfill based on  pixel level temporal smoothing ####
 ##########################################################
+Gapfill::opts$set(temporal_mean_est = Gapfill::smooth_spline)
 res1 = gapfill(year[idx], doy[idx], mat[idx,], 31,31, h = 0, nnr=5)
 # res1 = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=5)
 ## temporal trend visulization
@@ -45,19 +47,7 @@ levelplot(raster(matrix(cres$cluster, 31)), margin=FALSE)
 ###########################################################
 #### gapfill based on cluster level temporal smoothing ####
 ###########################################################
-Gapfill::opts$set(temporal_mean_est = function(x, y, x.eval, plot = FALSE){
-  nonna.idx = !is.na(y)
-  if(sum(nonna.idx) > 4){
-    x = x[nonna.idx]
-    y = y[nonna.idx]
-    loessfit <- loess(y~x, span = 0.1, control = loess.control(surface = "direct"))
-    res = predict(loessfit, data.frame(x = x.eval))
-    # res[x.eval < min(x) | x.eval > max(x)] = NA
-    return(res)
-  } else{
-    return(rep(NA, length(x.eval)))
-  }
-})
+Gapfill::opts$set(temporal_mean_est = lpreg)
 res2 = gapfill(year[idx], doy[idx], mat[idx,], 31,31, h = 0, nnr=5, cluster = cres$cluster)
 #res2 = gapfill(year, doy, mat, 31,31, h = 0, doyrange = 1:365, nnr=5, cluster = cres$cluster)
 
@@ -130,7 +120,7 @@ year = df$year
 doy = df$doy
 mat = as.matrix(df[,-c(1:2)])
 set.seed(20180124)
-n = 3
+n = 6
 fidx = sample(res$idx$idx.fullyobserved, n) ## full observed image index
 pidx = sample(res$idx$idx.partialmissing, n) ## partial observed image index
 
@@ -142,15 +132,16 @@ for(i in 1:n){
 for(i in 1:n){
   mat[fidx[i],][is.na(mat[pidx[i],])] = NA
 }
-
 for(i in 1:n){
   r.list[[i+n]] = raster(matrix(mat[fidx[i], ], 31))
 }
 s = stack(r.list)
 levelplot(s, par.settings = colthm)
 
-MSE = matrix(0, 5, 3)
-Gapfill::opts$set(temporal_mean_est = Gapfill::meanCurve)
+MSE = matrix(0, 5, n)
+Gapfill::opts$set(temporal_mean_est = Gapfill::smooth_spline)
+Gapfill::opts$set(temporal_mean_est = llreg)
+Gapfill::opts$set(temporal_mean_est = lpreg)
 for(k in 1:5){
   ## Gapfill
   res = gapfill(year, doy, mat, 31,31, h=0, doyrange=1:365, nnr=k, method = "lc")
@@ -168,24 +159,31 @@ for(k in 1:5){
   MSE[k,] = apply((mat1[,1:n] - mat1[,1:n+2*n])^2, 2, sum) / apply(mat1[,1:n+n], 2, function(x) sum(is.na(x)))
 }
 MSE
-
+## smooth_spline
+# [,1]     [,2]     [,3]      [,4]     [,5]     [,6]
+# [1,] 20681.42 18325.96 3070.127  7323.574 22642.91 38805.01
+# [2,] 19504.34 16617.45 3660.064  6972.476 22503.04 33981.75
+# [3,] 17182.69 15309.92 3672.560  7505.769 21400.69 25220.93
+# [4,] 13656.42 21943.22 3689.017  7132.400 24719.33 17279.50
+# [5,] 23519.12 25722.28 5217.264 10329.878 24733.64 26478.23
+## llreg
+# [,1]      [,2]     [,3]      [,4]     [,5]     [,6]
+# [1,] 51802.88  54273.53 10870.61  9565.664 29231.35 225468.1
+# [2,] 43594.40  53876.50 10748.46  9378.665 29231.35 176766.8
+# [3,] 38085.79  61828.33 10452.57  9136.471 29231.35 113454.9
+# [4,] 36313.46  66794.68 10884.84 11405.680 29231.35 121261.6
+# [5,] 33762.50 120534.08 11015.85 10315.146 29231.35 142574.7
+## lpreg
+# [,1]     [,2]     [,3]      [,4]     [,5]     [,6]
+# [1,] 16453.52 15971.24 6374.898  9430.331 27905.23 41756.94
+# [2,] 16850.97 15398.08 6582.681  9118.598 28576.34 33616.25
+# [3,] 19420.43 17224.70 6515.007  9353.449 24157.97 21228.70
+# [4,] 13630.67 20450.86 6752.756  8707.836 27580.86 15351.84
+# [5,] 19949.50 21488.99 6845.936 10856.245 24460.00 25001.04
 ### MSE using "lc" method, loess
 MSE = matrix(0, 5, 3)
 Gapfill::opts$set(temporal_mean_est = llreg)
 Gapfill::opts$set(temporal_mean_est = lpreg)
-# function(x, y, x.eval, plot = FALSE){
-#   nonna.idx = !is.na(y)
-#   if(sum(nonna.idx) > 4){
-#     x = x[nonna.idx]
-#     y = y[nonna.idx]
-#     loessfit <- loess(y~x, span = 0.1, control = loess.control(surface = "direct"))
-#     res = predict(loessfit, data.frame(x = x.eval))
-#     # res[x.eval < min(x) | x.eval > max(x)] = NA
-#     return(res)
-#   } else{
-#     return(rep(NA, length(x.eval)))
-#   }
-# }
 for(k in 1:5){
   ## Gapfill
   res = gapfill(year, doy, mat, 31,31, h=0, doyrange=1:365, nnr=k, method = "lc", cluster = cres$cluster)
@@ -206,13 +204,7 @@ MSE
 #################################################
 ######### MSE using year >= 2000 data ###########
 #################################################
-### MSE using "lc" method, meanCurve
-# [,1]      [,2]     [,3]
-# [1,]  8675.732  7249.692 5678.767
-# [2,]  9877.618  7732.764 5227.063
-# [3,]  9482.812  9341.619 5073.503
-# [4,] 15129.848  9185.436 5433.924
-# [5,] 19338.603 11023.234 4661.543
+### MSE using "lc" method, smooth_spline
 # [,1]     [,2]     [,3]
 # [1,] 19572.41 14424.70 3648.579
 # [2,] 17742.11 14815.96 3834.272
@@ -221,17 +213,18 @@ MSE
 # [5,] 20251.94 13413.21 4224.410
 ### MSE using "lc" method, loess
 # [,1]     [,2]     [,3]
-# [1,] 12446.05  9834.94 6719.890
-# [2,] 13709.62 11136.49 6647.363
-# [3,] 17178.59 12981.21 6399.325
-# [4,] 22545.50 16104.49 6472.858
-# [5,] 30258.83 16777.37 6219.564
-# [,1]     [,2]     [,3]
 # [1,] 11170.162 14737.80 5050.032
 # [2,] 11358.858 15714.91 5347.452
 # [3,] 13660.099 17226.81 4853.116
 # [4,]  9989.565 14173.28 5070.335
 # [5,] 19086.853 13555.67 5033.158
+### MSE using "lc" method, llreg
+# [,1]     [,2]     [,3]
+# [1,] 15697.920 39660.83 5284.211
+# [2,] 13930.911 36024.50 5680.658
+# [3,] 12298.597 32968.12 5212.175
+# [4,]  9860.581 27667.26 5600.273
+# [5,] 11381.210 24923.09 5286.580
 #################################################
 ######### MSE using year >= 2010 data ###########
 #################################################
