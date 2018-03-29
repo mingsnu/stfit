@@ -60,6 +60,21 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                  idx.fullyobserved = c(),
                  idx.outlier = c()),
       temporal.mean = NULL))
+  } else if(N1 == 1){
+    mmat = matrix(NA, nrow(mean.mat), length(msk))
+    xx = doy
+    yy = mat[,!msk]
+    tmpidx = !is.na(yy)
+    mmat[,!msk] = temporal_mean_est(xx[tmpidx], yy[tmpidx], doyrange)
+    return(list(
+      year = year,
+      doy = doy,
+      imputed.mat = mmat,
+      idx = list(idx.allmissing = idx,
+                 idx.partialmissing = c(),
+                 idx.fullyobserved = c(),
+                 idx.outlier = c()),
+      temporal.mean = mmat))
   }
   
   pidx = (1:N)[!msk] ## 'actual' pixel indexes
