@@ -61,7 +61,7 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                  idx.outlier = c()),
       temporal.mean = NULL))
   } else if(N1 == 1){
-    mmat = matrix(NA, nrow(mean.mat), length(msk))
+    mmat = matrix(NA, length(doyrange), length(msk))
     xx = doy
     yy = mat[,!msk]
     tmpidx = !is.na(yy)
