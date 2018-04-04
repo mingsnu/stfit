@@ -34,7 +34,7 @@ smooth_spline <- function(x, y, x.eval=x, ...) {
 #'
 #' @examples
 #' 
-llreg <- function(x, y, x.eval=x, h=20, Kern=epan){
+llreg <- function(x, y, x.eval=x, h=60, Kern=epan){
   nonna.idx = !is.na(y)
   if(sum(nonna.idx) > 4){
     x = x[nonna.idx]
@@ -88,7 +88,7 @@ epan <- function(x) {
 #' @export
 #'
 #' @examples
-lpreg <- function(x, y, x.eval, span=0.1, ...){
+lpreg <- function(x, y, x.eval, span=0.3, ...){
   nonna.idx = !is.na(y)
   if(sum(nonna.idx) > 4){
     x = x[nonna.idx]
@@ -96,6 +96,43 @@ lpreg <- function(x, y, x.eval, span=0.1, ...){
     loessfit <- loess(y~x, span = span, control = loess.control(surface = "direct"), ...)
     res = predict(loessfit, data.frame(x = x.eval))
     return(res)
+  } else{
+    return(rep(NA, length(x.eval)))
+  }
+}
+
+#' spline regression
+#'
+#' @param x independent variable
+#' @param y response variable
+#' @param x.eval vector to predict on
+#' @param rangeeval see \code{fda::create.basis}
+#' @param nbasis see \code{fda::create.basis}
+#' @param ... arguments passed to \code{fad::create.basis} functions
+#'
+#' @return predicted values at 'x.eval'
+#' @export
+#'
+#' @examples
+spreg <- function(x, y, x.eval, basis = c("fourier", "bspline"), rangeval = c(min(x.eval)-1, max(x.eval)), nbasis = 11, ...){
+  nonna.idx = !is.na(y)
+  basis = match.arg(basis)
+  if(sum(nonna.idx) > 4){
+    x = x[nonna.idx]
+    y = y[nonna.idx]
+    # whisker = boxplot(y, plot = FALSE)$stats[c(1, 5)]
+    # idx = (y > whisker[1]) & (y <whisker[2])
+    # x = x[idx]
+    # y = y[idx]
+    if(basis == "fourier"){
+      bs = create.fourier.basis(rangeval=rangeval, nbasis=nbasis, ...)
+    } else
+      if(basis == "bspline"){
+        bs = create.bspline.basis(rangeval=rangeval, nbasis=nbasis, ...)
+      }
+    X = eval.basis(x, bs)
+    lmfit = lm.fit(X, y)
+    return(eval.basis(x.eval, bs) %*% lmfit$coefficients)
   } else{
     return(rep(NA, length(x.eval)))
   }

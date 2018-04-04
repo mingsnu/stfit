@@ -5,9 +5,10 @@
 \title{Gapfill missing values for a sequence of images}
 \usage{
 gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
-  max(doy)), nnr, method = c("lc", "emp"), pve = 0.99, outlier.tol = 0.2,
+  max(doy)), nnr, method = c("lc", "emp"), pve = 0.99, outlier.tol = 0.5,
   outlier.action = c("ac", "keep"), msk = NULL, msk.tol = 0.95,
-  cluster = NULL, mc.cores = parallel::detectCores())
+  cluster = NULL, mc.cores = parallel::detectCores(),
+  detailed.result = FALSE)
 }
 \arguments{
 \item{year}{vector of year index}
@@ -31,7 +32,8 @@ gapfill(year, doy, mat, img.nrow, img.ncol, h, doyrange = seq(min(doy),
 \item{pve}{percent of variance explained of the selected eigen values}
 
 \item{outlier.tol}{the tolerance value in defining an image as outlier. The percent of 
-outlier pixels in an image exceed this value is regarded as outlier image.}
+outlier pixels in an image exceed this value is regarded as outlier image which will not
+be used in temporal mean estimation.}
 
 \item{outlier.action}{"ac" for auto correction and "keep" for keep the original values.}
 

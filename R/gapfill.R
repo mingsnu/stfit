@@ -13,7 +13,8 @@
 #' @param nnr maximum of nearest neibors used to calculate correlation
 #' @param method "lc" for local constant covariance estimation and "emp" for empirical covariance estimation
 #' @param outlier.tol the tolerance value in defining an image as outlier. The percent of 
-#' outlier pixels in an image exceed this value is regarded as outlier image.
+#' outlier pixels in an image exceed this value is regarded as outlier image which will not
+#' be used in temporal mean estimation.
 #' @param outlier.action "ac" for auto correction and "keep" for keep the original values.
 #' @param msk optional logistic matrix. TRUE for mask values.
 #' @param msk.tol if 'msk' is not given, the program will determine the mask using 'getMask'
@@ -32,10 +33,10 @@
 #' @examples 
 gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
                     doyrange = seq(min(doy), max(doy)), nnr, method = c("lc", "emp"),
-                    pve = 0.99, outlier.tol = 0.2, outlier.action = c("ac", "keep"), 
+                    pve = 0.99, outlier.tol = 0.5, outlier.action = c("ac", "keep"), 
                     msk = NULL, msk.tol = 0.95, cluster = NULL, 
-                    mc.cores = parallel::detectCores()){
-  idx = 1:length(year) ## idx is the index of image, 1, 2, 3,...
+                    mc.cores = parallel::detectCores(), detailed.result = FALSE){
+  idx = 1:length(doy) ## idx is the index of image, 1, 2, 3,...
   registerDoParallel(cores = mc.cores)
   temporal_mean_est = Gapfill::opts$get("temporal_mean_est")
   N = img.nrow * img.ncol ## total number of pixels (including black holes)
@@ -156,15 +157,34 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   ###########################################################
   ######### Outlier detection using the residuals ###########
   ###########################################################
-  outlier.res = outlier(resid.mat, outlier.tol)
-  ## outlier images indexes;
-  if(length(outlier.res$outidx) > 0)
-    idx0 = idx1c[outlier.res$outidx] else
+  outlier.res = outlier(resid.mat)
+  oidx = outlier.res$outpct > outlier.tol
+  ooutidx = outlier.res$outidx[oidx]
+  ooutpct = outlier.res$outpct[oidx]
+  # ooutlst = outlier.res$outlst[oidx]
+  ## idx0: outlier image index (wrt mat)
+  if(sum(oidx) > 0)
+    idx0 = idx1c[ooutidx] else
       idx0 = c()
+  
+  ## Delete outliers if 'outlier.action' is "ac"
+  outlier.action <- match.arg(outlier.action)
+  if(outlier.action == "ac"){
+    cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
+    ## use NA instead of the outlier pixel values both in original data
+    for(i in 1:length(outlier.res$outidx)){
+      mat[idx1c[outlier.res$outidx[i]], outlier.res$outlst[[i]]] = NA
+    }
+  } else
+    if(outlier.action == "keep"){
+      mat0 = mat
+    }
+  
   ## partially missing image indexes after removing outliers;
   idx2 = setdiff(idx[(pct_missing > 0) & (pct_missing < 1)], idx0)
   ## no missing images indexes after removing outliers;
   idx3 = setdiff(idx[pct_missing == 0], idx0)
+  ## image indexes used for temporal mean / covariance estimation
   idx4 = c(idx2, idx3)
   
   ## Redo pixel-wise temporal trend estimation after removing outliers
@@ -261,36 +281,29 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   cat("Estimating the principal component scores for partially missing images...\n")
   partial_imputed = PACE(resid.mat[1:length(idx2),, drop = FALSE], ev.vec, sigma2, ev.val)
   cat("Gapfilling partially missing images...\n")
-  for(i in 1:length(idx2)){
-    miss.idx = is.na(mat[idx2[i],])
-    mat[idx2[i], miss.idx] = partial_imputed[i, miss.idx] + 
-      mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
-  }
-  if(length(outlier.res$outidx) > 0){
-    outlier.action <- match.arg(outlier.action)
+  if(outlier.action == "ac"){
+    for(i in 1:length(idx2)){
+      miss.idx = is.na(mat[idx2[i],])
+      mat[idx2[i], miss.idx] = partial_imputed[i, miss.idx] + 
+        mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
+    }} else if(outlier.action == "keep") {
+      for(i in 1:length(idx2)){
+        miss.idx = is.na(mat0[idx2[i],])
+        mat0[idx2[i], miss.idx] = partial_imputed[i, miss.idx] + 
+          mean.mat[which(doyrange == doy[idx2][i]), miss.idx]
+      }
+    }
+  if(length(idx0) > 0){
+    cat("Gapfilling outlier missing images...\n")
     outlier.resid.mat = mat[idx0,, drop=FALSE]
-    if(outlier.action == "ac"){
-      cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
-      ## use NA instead of the outlier pixel values both in original data and residual data
-      for(i in 1:length(outlier.res$outlst)){
-        mat[idx0[i], outlier.res$outlst[[i]]] = NA
-        outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
-      }
-    } else if(outlier.action == "keep"){
-      cat("Outlier pixels are kept...\n")
-      for(i in 1:length(outlier.res$outlst)){
-        outlier.resid.mat[i, outlier.res$outlst[[i]]] = NA
-      }
-    } else
-      stop("not defined method for outlier.action.")
     for (i in 1:nrow(outlier.resid.mat)) {
       outlier.resid.mat[i, ] = outlier.resid.mat[i, ] - mean.mat[which(doyrange == doy[idx0][i]), ]
     }
     ## if all pixels of an image are outliers, the image is imputed with mean
-    tmpidx = outlier.res$outpct == 1
+    tmpidx = ooutpct == 1
     if (sum(tmpidx) > 0) {
       cat("All pixels in image with doy = ", doy[idx0][tmpidx],
-          " are outliers. Temporal mean surface is used to impute it.")
+          " are outliers. Temporal mean is used to impute it.\n")
       # outlier.resid.mat[tmpidx,] = mean.mat[which(doyrange == doy[idx0][tmpidx]),]
       if(sum(tmpidx) != length(tmpidx)){
         outlier_imputed = matrix(0, nrow(outlier.resid.mat), ncol(outlier.resid.mat))
@@ -302,49 +315,91 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
       cat("Estimating the principal component scores for outlier missing images...\n")
       outlier_imputed = PACE(outlier.resid.mat, ev.vec, sigma2, ev.val)
     }
-    cat("Gapfilling outlier missing images...\n")
-    for(i in 1:length(idx0)){
-      miss.idx = is.na(mat[idx0[i],])
-      mat[idx0[i], miss.idx] = outlier_imputed[i, miss.idx] + 
-        mean.mat[which(doyrange == doy[idx0][i]), miss.idx]
+    if(outlier.action == "ac"){
+      for(i in 1:length(idx0)){
+        miss.idx = is.na(mat[idx0[i],])
+        mat[idx0[i], miss.idx] = outlier_imputed[i, miss.idx] + 
+          mean.mat[which(doyrange == doy[idx0][i]), miss.idx]
+      }
+    }else if(outlier.action == "keep") {
+      for(i in 1:length(idx0)){
+        miss.idx = is.na(mat0[idx0[i],])
+        mat0[idx0[i], miss.idx] = outlier_imputed[i, miss.idx] + 
+          mean.mat[which(doyrange == doy[idx0][i]), miss.idx]
+      }
     }
   }
   
-  if(N == N1){
-    return(list(
-      year = year, 
-      doy = doy,
-      imputed.mat = mat,
-         idx = list(idx.allmissing = idx1,
-                    idx.partialmissing = idx2,
-                    idx.fullyobserved = idx3,
-                    idx.outlier = idx0),
-      outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
-      temporal.mean = mean.mat,
-      eigen.vec = ev.vec, 
-      sigma2 = sigma2, 
-      eigen.val = ev.val))
-  } else{
-    impmat = matrix(NA, nrow(mat), length(msk))
-    impmat[, !msk] = mat
-    
-    mmat = matrix(NA, nrow(mean.mat), length(msk))
-    mmat[,!msk] = mean.mat
-    # imputed_all_missing = data.frame(pixel = 1:N, df1_mean$ymean + resid_mean)
-    return(list(
-      year = year, 
-      doy = doy,
-      imputed.mat = impmat,
-         idx = list(idx.allmissing = idx1,
-                    idx.partialmissing = idx2,
-                    idx.fullyobserved = idx3,
-                    idx.outlier = idx0),
-      outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
-      temporal.mean = mmat,
-      eigen.vec = ev.vec, 
-      sigma2 = sigma2, 
-      eigen.val = ev.val))
+  if(outlier.action == "keep")
+    mat = mat0
+  if(detailed.result){
+    if(N == N1){
+      return(list(
+        year = year, 
+        doy = doy,
+        imputed.mat = mat,
+        idx = list(idx.allmissing = idx1,
+                   idx.partialmissing = idx2,
+                   idx.fullyobserved = idx3,
+                   idx.outlier = idx0),
+        outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
+        temporal.mean = mean.mat,
+        eigen.vec = ev.vec, 
+        sigma2 = sigma2, 
+        eigen.val = ev.val))
+    } else{
+      impmat = matrix(NA, nrow(mat), length(msk))
+      impmat[, !msk] = mat
+      
+      mmat = matrix(NA, nrow(mean.mat), length(msk))
+      mmat[,!msk] = mean.mat
+      # imputed_all_missing = data.frame(pixel = 1:N, df1_mean$ymean + resid_mean)
+      return(list(
+        year = year, 
+        doy = doy,
+        imputed.mat = impmat,
+        idx = list(idx.allmissing = idx1,
+                   idx.partialmissing = idx2,
+                   idx.fullyobserved = idx3,
+                   idx.outlier = idx0),
+        outlier.lst = lapply(outlier.res$outlst, function(x) pidx[x]),
+        temporal.mean = mmat,
+        eigen.vec = ev.vec, 
+        sigma2 = sigma2, 
+        eigen.val = ev.val))
+    }
+  } else {
+    if(N == N1){
+      return(list(
+        year = year, 
+        doy = doy,
+        imputed.mat = mat,
+        idx = list(idx.allmissing = idx1,
+                   idx.partialmissing = idx2,
+                   idx.fullyobserved = idx3,
+                   idx.outlier = idx0),
+        temporal.mean = mean.mat
+        ))
+    } else{
+      impmat = matrix(NA, nrow(mat), length(msk))
+      impmat[, !msk] = mat
+      
+      mmat = matrix(NA, nrow(mean.mat), length(msk))
+      mmat[,!msk] = mean.mat
+      # imputed_all_missing = data.frame(pixel = 1:N, df1_mean$ymean + resid_mean)
+      return(list(
+        year = year, 
+        doy = doy,
+        imputed.mat = impmat,
+        idx = list(idx.allmissing = idx1,
+                   idx.partialmissing = idx2,
+                   idx.fullyobserved = idx3,
+                   idx.outlier = idx0),
+        temporal.mean = mmat
+        ))
+    }
   }
+  
 }
 
 
