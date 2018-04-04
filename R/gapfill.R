@@ -169,16 +169,16 @@ gapfill <- function(year, doy, mat, img.nrow, img.ncol, h,
   
   ## Delete outliers if 'outlier.action' is "ac"
   outlier.action <- match.arg(outlier.action)
-  if(outlier.action == "ac"){
-    cat("Outlier autocorrection is used, outlier pixels are treated as missing...\n")
-    ## use NA instead of the outlier pixel values both in original data
-    for(i in 1:length(outlier.res$outidx)){
-      mat[idx1c[outlier.res$outidx[i]], outlier.res$outlst[[i]]] = NA
-    }
-  } else
-    if(outlier.action == "keep"){
-      mat0 = mat
-    }
+  if(outlier.action == "keep"){
+    ## make a copy of original data matrix.
+    mat0 = mat
+  }
+  ## Outliers are relaced with NA
+  cat("Outlier pixels are replaced with NAs...\n")
+  ## use NA instead of the outlier pixel values both in original data
+  for(i in 1:length(outlier.res$outidx)){
+    mat[idx1c[outlier.res$outidx[i]], outlier.res$outlst[[i]]] = NA
+  }
   
   ## partially missing image indexes after removing outliers;
   idx2 = setdiff(idx[(pct_missing > 0) & (pct_missing < 1)], idx0)
