@@ -19,6 +19,7 @@ teffEst <- function(ids, doy, rmat,
                     doyeval = seq(min(doy), max(doy)), h.cov = 100, h.sigma2 = 300,
                      weight.cov = NULL, weight.sigma2 = NULL,
                     pve = 0.99){
+  cat("Estimating the temporal effect...\n")
   if(is.null(weight.cov))
     weight.cov = weightVector(h.cov)
   if(is.null(weight.sigma2))

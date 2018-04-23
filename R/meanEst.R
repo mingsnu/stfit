@@ -126,7 +126,7 @@ meanEst <- function(doy, mat,
   if (length(idx0) > 0)
     message(paste0(
       length(idx0),
-      " outlier images are removed in the mean estimating procedure."))
+      " outlier images are removed in the mean estimation procedure."))
   return(list(
     doyeval = doyeval,
     meanmat = mean.mat,

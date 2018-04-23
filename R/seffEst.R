@@ -28,6 +28,7 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
                     nnr, method = c("lc", "emp"), keep.original = FALSE,
                     pve = 0.99, msk = NULL, msk.tol = 0.95,
                     detail = FALSE){
+  cat("Estimating spatial effect...")
   if(is.null(weight.cov))
     weight.cov = weightMatrix(h.cov)
   if(is.null(weight.sigma2))
@@ -55,7 +56,8 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   
   ## no spatial effect if there are too few actual pixels in one image
   if(N1 <= 1)
-    return(seffmat)
+    return(list(seffmat=seffmat,
+                idx = list()))
   
   pidx = (1:N)[!msk] ## 'actual' pixel indexes
   ## keep 'actual' pixels only, 

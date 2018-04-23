@@ -192,7 +192,6 @@ double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
   int k2_stop = std::min(i2 + dRow/2 + 1, nRow);
   int l2_stop = std::min(j2 + dCol/2 + 1, nCol);
   
-  
   for(k1 = k1_start, k1_local = k1_start - i1 + (dRow/2); 
       k1 < k1_stop; k1++, k1_local++) {
     for(l1 = l1_start, l1_local=l1_start - j1 + (dCol/2);
