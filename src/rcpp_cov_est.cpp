@@ -198,13 +198,13 @@ double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
     for(l1 = l1_start, l1_local=l1_start - j1 + (dCol/2);
         l1 < l1_stop; l1++, l1_local++) {
       idx1 = which_equal(pidx, k1 * nCol + l1);
+      if(idx1 < 0)
+        continue;
       for(k2 = k2_start, k2_local = k2_start - i2 + (dRow/2); 
           k2 < k2_stop; k2++, k2_local++) {
         for(l2 = l2_start, l2_local=l2_start - j2 + (dCol/2);
             l2 < l2_stop; l2++, l2_local++) {
           if(k1 == k2 && l1 == l2)
-            continue;
-          if(idx1 < 0)
             continue;
           idx2 = which_equal(pidx, k2 * nCol + l2);
           if(idx2 < 0)
