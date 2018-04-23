@@ -221,3 +221,75 @@ mat2stack <- function(mat, nrow, idx = 1:nrow(mat), ...){
   s
 }
 
+#' epanicnicov kernel
+#'
+#' @param x numeric vector
+#'
+#' @return vector
+#' @export
+#'
+#' @examples
+epan <- function(x) {
+  3 / 4 * pmax(1 - x ^ 2, 0)
+}
+
+#' Covariance matrix interpolation
+#'
+#' @param tt time vector to interpolate on
+#' @param phi.fun eigen function
+#' @param omega eigen value
+#' @param nugg.fun nugget function
+#' @param t.grid time vector on which the covariance matrix was calculated
+#'
+#' @return covariance matrix interpretated on tt
+#' @export
+#'
+#' @examples
+cov.interp = function(tt, phi.fun, omega, nugg.fun, t.grid) {
+  m = length(tt)
+  J = length(t.grid)
+  kpc = length(omega)
+  phi = matrix(0, m, kpc)
+  nugg = rep(0, m)
+  
+  for (j in 1:m) {
+    s = tt[j]
+    if (s == t.grid[1]) {
+      phi[j, ] = phi.fun[1, ]
+      nugg[j] = nugg.fun[1]
+      
+    } else if (s == t.grid[J]) {
+      phi[j, ] = phi.fun[J, ]
+      nugg[j] = nugg.fun[J]
+    } else{
+      ind = min(which(t.grid >= s))
+      p = (s - t.grid[ind - 1]) / (t.grid[ind] - t.grid[ind - 1])
+      phi[j, ] = (1 - p) * phi.fun[ind - 1, ] + p * phi.fun[ind, ]
+      nugg[j] = (1 - p) * nugg.fun[ind - 1] + p * nugg.fun[ind]
+    }
+  }
+  Vmat=phi%*%diag(omega)%*%t(phi)
+  diag(Vmat)=diag(Vmat)+nugg
+  return(Vmat)
+}
+
+#' eigen function interpolation
+#'
+#' @param tt time vector to interpolate on
+#' @param phi.fun eigen function
+#' @param t.grid time vector on which the eigen function was calculated
+#'
+#' @return interpolated eigen function with the number of rows equal length of tt.
+#' @export
+#'
+#' @examples
+phi.interp = function(tt, phi.fun, t.grid){
+  m = length(tt)
+  tt = tt[tt < max(t.grid)]
+  tt.idx = findInterval(tt, t.grid)
+  p = (tt - t.grid[tt.idx])/(t.grid[tt.idx+1] - t.grid[tt.idx])
+  phi = (1 - p)*phi.fun[tt.idx,] + p*phi.fun[tt.idx+1, ]
+  if(length(tt) < m)
+    phi = rbind(phi, phi.fun[rep(length(t.grid), m - length(tt)),])
+  return(phi)
+}

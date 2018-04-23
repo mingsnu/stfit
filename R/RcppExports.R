@@ -21,6 +21,22 @@ sparse_lc_cov_est1 <- function(X, W, nRow, nCol, nnr, pidx) {
     .Call('_Gapfill_sparse_lc_cov_est1', PACKAGE = 'Gapfill', X, W, nRow, nCol, nnr, pidx)
 }
 
+vecmin <- function(x) {
+    .Call('_Gapfill_vecmin', PACKAGE = 'Gapfill', x)
+}
+
+vecmax <- function(x) {
+    .Call('_Gapfill_vecmax', PACKAGE = 'Gapfill', x)
+}
+
+lc_cov_1d <- function(ids, time, resid, W, t1, t2) {
+    .Call('_Gapfill_lc_cov_1d', PACKAGE = 'Gapfill', ids, time, resid, W, t1, t2)
+}
+
+lc_cov_1d_est <- function(ids, time, resid, W, tt) {
+    .Call('_Gapfill_lc_cov_1d_est', PACKAGE = 'Gapfill', ids, time, resid, W, tt)
+}
+
 mean_est <- function(X, nRow, nCol, W) {
     .Call('_Gapfill_mean_est', PACKAGE = 'Gapfill', X, nRow, nCol, W)
 }

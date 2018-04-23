@@ -25,3 +25,26 @@ PACE = function(mat, ev.vec, sigma2, ev.val){
   }
   t(ev.vec %*% xi.mat)
 }
+
+PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval){
+  if(missing(idseval))
+    idseval = sort(unique(ids))
+  if(!all(idseval %in% ids))
+    stop("idseval is not in ids.")
+  xi.mat = foreach(i = 1:length(idseval), .combine = cbind) %dopar%{
+    id.idx = which(ids == idseval[i])
+    doy.idx = which(doyeval %in% doy[id.idx])
+    if(length(ev.val) == 1){
+      xi.result = ev.val * t(ev.vec[doy.idx, ]) %*%
+        solve(ev.val* ev.vec[doy.idx, ] %*% t(ev.vec[doy.idx, ]) +  diag(nugg, length(id.idx))) %*% resid[id.idx]
+    } else{
+      phi = ev.vec[doy.idx,, drop=FALSE]
+      tmp = t(phi) * ev.val
+      xi.result =tmp %*% solve(phi %*% tmp + diag(nugg, length(id.idx)), resid[id.idx])
+    }
+    xi.result
+  }
+  return(list(idseval = idseval,
+              mat = t(ev.vec %*% xi.mat)))
+}
+

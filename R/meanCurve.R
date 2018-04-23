@@ -9,9 +9,9 @@
 #' @export
 #'
 #' @examples 
-smooth_spline <- function(x, y, x.eval=x, ...) {
+smooth_spline <- function(x, y, x.eval=x, minimum.num.obs=4, ...) {
   nonna.idx = !is.na(y)
-  if(sum(nonna.idx) > 4){
+  if(sum(nonna.idx) > minimum.num.obs){
     splfit <- smooth.spline(x[nonna.idx], y[nonna.idx], ...)
     res = predict(splfit, x.eval)$y
     # res[x.eval < min(x) | x.eval > max(x)] = NA
@@ -34,12 +34,10 @@ smooth_spline <- function(x, y, x.eval=x, ...) {
 #'
 #' @examples
 #' 
-llreg <- function(x, y, x.eval=x, h=60, Kern=epan){
+llreg <- function(x, y, x.eval=x, minimum.num.obs = 4, h=60, Kern=epan){
   nonna.idx = !is.na(y)
-  if(sum(nonna.idx) > 4){
-    x = x[nonna.idx]
-    y = y[nonna.idx]
-    res <- .llreg(x, y, x.eval, h, Kern)
+  if(sum(nonna.idx) > minimum.num.obs){
+    res <- .llreg(x[nonna.idx], y[nonna.idx], x.eval, h, Kern)
     return(res)
   } else{
     return(rep(NA, length(x.eval)))
@@ -72,9 +70,6 @@ llreg <- function(x, y, x.eval=x, h=60, Kern=epan){
   }
   fitted
 }
-epan <- function(x) {
-  3 / 4 * pmax(1 - x ^ 2, 0)
-}
 
 #' Local Polynomial Regression
 #'
@@ -88,9 +83,9 @@ epan <- function(x) {
 #' @export
 #'
 #' @examples
-lpreg <- function(x, y, x.eval, span=0.3, ...){
+lpreg <- function(x, y, x.eval, minimum.num.obs = 4, span=0.3, ...){
   nonna.idx = !is.na(y)
-  if(sum(nonna.idx) > 4){
+  if(sum(nonna.idx) > minimum.num.obs){
     x = x[nonna.idx]
     y = y[nonna.idx]
     loessfit <- loess(y~x, span = span, control = loess.control(surface = "direct"), ...)
@@ -114,10 +109,11 @@ lpreg <- function(x, y, x.eval, span=0.3, ...){
 #' @export
 #'
 #' @examples
-spreg <- function(x, y, x.eval, basis = c("fourier", "bspline"), rangeval = c(min(x.eval)-1, max(x.eval)), nbasis = 11, ...){
+spreg <- function(x, y, x.eval, minimum.num.obs = 4, basis = c("fourier", "bspline"), 
+                  rangeval = c(min(x.eval)-1, max(x.eval)), nbasis = 11, ...){
   nonna.idx = !is.na(y)
   basis = match.arg(basis)
-  if(sum(nonna.idx) > 4){
+  if(sum(nonna.idx) > minimum.num.obs){
     x = x[nonna.idx]
     y = y[nonna.idx]
     # whisker = boxplot(y, plot = FALSE)$stats[c(1, 5)]
@@ -125,14 +121,14 @@ spreg <- function(x, y, x.eval, basis = c("fourier", "bspline"), rangeval = c(mi
     # x = x[idx]
     # y = y[idx]
     if(basis == "fourier"){
-      bs = create.fourier.basis(rangeval=rangeval, nbasis=nbasis, ...)
+      bs = fda::create.fourier.basis(rangeval=rangeval, nbasis=nbasis, ...)
     } else
       if(basis == "bspline"){
-        bs = create.bspline.basis(rangeval=rangeval, nbasis=nbasis, ...)
+        bs = fda::create.bspline.basis(rangeval=rangeval, nbasis=nbasis, ...)
       }
-    X = eval.basis(x, bs)
+    X = fda::eval.basis(x, bs)
     lmfit = lm.fit(X, y)
-    return(eval.basis(x.eval, bs) %*% lmfit$coefficients)
+    return(fda::eval.basis(x.eval, bs) %*% lmfit$coefficients)
   } else{
     return(rep(NA, length(x.eval)))
   }
