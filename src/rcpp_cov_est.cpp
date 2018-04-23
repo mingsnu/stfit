@@ -192,23 +192,28 @@ double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
   int k2_stop = std::min(i2 + dRow/2 + 1, nRow);
   int l2_stop = std::min(j2 + dCol/2 + 1, nCol);
   
-  for(int n = 0; n < X.nrow(); n++){
-    for(k1 = k1_start, k1_local = k1_start - i1 + (dRow/2); 
-        k1 < k1_stop; k1++, k1_local++) {
-      for(l1 = l1_start, l1_local=l1_start - j1 + (dCol/2);
-          l1 < l1_stop; l1++, l1_local++) {
-        idx1 = which_equal(pidx, k1 * nCol + l1);
-        // if 'k1 * nCol + l1' is a point in black hole or it is a missing value, skip the current loop
-        if(idx1 < 0 || NumericVector::is_na(X(n, idx1)))
-          continue;
-        for(k2 = k2_start, k2_local = k2_start - i2 + (dRow/2); 
-            k2 < k2_stop; k2++, k2_local++) {
-          for(l2 = l2_start, l2_local=l2_start - j2 + (dCol/2);
-              l2 < l2_stop; l2++, l2_local++) {
-            idx2 = which_equal(pidx, k2 * nCol + l2);
-            if(idx2 < 0 || NumericVector::is_na(X(n, idx2)))
+  
+  for(k1 = k1_start, k1_local = k1_start - i1 + (dRow/2); 
+      k1 < k1_stop; k1++, k1_local++) {
+    for(l1 = l1_start, l1_local=l1_start - j1 + (dCol/2);
+        l1 < l1_stop; l1++, l1_local++) {
+      idx1 = which_equal(pidx, k1 * nCol + l1);
+      for(k2 = k2_start, k2_local = k2_start - i2 + (dRow/2); 
+          k2 < k2_stop; k2++, k2_local++) {
+        for(l2 = l2_start, l2_local=l2_start - j2 + (dCol/2);
+            l2 < l2_stop; l2++, l2_local++) {
+          if(k1 == k2 && l1 == l2)
+            continue;
+          if(idx1 < 0)
+            continue;
+          idx2 = which_equal(pidx, k2 * nCol + l2);
+          if(idx2 < 0)
+            continue;
+          for(int n = 0; n < X.nrow(); n++){
+            // if 'k1 * nCol + l1' is a point in black hole or it is a missing value, skip the current loop
+            if(NumericVector::is_na(X(n, idx1)))
               continue;
-            if(k1 == k2 && l1 == l2)
+            if(NumericVector::is_na(X(n, idx2)))
               continue;
             sumEEKK += X(n, idx1) * W(k1_local, l1_local) * X(n, idx2) * W(k2_local, l2_local);
             sumKK += W(k1_local, l1_local) * W(k2_local, l2_local);
@@ -217,6 +222,7 @@ double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
       }
     }
   }
+  
   if(sumKK == 0.0){ // a standalone point, in this case ii should be equal to jj
     for(int n = 0; n < X.nrow(); n++){
       sumEEKK = X(n, ii) * X(n, jj);
