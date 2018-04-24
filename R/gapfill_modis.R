@@ -110,7 +110,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   ## estimate the spatial effect using residuals
   if(seff){
     if(is.null(breaks)){
-      seffmat = seffEst(rmat, img.nrow, img.ncol, nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2, msk = msk)$sseffmat
+      seffmat = seffEst(rmat, img.nrow, img.ncol, nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2, msk = msk)$seffmat
     } else{
       nblocks = breaks$block.nrow*breaks$block.ncol
       res3.list = foreach(n=1:nblocks) %dopar% {
