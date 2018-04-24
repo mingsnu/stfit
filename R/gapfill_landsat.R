@@ -102,7 +102,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
         imat = mat
         imat[is.na(imat)] = mat_imputed[is.na(imat)]
       }
-  return(list(imat = imat, idx = meanest_cl$idx, outlier = meanest_cl$outlier))
+  return(list(imat = imat, idx = meanest$idx, outlier = meanest$outlier))
 }
 
 

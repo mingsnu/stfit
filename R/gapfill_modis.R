@@ -165,5 +165,5 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
         imat = mat
         imat[is.na(imat)] = mat_imputed[is.na(imat)]
       }
-  return(imat)
+  return(list(imat = imat, idx = meanest_cl$idx, outlier = meanest_cl$outlier))
 }
