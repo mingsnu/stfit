@@ -35,7 +35,14 @@ vignettes/*.pdf
 .DS_Store
 **/.DS_Store
 *~
-.Rproj.user
-test
+
 *.o
 *.so
+
+# ignore all output files
+output/
+data/
+
+symbols.rds
+*.pdf
+*.rds

@@ -2,16 +2,42 @@
 #'
 #' @param rst  a *Raster object
 #' @param doy.idx a vector of DOY index of the *Raster object
+#' @param methods `spreg` for spline regression; `smooth_spline` for smoothing spline regression
+#' @param basis only used if methods is 'spreg'. "fourier" or "bspline"
+#' @param rangeeval only used if methods is 'spreg'.passed to create.*.basis functions
+#' @param nbasis only used if methods is 'spreg'. number os basis
+#' @param ... passed to `create.*.basis` functions or `smooth.spline`` function.
 #'
 #' @return a *Raster object
 #' @export
 #'
 #' @examples
-doyMeanEst <- function(rst, doy.idx = 1:nlayers(rst)){
-  .smoothFun <- function(x){
-    nonna.idx = !is.na(x)
-    splfit <- smooth.spline(doy.idx[nonna.idx], x[nonna.idx])
-    predict(splfit, doy.idx)$y
+doyMeanEst <- function(rst, doy.idx = 1:nlayers(rst), 
+                       methods = c("spreg", "smooth_spline"),
+                       basis = c("fourier", "bspline"),
+                       rangeval = c(0,nlayers(rst)),
+                       nbasis = 11, ...){
+  methods = match.arg(methods)
+  basis = match.arg(basis)
+  if(methods == "spreg"){
+    .smoothFun <- function(x, ...){
+      nonna.idx = !is.na(x)
+      if(basis == "fourier"){
+        bs = fda::create.fourier.basis(rangeval=rangeval, nbasis=nbasis, ...)
+      } else
+        if(basis == "bspline"){
+          bs = fda::create.bspline.basis(rangeval=rangeval, nbasis=nbasis, ...)
+        }
+      X = fda::eval.basis(doy.idx[nonna.idx], bs)
+      lmfit = lm.fit(X, x[nonna.idx])
+      return(fda::eval.basis(doy.idx, bs) %*% lmfit$coefficients)
+    }
+  } else{
+    .smoothFun <- function(x){
+      nonna.idx = !is.na(x)
+      splfit <- smooth.spline(doy.idx[nonna.idx], x[nonna.idx], ...)
+      predict(splfit, doy.idx)$y
+    }
   }
   calc(rst, .smoothFun)
 }
