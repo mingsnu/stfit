@@ -4,7 +4,7 @@
 \alias{smooth_spline}
 \title{Smoothing spline regression}
 \usage{
-smooth_spline(x, y, x.eval = x, ...)
+smooth_spline(x, y, x.eval = x, minimum.num.obs = 4, ...)
 }
 \arguments{
 \item{x}{independent variable}

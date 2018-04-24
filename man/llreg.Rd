@@ -4,7 +4,7 @@
 \alias{llreg}
 \title{Local linear regression}
 \usage{
-llreg(x, y, x.eval = x, h = 60, Kern = epan)
+llreg(x, y, x.eval = x, minimum.num.obs = 4, h = 60, Kern = epan)
 }
 \arguments{
 \item{x}{independent variable}

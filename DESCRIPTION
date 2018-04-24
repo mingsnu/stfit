@@ -1,8 +1,8 @@
 Package: Gapfill
 Type: Package
 Title: Fill Missing Values in Satellite Data
-Version: 0.87.1
-Date: 2018-03-06
+Version: 0.90.0
+Date: 2018-04-23
 Author: c(person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre")),
 	     person("Zhonglei", "Wang"))
 Maintainer: Weicheng Zhu<mingsnu@gmail.com>

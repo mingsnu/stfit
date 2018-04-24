@@ -4,12 +4,24 @@
 \alias{doyMeanEst}
 \title{DOY mean estimation}
 \usage{
-doyMeanEst(rst, doy.idx = 1:nlayers(rst))
+doyMeanEst(rst, doy.idx = 1:nlayers(rst), methods = c("spreg",
+  "smooth_spline"), basis = c("fourier", "bspline"), rangeval = c(0,
+  nlayers(rst)), nbasis = 11, ...)
 }
 \arguments{
 \item{rst}{a *Raster object}
 
 \item{doy.idx}{a vector of DOY index of the *Raster object}
+
+\item{methods}{`spreg` for spline regression; `smooth_spline` for smoothing spline regression}
+
+\item{basis}{only used if methods is 'spreg'. "fourier" or "bspline"}
+
+\item{nbasis}{only used if methods is 'spreg'. number os basis}
+
+\item{...}{passed to `create.*.basis` functions or `smooth.spline`` function.}
+
+\item{rangeeval}{only used if methods is 'spreg'.passed to create.*.basis functions}
 }
 \value{
 a *Raster object

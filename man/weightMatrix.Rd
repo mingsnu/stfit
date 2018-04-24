@@ -10,7 +10,7 @@ weightMatrix(h)
 \item{h}{'bandwith'}
 }
 \value{
-a matrix indecating the neiborhood weighting structure
+a weighting matrix
 }
 \description{
 weight matrix calculation

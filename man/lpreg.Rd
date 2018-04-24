@@ -4,7 +4,7 @@
 \alias{lpreg}
 \title{Local Polynomial Regression}
 \usage{
-lpreg(x, y, x.eval, span = 0.3, ...)
+lpreg(x, y, x.eval, minimum.num.obs = 4, span = 0.3, ...)
 }
 \arguments{
 \item{x}{independent variable}
