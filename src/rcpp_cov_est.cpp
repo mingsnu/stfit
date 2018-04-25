@@ -161,6 +161,7 @@ double lc_cov_(const NumericMatrix &X, const NumericMatrix &W,
   }
 }
 
+// [[Rcpp::export]]
 double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
                int ii, int jj, int nRow, int nCol, NumericVector &pidx){
   // sparse local constant covariance estimation for points i and j
@@ -222,12 +223,16 @@ double lc_cov1_(const NumericMatrix &X, const NumericMatrix &W,
     }
   }
   
-  if(sumKK == 0.0){ // a standalone point, in this case ii should be equal to jj
+  if(sumKK == 0.0){
+    // a standalone point, in this case ii should be equal to jj
+    // in this case return the variance estimation
     for(int n = 0; n < X.nrow(); n++){
-      sumEEKK = X(n, ii) * X(n, jj);
+      if(NumericVector::is_na(X(n, ii)))
+        continue;
+      sumEEKK += X(n, ii) * X(n, jj);
       sumKK += 1;
     }
-    return sumEEKK/sumKK;
+    return sumEEKK/(sumKK-1);
   } else{
     return sumEEKK/sumKK;
   }

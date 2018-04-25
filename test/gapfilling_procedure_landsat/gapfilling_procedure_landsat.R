@@ -37,10 +37,20 @@ imat = mat
 ###################################
 registerDoParallel(cores = 8)
 Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
-meanest = meanEst(doy, mat, doyeval = 1:365)
-## mean visulization
-mean_stack = mat2stack(meanest$meanmat, 31)
-levelplot(mean_stack[[seq(1, 365, by = 20)]], par.settings = colthm)
+system.time({
+  meanest1 = meanEst(doy, mat, doyeval = 1:365)
+})
+
+#### comparing results not using redo.
+# system.time({
+#   meanest2 = meanEst(doy, mat, doyeval = 1:365, redo = FALSE)
+# })
+# hist(meanest1$meanmat-meanest2$meanmat)
+# range(meanest2$meanmat, na.rm = TRUE)
+# range(mat, na.rm=TRUE)
+# ## mean visulization
+# mean_stack = mat2stack(meanest$meanmat, 31)
+# levelplot(mean_stack[[seq(1, 365, by = 20)]], par.settings = colthm)
 
 ###################################
 #### 2. Time effect estimation ####

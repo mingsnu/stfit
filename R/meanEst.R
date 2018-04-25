@@ -22,7 +22,7 @@
 meanEst <- function(doy, mat,
                     doyeval = seq(min(doy), max(doy)), 
                     msk = rep(FALSE, ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4,
-                    cluster = NULL){
+                    cluster = NULL, redo = TRUE){
   idx = 1:length(doy) ## idx is the index of image, 1, 2, 3,...
   temporal_mean_est = Gapfill::opts$get("temporal_mean_est")
   N = ncol(mat) ## number of pixels
@@ -97,32 +97,34 @@ meanEst <- function(doy, mat,
   ######### Redo mean estimation ###########
   ##########################################
   ## Redo pixel-wise temporal trend estimation after removing outliers
-  if(length(outlier.res$outidx) > 0){
-    if(is.null(cluster)){
-      cat("Re-estimating mean curve for each pixel...\n")
-      ## using fully observed + partially observed - outlier images for mean estimation
-      mean.mat = foreach(i = 1:N) %dopar% {
-        if(msk[i])
-          return(rep(NA, M)) else{
-            if(length(idx0) > 0)
-              return(temporal_mean_est(doy[-idx0], mat[-idx0, i], doyeval, minimum.num.obs)) else
-                return(temporal_mean_est(doy, mat[, i], doyeval, minimum.num.obs))
-          }
-        
-      }
-      mean.mat = do.call("cbind", mean.mat)
-    }else{
-      ## Estimate the mean curves for each pixel
-      cat("Re-estimating mean curves for each cluster...\n")
-      ## using fully observed + partially observed images for mean estimation
-      for(cl in uc){
-        clidx = cluster == cl
-        if(length(idx0) > 0)
-          mean.mat[, clidx] = temporal_mean_est(rep(doy[-idx0], sum(clidx)), c(mat[-idx0, clidx]), doyeval) else
-            mean.mat[, clidx] = temporal_mean_est(rep(doy, sum(clidx)), c(mat[, clidx]), doyeval)
+  if(redo){
+    if(length(outlier.res$outidx) > 0){
+      if(is.null(cluster)){
+        cat("Re-estimating mean curve for each pixel...\n")
+        ## using fully observed + partially observed - outlier images for mean estimation
+        mean.mat = foreach(i = 1:N) %dopar% {
+          if(msk[i])
+            return(rep(NA, M)) else{
+              if(length(idx0) > 0)
+                return(temporal_mean_est(doy[-idx0], mat[-idx0, i], doyeval, minimum.num.obs)) else
+                  return(temporal_mean_est(doy, mat[, i], doyeval, minimum.num.obs))
+            }
+        }
+        mean.mat = do.call("cbind", mean.mat)
+      }else{
+        ## Estimate the mean curves for each pixel
+        cat("Re-estimating mean curves for each cluster...\n")
+        ## using fully observed + partially observed images for mean estimation
+        for(cl in uc){
+          clidx = cluster == cl
+          if(length(idx0) > 0)
+            mean.mat[, clidx] = temporal_mean_est(rep(doy[-idx0], sum(clidx)), c(mat[-idx0, clidx]), doyeval) else
+              mean.mat[, clidx] = temporal_mean_est(rep(doy, sum(clidx)), c(mat[, clidx]), doyeval)
+        }
       }
     }
   }
+
   if (length(idx0) > 0)
     message(paste0(
       length(idx0),

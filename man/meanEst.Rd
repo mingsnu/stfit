@@ -5,7 +5,8 @@
 \title{Gapfill missing values for a sequence of images}
 \usage{
 meanEst(doy, mat, doyeval = seq(min(doy), max(doy)), msk = rep(FALSE,
-  ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4, cluster = NULL)
+  ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4, cluster = NULL,
+  redo = TRUE)
 }
 \arguments{
 \item{doy}{vector of day of year (DOY) index}

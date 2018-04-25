@@ -5,6 +5,10 @@ nbr <- function(ii, nRow, nCol, dRow, dCol) {
     .Call('_Gapfill_nbr', PACKAGE = 'Gapfill', ii, nRow, nCol, dRow, dCol)
 }
 
+lc_cov1_ <- function(X, W, ii, jj, nRow, nCol, pidx) {
+    .Call('_Gapfill_lc_cov1_', PACKAGE = 'Gapfill', X, W, ii, jj, nRow, nCol, pidx)
+}
+
 sparse_emp_cov_est <- function(X, nRow, nCol, nnr) {
     .Call('_Gapfill_sparse_emp_cov_est', PACKAGE = 'Gapfill', X, nRow, nCol, nnr)
 }

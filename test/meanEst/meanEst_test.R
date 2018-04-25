@@ -9,7 +9,6 @@ library(Gapfill)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
 
-
 ###############################
 #### I. Landsat data test #####
 ###############################
@@ -25,6 +24,20 @@ mat[mat > 2000] = NA
 #### 1. Overall mean estimaton ####
 ###################################
 Gapfill::opts$set(temporal_mean_est = Gapfill::smooth_spline)
+
+#### can also use customized function. Compared with spreg function, the customfun is faster
+#### since it avoids repeated evaluating the design matrix.
+# .X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+# customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+#         nonna.idx = !is.na(y)
+#         if(sum(nonna.idx) < minimum.num.obs)
+#           return(rep(NA, 365))
+#         ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+#         lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+#         return(.X %*% lmfit$coefficient)
+# }
+# Gapfill::opts$set(temporal_mean_est = customfun)
+
 meanest = meanEst(doy, mat, doyeval = 1:365)
 ## mean visulization
 mean_stack = mat2stack(meanest$meanmat, 31)

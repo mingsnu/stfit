@@ -133,3 +133,4 @@ spreg <- function(x, y, x.eval, minimum.num.obs = 4, basis = c("fourier", "bspli
     return(rep(NA, length(x.eval)))
   }
 }
+
