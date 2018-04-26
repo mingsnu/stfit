@@ -38,7 +38,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   if(intermediate.save){
     if(!dir.exists(intermediate.dir)){
       cat("Folder 'output' is created to save intermediate results.\n")
-      dir.create(intermediate.dir)
+      dir.create(intermediate.dir, recursive = TRUE)
     }
   }
   imat = mat
