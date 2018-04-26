@@ -9,7 +9,8 @@ gapfill_modis(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov = 100,
   ncluster = 50, max.per.cluster = 30, t.grid.num = 50,
   breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol =
   30), outlier.action = c("keep", "remove"), intermediate.save = TRUE,
-  intermediate.dir = "./output/", teff = FALSE, seff = TRUE)
+  intermediate.dir = "./output/", use.intermediate.result = TRUE,
+  teff = FALSE, seff = TRUE)
 }
 \arguments{
 \item{doy}{}
@@ -49,6 +50,9 @@ pixel level.}
 \item{intermediate.save}{TRUE or FALSE. Whether to save intermediate results.}
 
 \item{intermediate.dir}{Path to save intermediate results.}
+
+\item{use.intermediate.result}{whether to use the intermediate results in the 'intermediate.dir' folder instead
+of recalcuating}
 
 \item{teff}{TRUE or FALSE. Whether to estimate temporal effect.}
 
