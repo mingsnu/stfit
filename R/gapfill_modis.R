@@ -53,7 +53,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   if(use.intermediate.result & file.exists(paste0(intermediate.dir, "meanest.rds"))){
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
-    meanest = meanEst(doy, mat, doyeval = 1:365, msk = msk)
+    meanest = meanEst(doy, mat, doyeval = doyeval, msk = msk)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }

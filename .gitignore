@@ -47,3 +47,4 @@ data/
 symbols.rds
 *.pdf
 *.rds
+.Rproj.user

@@ -10,6 +10,8 @@ gapfill_landsat(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   intermediate.dir = "./output/", teff = TRUE, seff = TRUE)
 }
 \arguments{
+\item{year}{}
+
 \item{doy}{}
 
 \item{mat}{}
@@ -35,6 +37,10 @@ gapfill_landsat(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
 \item{intermediate.save}{}
 
 \item{intermediate.dir}{}
+
+\item{teff}{}
+
+\item{seff}{}
 }
 \description{
 Gapfilling for repeated measurements over years
