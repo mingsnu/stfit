@@ -41,10 +41,18 @@ Gapfill::opts$set(temporal_mean_est = Gapfill::smooth_spline)
 meanest = meanEst(doy, mat, doyeval = 1:365)
 ## mean visulization
 mean_stack = mat2stack(meanest$meanmat, 31)
-levelplot(mean_stack[[seq(1, 100, by = 5)]], par.settings = colthm)
+levelplot(mean_stack[[seq(1, 100, by = 5)]], par.settings = colthm, at=seq(0, 1600, 100))
+
 ## outlier images
 levelplot(stack(raster(matrix(mat[meanest$idx$idx.outlier[15],], 31)),
                 raster(matrix(meanest$meanmat[doy[meanest$idx$idx.outlier[15]],], 31))))
+
+## mean estimation by specifying clipRange and clipMethod.
+meanest = meanEst(doy, mat, doyeval = 1:365, clipRange = c(0, 1500), clipMethod = "nnr", img.nrow = 31, img.ncol = 31)
+## mean visulization
+mean_stack = mat2stack(meanest$meanmat, 31)
+levelplot(mean_stack[[seq(1, 100, by = 5)]], par.settings = colthm, at=seq(0, 1600, 100))
+
 #####################################################
 #### 2. Cluster analysis based on inital results ####
 #####################################################

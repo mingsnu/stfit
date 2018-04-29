@@ -18,6 +18,8 @@
 #' of recalcuating 
 #' @param teff TRUE or FALSE, wheter to calculate the temporal effect
 #' @param seff TRUE or FALSE, wheter to calculate the spatial effect
+#' @param doy.break a vector of break points for `doy`. spatial effect are estimated seperately on each interval
+#' @param b2e.con TRUE or FALSE. whether the the begining of `doy` is connected with the end of `doy`.
 #'
 #' @return List of length 3 with entries:
 #' \itemize{
@@ -29,12 +31,13 @@
 #'
 #' @examples
 gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,  h.tcov = 100, h.tsigma2 = 300,
-                            h.scov = 2, h.ssigma2 = 2, nnr = 10, outlier.action = c("keep", "remove"),
+                            h.scov = 2, h.ssigma2 = 2, nnr = 10, outlier.action = c("keep", "remove"), outlier.tol = 0.2,
                             intermediate.save = TRUE, intermediate.dir = "./output/",
-                            use.intermediate.result = TRUE, teff = TRUE, seff = TRUE){
+                            use.intermediate.result = TRUE, teff = TRUE, seff = TRUE,
+                            doy.break = NULL, b2e.con = FALSE){
   if(intermediate.save){
     if(!dir.exists(intermediate.dir)){
-      cat("Folder 'output' is created to save intermediate results.")
+      cat(paste0("Folder", intermediate.dir, "is created to save intermediate results."))
       dir.create(intermediate.dir, recursive = TRUE)
     }
   }
@@ -46,7 +49,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   if(use.intermediate.result & file.exists(paste0(intermediate.dir, "meanest.rds"))){
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
-    meanest = meanEst(doy, mat, doyeval = doyeval, msk = msk)
+    meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }
@@ -94,12 +97,38 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   ## estimate the spatial effect using residuals
   ## result is a 3d array with the first dimension year, second dimension doy and third dimension pixel index
   if(seff){
-    if(use.intermediate.result & file.exists(paste0(intermediate.dir, "seffest.rds"))){
-      seffest = readRDS(paste0(intermediate.dir, "seffest.rds"))
+    if(use.intermediate.result & file.exists(paste0(intermediate.dir, "seffmat.rds"))){
+      seffmat = readRDS(paste0(intermediate.dir, "seffmat.rds"))
     } else {
-      seffest = seffEst(rmat, img.nrow, img.ncol, nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)
+      if(is.null(doy.break)){
+        seffmat = seffEst(rmat, img.nrow, img.ncol, nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+      } else {
+        seffmat = matrix(0, nrow(rmat), ncol(rmat))
+        if(b2e.con){
+          tmpidx = (doy <= doy.break[1]) | (doy > doy.break[length(doy.break)])
+          seffmat[tmpidx,] = seffEst(rmat[tmpidx,], img.nrow, img.ncol, 
+                                                  nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+          for(i in 2:length(doy.break)){
+            tmpidx = (doy <= doy.break[i]) & (doy > doy.break[i-1])
+            seffmat[tmpidx,] = seffEst(rmat[tmpidx,], img.nrow, img.ncol, 
+                                       nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+          }
+        } else {
+          seffmat[doy <= doy.break[1],] = seffEst(rmat[doy <= doy.break[1],], img.nrow, img.ncol, 
+                                                  nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+          for(i in 2:length(doy.break)){
+            tmpidx = (doy <= doy.break[i]) & (doy > doy.break[i-1])
+            seffmat[tmpidx,] = seffEst(rmat[tmpidx,], img.nrow, img.ncol, 
+                                                    nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+          }
+          if(doy.break[i] < max(doy)){
+            seffmat[doy > doy.break[i],] = seffEst(rmat[doy > doy.break[i],], img.nrow, img.ncol, 
+                                                    nnr = nnr, h.cov = h.scov, h.sigma2 = h.ssigma2)$seffmat
+          }
+        }
+      }
       if(intermediate.save)
-        saveRDS(seffest, paste0(intermediate.dir, "seffest.rds"))
+        saveRDS(seffmat, paste0(intermediate.dir, "seffmat.rds"))
     }
   }
   
@@ -116,7 +145,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
     }
   }
   if(seff){
-    mat_imputed = mat_imputed + seffest$seffmat
+    mat_imputed = mat_imputed + seffmat
   }
   
   #### final imputation

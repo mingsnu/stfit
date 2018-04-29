@@ -12,6 +12,12 @@
 #' is conducted on each pixel, otherwise all pixels from the same cluster are combined for
 #' temporal mean estimation.
 #' @param minimum.num.obs minimum number of observations needed for doing mean estimation for each pixel
+#' @param redo whether to recalculate the mean estimation if there is an outlier.
+#' @param clipRange vector of length 2, specifying the minimum and maximum values of the prediction value
+#' @param clipMethod "nnr" or "truncate". "nnr" uses average of nearest neighbor pixels to impute;
+#' "truncate use the clipRange value to truncate.
+#' @param img.nrow number of rows for an image, only used when 'clipMethod' is "nnr"
+#' @param img.ncol number of columns for an image, only used when 'clipMethod' is "nnr"
 #' 
 #' @return a list containing the following components:
 #' `doyeval` same as input `doyeval`
@@ -22,7 +28,8 @@
 meanEst <- function(doy, mat,
                     doyeval = seq(min(doy), max(doy)), 
                     msk = rep(FALSE, ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4,
-                    cluster = NULL, redo = TRUE){
+                    cluster = NULL, redo = TRUE, clipRange = c(-Inf, Inf), clipMethod = c("truncate", "nnr"),
+                    img.nrow=NULL, img.ncol=NULL){
   idx = 1:length(doy) ## idx is the index of image, 1, 2, 3,...
   temporal_mean_est = Gapfill::opts$get("temporal_mean_est")
   N = ncol(mat) ## number of pixels
@@ -124,6 +131,40 @@ meanEst <- function(doy, mat,
       }
     }
   }
+  
+  ###### Correct values that beyonds clipRange
+  clipMethod = match.arg(clipMethod)
+  if(clipMethod == "truncate"){
+    mean.mat[mean.mat < clipRange[1]] = clipRange[1]
+    mean.mat[mean.mat > clipRange[2]] = clipRange[2]
+  } else
+    if(clipMethod == "nnr"){
+      mean.mat[mean.mat < clipRange[1] | mean.mat > clipRange[2]] = NA
+      ## find columns that have NA values
+      msk.idx = which(msk == 1)
+      notmsk.idx = which(msk == 0)
+      napixel.idx = which(apply(mean.mat, 2, function(x) any(is.na(x))))
+      napixel.in.msk = napixel.idx %in% msk.idx
+      napixel.idx = napixel.idx[!napixel.in.msk]
+      if(length(napixel.idx) > 0){
+        for(i in napixel.idx){
+          d = 3
+          ## neighbor pixel indexes
+          if(is.null(img.nrow) | is.null(img.ncol))
+            stop("img.nrow and img.ncol is not supplied, which are needed for clipMethod == nnr.")
+          nbrpixel.idx = intersect(nbr(i-1, img.nrow, img.ncol, d, d) + 1, notmsk.idx)
+          while(all(nbrpixel.idx %in% napixel.idx)){
+            d = d + 2
+            nbrpixel.idx = intersect(nbr(i-1, img.nrow, img.ncol, d, d) + 1, notmsk.idx)
+          }
+          ## mean of neighborhood pixels
+          mm = apply(mean.mat[, nbrpixel.idx], 1, mean, na.rm=TRUE)
+          mm.miss.idx = is.na(mean.mat[,i])
+          mean.mat[mm.miss.idx, i] = mm[mm.miss.idx]
+        }
+      }
+    }
+  
 
   if (length(idx0) > 0)
     message(paste0(
