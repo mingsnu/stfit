@@ -6,7 +6,8 @@
 \usage{
 meanEst(doy, mat, doyeval = seq(min(doy), max(doy)), msk = rep(FALSE,
   ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4, cluster = NULL,
-  redo = TRUE)
+  redo = TRUE, clipRange = c(-Inf, Inf), clipMethod = c("truncate",
+  "nnr"), img.nrow = NULL, img.ncol = NULL)
 }
 \arguments{
 \item{doy}{vector of day of year (DOY) index}
@@ -26,6 +27,17 @@ be used in temporal mean estimation.}
 \item{cluster}{optional matrix defining clusters of pixels. If NULL, temporal mean estimation
 is conducted on each pixel, otherwise all pixels from the same cluster are combined for
 temporal mean estimation.}
+
+\item{redo}{whether to recalculate the mean estimation if there is an outlier.}
+
+\item{clipRange}{vector of length 2, specifying the minimum and maximum values of the prediction value}
+
+\item{clipMethod}{"nnr" or "truncate". "nnr" uses average of nearest neighbor pixels to impute;
+"truncate use the clipRange value to truncate.}
+
+\item{img.nrow}{number of rows for an image, only used when 'clipMethod' is "nnr"}
+
+\item{img.ncol}{number of columns for an image, only used when 'clipMethod' is "nnr"}
 }
 \value{
 a list containing the following components:

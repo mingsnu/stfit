@@ -6,41 +6,58 @@
 \usage{
 gapfill_landsat(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   h.tcov = 100, h.tsigma2 = 300, h.scov = 2, h.ssigma2 = 2, nnr = 10,
-  outlier.action = c("keep", "remove"), intermediate.save = TRUE,
-  intermediate.dir = "./output/", teff = TRUE, seff = TRUE)
+  outlier.action = c("keep", "remove"), outlier.tol = 0.2,
+  intermediate.save = TRUE, intermediate.dir = "./output/",
+  use.intermediate.result = TRUE, teff = TRUE, seff = TRUE,
+  doy.break = NULL, b2e.con = FALSE)
 }
 \arguments{
-\item{year}{}
+\item{year}{vecotr of year}
 
-\item{doy}{}
+\item{doy}{vecotr of doy}
 
-\item{mat}{}
+\item{mat}{matrix with number of row equals length of doy}
 
-\item{img.nrow}{}
+\item{img.nrow}{row number for the image to gapfill}
 
-\item{img.ncol}{}
+\item{img.ncol}{column number for the image to gapfill}
 
-\item{doyeval}{}
+\item{doyeval}{a vector of DOY on which to perform the gapfill}
 
-\item{h.tcov}{}
+\item{h.tcov}{bandwidth for temporal covariance estimation}
 
-\item{h.tsigma2}{}
+\item{h.tsigma2}{bandwith for temporal variance estimation}
 
-\item{h.scov}{}
+\item{h.scov}{bandwidth for spatial covariance estimation}
 
-\item{h.ssigma2}{}
+\item{h.ssigma2}{bandwidth for spatial variance estimation}
 
-\item{nnr}{}
+\item{nnr}{number of nearest neighbor pixels to use for spatial covariance estimation}
 
-\item{outlier.action}{}
+\item{outlier.action}{"keep" to keep outliers; "remove" to replace outliers with gapfilled values}
 
-\item{intermediate.save}{}
+\item{intermediate.save}{TRUE or FASLE; whether to save the intermediate results}
 
-\item{intermediate.dir}{}
+\item{intermediate.dir}{directory where to save the intermediate results}
 
-\item{teff}{}
+\item{use.intermediate.result}{whether to use the intermediate results in the 'intermediate.dir' folder instead
+of recalcuating}
 
-\item{seff}{}
+\item{teff}{TRUE or FALSE, wheter to calculate the temporal effect}
+
+\item{seff}{TRUE or FALSE, wheter to calculate the spatial effect}
+
+\item{doy.break}{a vector of break points for `doy`. spatial effect are estimated seperately on each interval}
+
+\item{b2e.con}{TRUE or FALSE. whether the the begining of `doy` is connected with the end of `doy`.}
+}
+\value{
+List of length 3 with entries:
+\itemize{
+  \item imat imputed matrix of `mat`
+  \item idx a list of image indexes information
+  \item outlier a list of image outliers information
+}
 }
 \description{
 Gapfilling for repeated measurements over years
