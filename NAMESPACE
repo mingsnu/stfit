@@ -3,6 +3,8 @@ useDynLib(Gapfill)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 
+export(ARE)
+export(NMSE)
 export(RMSE)
 export(ceffEst)
 export(cov.interp)
