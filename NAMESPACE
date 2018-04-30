@@ -3,6 +3,7 @@ useDynLib(Gapfill)
 exportPattern("^[[:alpha:]]+")
 importFrom(Rcpp, evalCpp)
 
+export(RMSE)
 export(ceffEst)
 export(cov.interp)
 export(doyMeanEst)
