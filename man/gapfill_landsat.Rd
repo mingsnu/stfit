@@ -9,7 +9,8 @@ gapfill_landsat(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   outlier.action = c("keep", "remove"), outlier.tol = 0.2,
   intermediate.save = TRUE, intermediate.dir = "./output/",
   use.intermediate.result = TRUE, teff = TRUE, seff = TRUE,
-  doy.break = NULL, b2e.con = FALSE)
+  doy.break = NULL, b2e.con = FALSE, clipRange = c(0, 1800),
+  clipMethod = "nnr")
 }
 \arguments{
 \item{year}{vecotr of year}

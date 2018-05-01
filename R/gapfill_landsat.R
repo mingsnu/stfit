@@ -34,7 +34,8 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
                             h.scov = 2, h.ssigma2 = 2, nnr = 10, outlier.action = c("keep", "remove"), outlier.tol = 0.2,
                             intermediate.save = TRUE, intermediate.dir = "./output/",
                             use.intermediate.result = TRUE, teff = TRUE, seff = TRUE,
-                            doy.break = NULL, b2e.con = FALSE){
+                            doy.break = NULL, b2e.con = FALSE,
+                            clipRange = c(0, 1800), clipMethod = "nnr"){
   if(intermediate.save){
     if(!dir.exists(intermediate.dir)){
       cat(paste0("Folder", intermediate.dir, "is created to save intermediate results."))
@@ -49,7 +50,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   if(use.intermediate.result & file.exists(paste0(intermediate.dir, "meanest.rds"))){
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
-    meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol, clipRange = c(0, 1800), clipMethod = "nnr")
+    meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol, clipRange = clipRange, clipMethod = clipMethod)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }

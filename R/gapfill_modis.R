@@ -35,7 +35,8 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
                           breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol = 30),
                           outlier.action = c("keep", "remove"),
                           intermediate.save = TRUE, intermediate.dir = "./output/", 
-                          use.intermediate.result = TRUE, teff = FALSE, seff = TRUE){
+                          use.intermediate.result = TRUE, teff = FALSE, seff = TRUE,
+                          clipRange = c(23000, 35000), clipMethod = "nnr"){
   
   if(intermediate.save){
     if(!dir.exists(intermediate.dir)){
@@ -53,7 +54,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   if(use.intermediate.result & file.exists(paste0(intermediate.dir, "meanest.rds"))){
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
-    meanest = meanEst(doy, mat, doyeval = doyeval, msk = msk)
+    meanest = meanEst(doy, mat, doyeval = doyeval, msk = msk, clipRange=clipRange, clipMethod = clipMethod)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }
@@ -77,7 +78,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
       #### 3. Overall mean estimaton with cluster ####
       ################################################
       ## NEVER USE smooth_spline when using clusters
-      meanest_cl = meanEst(doy, mat, doyeval = doyeval, cluster = cluster, msk = msk)
+      meanest_cl = meanEst(doy, mat, doyeval = doyeval, cluster = cluster, msk = msk, clipRange=clipRange, clipMethod = clipMethod)
       if(intermediate.save)
         saveRDS(meanest_cl, paste0(intermediate.dir, "meanest_cl.rds"))
     }

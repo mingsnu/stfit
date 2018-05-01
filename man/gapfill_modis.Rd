@@ -10,7 +10,8 @@ gapfill_modis(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov = 100,
   breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol =
   30), outlier.action = c("keep", "remove"), intermediate.save = TRUE,
   intermediate.dir = "./output/", use.intermediate.result = TRUE,
-  teff = FALSE, seff = TRUE)
+  teff = FALSE, seff = TRUE, clipRange = c(23000, 35000),
+  clipMethod = "nnr")
 }
 \arguments{
 \item{doy}{}
