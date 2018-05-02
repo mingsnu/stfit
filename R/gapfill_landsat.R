@@ -50,7 +50,8 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   if(use.intermediate.result & file.exists(paste0(intermediate.dir, "meanest.rds"))){
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
-    meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol, clipRange = clipRange, clipMethod = clipMethod)
+    meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol, clipRange = clipRange,
+                      clipMethod = clipMethod, img.nrow = img.nrow, img.ncol = img.ncol)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }
