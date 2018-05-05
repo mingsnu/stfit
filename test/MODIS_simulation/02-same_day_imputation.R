@@ -3,7 +3,7 @@ library(doParallel)
 library(Matrix)
 library(raster)
 library(rasterVis)
-library(Gapfill)
+library(stfit)
 
 dat1 = readRDS("./data/MYD11A1Day2010_simulated.rds")
 dat2 = readRDS("../data/MOD11A1Day2010.rds")

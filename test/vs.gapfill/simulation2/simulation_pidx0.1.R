@@ -5,7 +5,7 @@ library(Matrix)
 library(raster)
 library(rasterVis)
 library(fda)
-library(Gapfill)
+library(stfit)
 library(abind)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
@@ -23,18 +23,29 @@ mat0[mat0 > 2000] = NA
 res = readRDS("../our_output/our_res.rds")
 missingpct = apply(mat0[res$idx$idx.partialmissing,], 1, function(x) sum(is.na(x))/length(x))
 pidx0.1 = res$idx$idx.partialmissing[which(missingpct < 0.1)]
-tmpstack = mat2stack(mat0[pidx0.1,], 31)
-levelplot(tmpstack, par.settings = colthm)
 pidx0.1 = pidx0.1[c(1,2,7,8,9)]
+tmpdat = mat0[pidx0.1,]
+tmpdat[!is.na(tmpdat)] = 1
+tmpstack = mat2stack(tmpdat, 31)
+levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:5)))
 
-idx0.4_0.6 = res$idx$idx.partialmissing[which(missingpct <= 0.6 & missingpct > 0.4)]
-tmpstack = mat2stack(mat0[idx0.4_0.6,], 31)
-levelplot(tmpstack, par.settings = colthm)
+pidx0.4_0.6 = res$idx$idx.partialmissing[which(missingpct <= 0.6 & missingpct > 0.4)]
+pidx0.4_0.6 = pidx0.4_0.6[1:5]
+tmpdat = mat0[pidx0.4_0.6,]
+tmpdat[!is.na(tmpdat)] = 1
+tmpstack = mat2stack(tmpdat, 31)
+levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:5)))
 
-idx0.8_0.9 = res$idx$idx.partialmissing[which(missingpct <= 0.9 & missingpct > 0.8)]
-tmpstack = mat2stack(mat0[idx0.8_0.9,], 31)
-levelplot(tmpstack, par.settings = colthm)
+pidx0.8_0.95 = res$idx$idx.partialmissing[which(missingpct <= 0.95 & missingpct > 0.8)]
+tmpdat = mat0[pidx0.8_0.95,]
+tmpdat[!is.na(tmpdat)] = 1
+tmpstack = mat2stack(tmpdat, 31)
+levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:5)))
 
+tmpdat = mat0[c(pidx0.1, pidx0.4_0.6, pidx0.8_0.95),]
+tmpdat[!is.na(tmpdat)] = 1
+tmpstack = mat2stack(tmpdat, 31)
+levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:15)))
 #######################################
 ##### Simulation study for pidx0.1 #####
 #######################################
@@ -63,6 +74,8 @@ registerDoParallel(10)
 ######## fully observed image indexes ########
 fidx = sort(c(481, 587, 107, 82, 460, 599))
 fmat = mat0[fidx, ]
+tmpstack = mat2stack(fmat, 31)
+levelplot(tmpstack, names.attr = c(paste0("F", 1:6)))
 
 ## initialize error metrics matrices
 RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))

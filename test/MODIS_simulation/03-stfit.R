@@ -2,7 +2,7 @@ library(raster)
 library(rasterVis)
 library(doParallel)
 library(Matrix)
-library(Gapfill)
+library(stfit)
 library(foreach)
 
 ##############################

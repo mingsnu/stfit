@@ -5,7 +5,7 @@ library(doParallel)
 library(Matrix)
 library(raster)
 library(rasterVis)
-library(Gapfill)
+library(stfit)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
 

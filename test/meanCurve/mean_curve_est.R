@@ -5,7 +5,7 @@ library(doParallel)
 library(Matrix)
 library(raster)
 library(rasterVis)
-library(Gapfill)
+library(stfit)
 df = read_feather("../data/features_106_wide.feather")
 
 ## focus on year >= 2000 for test purpose

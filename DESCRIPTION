@@ -1,7 +1,7 @@
-Package: Gapfill
+Package: stfit
 Type: Package
-Title: Fill Missing Values in Satellite Data
-Version: 0.90.4
+Title: Spatio-Temporal Functional Imputation Tool
+Version: 0.90.5
 Date: 2018-04-23
 Author: c(person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre")),
 	     person("Zhonglei", "Wang"))
