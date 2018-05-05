@@ -14,11 +14,11 @@ library(foreach)
 
 dat0 = readRDS("./output/dat1.rds")
 
-## can use getMask function to get the mask
-msk0 = getMask(dat0)
-pdf("output/mask0.pdf")
-levelplot(raster(matrix(msk0, 1200, 1200, byrow=TRUE)))
-dev.off()
+## ## can use getMask function to get the mask
+## msk0 = getMask(dat0)
+## pdf("output/mask0.pdf")
+## levelplot(raster(matrix(msk0, 1200, 1200, byrow=TRUE)))
+## dev.off()
 
 dat = dat0
 year = rep(2010, 365)
@@ -52,8 +52,19 @@ dev.off()
 
 ## visualization of imputed results
 nrow = 24; ncol=24;
-registerDoParallel(cores = 14)
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+registerDoParallel(cores = 6)
+## Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X %*% lmfit$coefficient)
+}
+Gapfill::opts$set(temporal_mean_est = customfun)
 ## res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/")
 
 ## pdf("output/lvl1/lvl1_24x_24_partial_imputed.pdf")
@@ -99,7 +110,7 @@ idx2 = c(t(outer(seq(5, 300, by = 10), seq(5, 300, by = 10),
                  })))
 nrow = 30; ncol=30;
 
-registerDoParallel(cores=16)
+registerDoParallel(cores=6)
 res2.list = foreach(n=1:16) %dopar% {
   ii = floor((n-1)/4) + 1
   jj = (n-1) %% 4 + 1
@@ -234,192 +245,41 @@ for(n in 9:16){
 
 saveRDS(dat, "./output/dat_imputed.rds")
 
-#### visualization
-pdf("output/lvl3_1200x_1200_imputed_1-100.pdf")
-for(i in 1:100){
-  r1 = raster(matrix(dat0[i,], 1200))
-  r2 = raster(matrix(dat[i,], 1200))
-  s = stack(r1, r2)
-  print(levelplot(s))
-}
-dev.off()
-
-pdf("output/lvl3_1200x_1200_imputed_101-200.pdf")
-for(i in 101:200){
-  r1 = raster(matrix(dat0[i,], 1200))
-  r2 = raster(matrix(dat[i,], 1200))
-  s = stack(r1, r2)
-  print(levelplot(s))
-}
-dev.off()
-
-pdf("output/lvl3_1200x_1200_imputed_201-300.pdf")
-for(i in 201:300){
-  r1 = raster(matrix(dat0[i,], 1200))
-  r2 = raster(matrix(dat[i,], 1200))
-  s = stack(r1, r2)
-  print(levelplot(s))
-}
-dev.off()
-
-pdf("output/lvl3_1200x_1200_imputed_301-365.pdf")
-for(i in 301:365){
-  r1 = raster(matrix(dat0[i,], 1200))
-  r2 = raster(matrix(dat[i,], 1200))
-  s = stack(r1, r2)
-  print(levelplot(s))
-}
-dev.off()
-
-
-## nrow = 30; ncol=30;
-## k = 10
-## t1=proc.time()
-## registerDoParallel(cores=16)
-
-## res3.list1 = foreach(n=1:800) %dopar% {
-##   ii = floor((n-1)/40) + 1
-##   jj = (n-1) %% 40 + 1
-##   ## block index
-##   bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                    FUN = function(ridx, cidx){
-##                      (ridx-1) * 1200 + cidx
-##                    })))
-##   dat3 = dat[,bIdx]
-##   gapfill_modis(doy, dat3, nrow, ncol, ncluster = 0, breaks=NULL, nnr = k,
-##                 intermediate.save = FALSE,
-##                 intermediate.dir = "./output/lvl3/", outlier.action = "remove")
-## }
-
-## saveRDS(res3.list1, "output/res3_list1.rds")
-
-## for(n in 1:800){
-##     ii = floor((n-1)/40) + 1
-##     jj = (n-1) %% 40 + 1
-##     ## block index
-##     bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                      FUN = function(ridx, cidx){
-##                          (ridx-1) * 1200 + cidx
-##                      })))
-##     dat[,bIdx] = res3.list1[[n]]$imat
-## }
-
-## rm(res3.list1);gc()
-
-## res3.list2 = foreach(n=801:1600) %dopar% {
-##   ii = floor((n-1)/40) + 1
-##   jj = (n-1) %% 40 + 1
-##   ## block index
-##   bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                    FUN = function(ridx, cidx){
-##                      (ridx-1) * 1200 + cidx
-##                    })))
-##   dat3 = dat[,bIdx]
-##   gapfill_modis(doy, dat2, nrow, ncol, ncluster = 0, breaks=NULL, nnr = k,
-##                 intermediate.save = FALSE,
-##                 intermediate.dir = "./output/lvl3/", outlier.action = "remove")
-## }
-
-## saveRDS(res3.list2, "output/res3_list2.rds")
-
-## for(n in 801:1600){
-##     ii = floor((n-1)/40) + 1
-##     jj = (n-1) %% 40 + 1
-##     ## block index
-##     bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                      FUN = function(ridx, cidx){
-##                          (ridx-1) * 1200 + cidx
-##                      })))
-##     dat[,bIdx] = res3.list2[[n-800]]$imat
-## }
-## rm(res3.list2);gc()
-
-## t2=proc.time()
-## t2-t1
-
-## sum(is.na(dat))
-## saveRDS(dat, "output/lvl3_impu.rds")
-## ## > range(dat, na.rm=TRUE)
-## ## [1] -17746870  27830180
-
-## dat[dat < min(dat0, na.rm = TRUE) - 1000] = NA
-## dat[dat > max(dat0, na.rm = TRUE) + 1000] = NA
-
-## pdf("output/lvl3_1200x_1200_partial_imputed_1-100.pdf")
+## #### visualization
+## pdf("output/lvl3_1200x_1200_imputed_1-100.pdf")
 ## for(i in 1:100){
-##     r1 = raster(matrix(dat0[i,], 1200))
-##     r2 = raster(matrix(dat[i,], 1200))
-##     s = stack(r1, r2)
-##     print(levelplot(s))
+##   r1 = raster(matrix(dat0[i,], 1200))
+##   r2 = raster(matrix(dat[i,], 1200))
+##   s = stack(r1, r2)
+##   print(levelplot(s))
 ## }
 ## dev.off()
 
-## pdf("output/lvl3_1200x_1200_partial_imputed_101-200.pdf")
+## pdf("output/lvl3_1200x_1200_imputed_101-200.pdf")
 ## for(i in 101:200){
-##     r1 = raster(matrix(dat0[i,], 1200))
-##     r2 = raster(matrix(dat[i,], 1200))
-##     s = stack(r1, r2)
-##     print(levelplot(s))
+##   r1 = raster(matrix(dat0[i,], 1200))
+##   r2 = raster(matrix(dat[i,], 1200))
+##   s = stack(r1, r2)
+##   print(levelplot(s))
 ## }
 ## dev.off()
 
-## pdf("output/lvl3_1200x_1200_partial_imputed_201-300.pdf")
+## pdf("output/lvl3_1200x_1200_imputed_201-300.pdf")
 ## for(i in 201:300){
-##     r1 = raster(matrix(dat0[i,], 1200))
-##     r2 = raster(matrix(dat[i,], 1200))
-##     s = stack(r1, r2)
-##     print(levelplot(s))
+##   r1 = raster(matrix(dat0[i,], 1200))
+##   r2 = raster(matrix(dat[i,], 1200))
+##   s = stack(r1, r2)
+##   print(levelplot(s))
 ## }
 ## dev.off()
 
-## pdf("output/lvl3_1200x_1200_partial_imputed_301-365.pdf")
+## pdf("output/lvl3_1200x_1200_imputed_301-365.pdf")
 ## for(i in 301:365){
-##     r1 = raster(matrix(dat0[i,], 1200))
-##     r2 = raster(matrix(dat[i,], 1200))
-##     s = stack(r1, r2)
-##     print(levelplot(s))
+##   r1 = raster(matrix(dat0[i,], 1200))
+##   r2 = raster(matrix(dat[i,], 1200))
+##   s = stack(r1, r2)
+##   print(levelplot(s))
 ## }
 ## dev.off()
 
-
-
-## rm(dat)
-## meanmat = matrix(0, 365, 1440000)
-## for(n in 1:800){
-##     ii = floor((n-1)/40) + 1
-##     jj = (n-1) %% 40 + 1
-##     ## block index
-##     bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                      FUN = function(ridx, cidx){
-##                          (ridx-1) * 1200 + cidx
-##                      })))
-##     meanmat[,bIdx] = res3.list1[[n]]$temporal.mean
-## }
-## for(n in 801:1600){
-##     ii = floor((n-1)/40) + 1
-##     jj = (n-1) %% 40 + 1
-##     ## block index
-##     bIdx = c(t(outer(seq((ii-1)*30+1, ii*30), seq((jj-1)*30+1, jj*30),
-##                      FUN = function(ridx, cidx){
-##                          (ridx-1) * 1200 + cidx
-##                      })))
-##     meanmat[,bIdx] = res3.list2[[n-800]]$temporal.mean
-## }
-
-## sum(is.na(meanmat))
-## saveRDS(meanmat, "meanest.rds")
-## ## range(meanmat, na.rm=TRUE)
-## ## [1] -17746870  27830180
-
-## meanmat[meanmat<23900] = NA
-## meanmat[meanmat>35000] = NA
-
-## pdf("output/lvl3_1200x_1200_partial_imputed_1-100.pdf")
-## for(i in 1:100){
-##     r1 = raster(matrix(dat0[i,], 1200))
-##     r2 = raster(matrix(meanmat[i,], 1200))
-##     s = stack(r1, r2)
-##     print(levelplot(s))
-## }
-## dev.off()
 
