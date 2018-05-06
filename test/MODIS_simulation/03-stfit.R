@@ -53,7 +53,7 @@ dev.off()
 ## visualization of imputed results
 nrow = 24; ncol=24;
 registerDoParallel(cores = 6)
-## Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+## stfit::opts$set(temporal_mean_est = stfit::spreg)
 
 .X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
 customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
@@ -64,7 +64,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X %*% lmfit$coefficient)
 }
-Gapfill::opts$set(temporal_mean_est = customfun)
+stfit::opts$set(temporal_mean_est = customfun)
 ## res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/")
 
 ## pdf("output/lvl1/lvl1_24x_24_partial_imputed.pdf")
@@ -183,7 +183,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X %*% lmfit$coefficient)
 }
-Gapfill::opts$set(temporal_mean_est = customfun)
+stfit::opts$set(temporal_mean_est = customfun)
 
 registerDoParallel(cores=10)
 res3.list1 = foreach(n=1:8) %dopar% {

@@ -26,7 +26,7 @@ x.eval = 1:365
 for(i in seq(1, 961, 10)){
   y = mat[, i]
   ypred1 = smooth_spline(x, y, x.eval)
-  ypred2 = llreg(x, y, x.eval, 60, epan)
+  ypred2 = llreg(x, y, x.eval)
   ypred3 = lpreg(x, y, x.eval,0.3)
   ypred4 = spreg(x, y, x.eval, nbasis=11)
   

@@ -27,7 +27,7 @@ mat[mat > 2000] = NA
 mat_stack = mat2stack(mat, 31)
 levelplot(mat_stack[[seq(1, 365, by = 10)]], par.settings = colthm, at=seq(0, 1500, 100))
 registerDoParallel(cores = 8)
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+stfit::opts$set(temporal_mean_est = stfit::spreg)
 mat_imputed = gapfill_landsat(year, doy, mat, 31, 31)
 ## saveRDS(mat_imputed, "./output/mat_imputed.rds")
 mat_imputed_stack = mat2stack(mat_imputed, 31)

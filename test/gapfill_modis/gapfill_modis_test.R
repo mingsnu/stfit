@@ -21,7 +21,7 @@ doy = 1:365
 msk = getMask(mat)
 levelplot(raster(matrix(msk, 300)), margin = FALSE)
 ## when there is no repeated measures, spreg seems to work better
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+stfit::opts$set(temporal_mean_est = stfit::spreg)
 
 mat_imputed = gapfill_modis(doy, mat, 300, 300, doyeval = 1:365, msk = msk,
          breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol = 30),
