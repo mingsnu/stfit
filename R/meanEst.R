@@ -31,7 +31,7 @@ meanEst <- function(doy, mat,
                     cluster = NULL, redo = TRUE, clipRange = c(-Inf, Inf), clipMethod = c("truncate", "nnr"),
                     img.nrow=NULL, img.ncol=NULL){
   idx = 1:length(doy) ## idx is the index of image, 1, 2, 3,...
-  temporal_mean_est = Gapfill::opts$get("temporal_mean_est")
+  temporal_mean_est = stfit::opts$get("temporal_mean_est")
   N = ncol(mat) ## number of pixels
   M = nrow(mat) ## number of images
   if(length(doy) != M)
