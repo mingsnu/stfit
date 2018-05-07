@@ -26,13 +26,16 @@ doybinuni = sort(unique(doybin))
 
 
 #### partial missing images with different missing percentage
-res = readRDS("../our_output/our_res.rds")
-missingpct = apply(mat0[res$idx$idx.partialmissing,], 1, function(x) sum(is.na(x))/length(x))
-pidx0.1 = res$idx$idx.partialmissing[which(missingpct < 0.1)]
-pidx0.1 = pidx0.1[c(1,2,7,8,9)]
-pidx0.4_0.6 = res$idx$idx.partialmissing[which(missingpct <= 0.6 & missingpct > 0.4)]
-pidx0.4_0.6 = pidx0.4_0.6[1:5]
-pidx0.8_0.95 = res$idx$idx.partialmissing[which(missingpct <= 0.95 & missingpct > 0.8)]
+#### partial missing image indexes with different missing percentage
+pidx0.1 = c(66, 75, 348, 573, 605)
+pidx0.4_0.6 = c(74, 156, 273, 285, 326)
+pidx0.8_0.95 = c(112, 184, 318, 448, 508)
+
+#### fully observed image indexes from different seasons
+fidx1 = c(261, 265, 312, 387, 581)
+fidx2 = c(145, 276, 444, 481, 587)
+fidx3 = c(198, 202, 493, 549, 557)
+fidx4 = c(82, 293, 505, 609, 615)
 
 ########## pidx0.1
 tmpdat = mat0[pidx0.1,]

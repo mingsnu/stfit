@@ -19,27 +19,21 @@ doy = df$doy
 mat0 = as.matrix(df[,-c(1:2)])
 mat0[mat0 > 2000] = NA
 
-#### partial missing images with different missing percentage
-res = readRDS("../our_output/our_res.rds")
-missingpct = apply(mat0[res$idx$idx.partialmissing,], 1, function(x) sum(is.na(x))/length(x))
-## pidx0.1 = res$idx$idx.partialmissing[which(missingpct < 0.1)]
-## tmpstack = mat2stack(mat0[pidx0.1,], 31)
-## levelplot(tmpstack, par.settings = colthm)
-## pidx0.1 = pidx0.1[c(1,2,7,8,9)]
-## [1]  66  75 348 573 605
+#### partial missing image indexes with different missing percentage
+pidx0.1 = c(66, 75, 348, 573, 605)
+pidx0.4_0.6 = c(74, 156, 273, 285, 326)
+pidx0.8_0.95 = c(112, 184, 318, 448, 508)
+#### fully observed image indexes from different seasons
+fidx1 = c(261, 265, 312, 387, 581)
+fidx2 = c(145, 276, 444, 481, 587)
+fidx3 = c(198, 202, 493, 549, 557)
+fidx4 = c(82, 293, 505, 609, 615)
+fidx = c(fidx1, fidx2, fidx3, fidx4)
+fmat = mat0[fidx, ]
 
-pidx0.4_0.6 = res$idx$idx.partialmissing[which(missingpct <= 0.6 & missingpct > 0.4)]
-## tmpstack = mat2stack(mat0[idx0.4_0.6,], 31)
-## levelplot(tmpstack, par.settings = colthm)
-pidx0.4_0.6 = pidx0.4_0.6[1:5]
-
-## pidx0.8_0.9 = res$idx$idx.partialmissing[which(missingpct <= 0.9 & missingpct > 0.8)]
-## tmpstack = mat2stack(mat0[idx0.8_0.9,], 31)
-## levelplot(tmpstack, par.settings = colthm)
-
-#######################################
-##### Simulation study for pidx0.4_0.6 #####
-#######################################
+#############################################
+##### Simulation study for pidx0.8_0.95 #####
+#############################################
 
 ###### define function used for mean estimation ######
 .X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
@@ -51,44 +45,38 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X %*% lmfit$coefficient)
 }
-Gapfill::opts$set(temporal_mean_est = customfun)
+stfit::opts$set(temporal_mean_est = customfun)
 
 
-###### variables used for Gapfill package ######
+###### variables used for gapfill package ######
 doybin = findInterval(doy, seq(1,365, by=8))
 yearuni = sort(unique(year))
 doybinuni = sort(unique(doybin))
 
 registerDoParallel(10)
-
-
-######## fully observed image indexes ########
-fidx = sort(c(481, 587, 107, 82, 460, 599))
-fmat = mat0[fidx, ]
-
 ## initialize error metrics matrices
-RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
-NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
-AREmat1 = AREmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
+RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.8_0.95))
+NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.8_0.95))
+AREmat1 = AREmat2 = matrix(NA, length(fidx), length(pidx0.8_0.95))
+CORmat1 = CORmat2 = matrix(NA, length(fidx), length(pidx0.8_0.95))
 
-
-for(i in 1:length(pidx0.4_0.6)){
+for(i in 1:length(pidx0.8_0.95)){
   for(j in 1:length(fidx)){
     mat = mat0
     ## apply missing patterns to fully observed images
-    missing.idx = is.na(mat[pidx0.4_0.6[i],])
+    missing.idx = is.na(mat[pidx0.8_0.95[i],])
     mat[fidx[j], missing.idx] = NA
 
     #### proposed method
     res1 <- gapfill_landsat(year, doy, mat, 31, 31,
                             use.intermediate.result = FALSE, intermediate.save = FALSE)
-    saveRDS(res1, paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
+    saveRDS(res1, paste0("./pidx0.8_0.95/res1_pidx_", pidx0.8_0.95[i], "_fidx_", fidx[j], ".rds"))
     imat = res1$imat[fidx[j],]
     RMSEmat1[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
     NMSEmat1[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
     AREmat1[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
-    
-    #### Gapfill package
+    CORmat1[j, i] = cor(fmat[j, missing.idx], imat[missing.idx]) 
+    #### gapfill package
     datarray = array(NA, dim = c(31, 31, 46, 16), dimnames = list(1:31, 1:31, doybinuni, yearuni))
     for(ii in 1:16){
       for(jj in 1:46){
@@ -107,32 +95,24 @@ for(i in 1:length(pidx0.4_0.6)){
     tmpmat = datarray[,,didxinterval, yidxinterval]
     ## gapfill::Image(tmpmat)
     res2 = gapfill::Gapfill(tmpmat, clipRange = c(0, 1800), dopar = TRUE)
-    saveRDS(res2, paste0("./pidx0.4_0.6/res2_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
+    saveRDS(res2, paste0("./pidx0.8_0.95/res2_pidx_", pidx0.8_0.95[i], "_fidx_", fidx[j], ".rds"))
     imat = c(res2$fill[,,which(didx == didxinterval), which(yidx == yidxinterval)])
     
     RMSEmat2[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
     NMSEmat2[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
     AREmat2[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
+    CORmat2[j, i] = cor(fmat[j, missing.idx], imat[missing.idx])
   }
 }
 
-saveRDS(RMSEmat1, "./pidx0.4_0.6/RMSEmat1.rds")
-saveRDS(RMSEmat2, "./pidx0.4_0.6/RMSEmat2.rds")
-saveRDS(NMSEmat1, "./pidx0.4_0.6/NMSEmat1.rds")
-saveRDS(NMSEmat2, "./pidx0.4_0.6/NMSEmat2.rds")
-saveRDS(AREmat1, "./pidx0.4_0.6/AREmat1.rds")
-saveRDS(AREmat2, "./pidx0.4_0.6/AREmat2.rds")
+saveRDS(RMSEmat1, "./pidx0.8_0.95/RMSEmat1.rds")
+saveRDS(RMSEmat2, "./pidx0.8_0.95/RMSEmat2.rds")
+saveRDS(NMSEmat1, "./pidx0.8_0.95/NMSEmat1.rds")
+saveRDS(NMSEmat2, "./pidx0.8_0.95/NMSEmat2.rds")
+saveRDS(AREmat1, "./pidx0.8_0.95/AREmat1.rds")
+saveRDS(AREmat2, "./pidx0.8_0.95/AREmat2.rds")
+saveRDS(CORmat1, "./pidx0.8_0.95/CORmat1.rds")
+saveRDS(CORmat2, "./pidx0.8_0.95/CORmat2.rds")
 ## RMSEmat1 > RMSEmat2
-##       [,1]  [,2]  [,3]  [,4]  [,5]
-## [1,] FALSE FALSE  TRUE FALSE FALSE
-## [2,]  TRUE FALSE  TRUE FALSE FALSE
-## [3,] FALSE FALSE  TRUE FALSE FALSE
-## [4,] FALSE FALSE FALSE FALSE FALSE
-## [5,] FALSE  TRUE  TRUE FALSE  TRUE
-## [6,]  TRUE  TRUE  TRUE FALSE  TRUE
 ## > table(c(RMSEmat1 < RMSEmat2))
 
-## FALSE  TRUE 
-##    11    19 
-## FALSE  TRUE 
-##     8    22 
