@@ -45,7 +45,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X %*% lmfit$coefficient)
 }
-Gapfill::opts$set(temporal_mean_est = customfun)
+stfit::opts$set(temporal_mean_est = customfun)
 
 
 ###### variables used for Gapfill package ######
