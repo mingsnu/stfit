@@ -68,7 +68,7 @@ for(i in 1:length(pidx0.4_0.6)){
     mat[fidx[j], missing.idx] = NA
 
     #### proposed method
-    if(file.exists(paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))){
+    if(file.exists(paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))){
         res1 <- readRDS(paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
     } else {
         res1 <- gapfill_landsat(year, doy, mat, 31, 31,
