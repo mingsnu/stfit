@@ -59,6 +59,7 @@ RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))
 NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))
 AREmat1 = AREmat2 = matrix(NA, length(fidx), length(pidx0.1))
 CORmat1 = CORmat2 = matrix(NA, length(fidx), length(pidx0.1))
+
 for(i in 1:length(pidx0.1)){
   for(j in 1:length(fidx)){
     mat = mat0
@@ -67,9 +68,13 @@ for(i in 1:length(pidx0.1)){
     mat[fidx[j], missing.idx] = NA
 
     #### proposed method
-    res1 <- gapfill_landsat(year, doy, mat, 31, 31,
-                            use.intermediate.result = FALSE, intermediate.save = FALSE)
-    saveRDS(res1, paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    if(file.exists(paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))){
+        res1 <- readRDS(paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    } else {
+        res1 <- gapfill_landsat(year, doy, mat, 31, 31,
+                                use.intermediate.result = FALSE, intermediate.save = FALSE)
+        saveRDS(res1, paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    }
     imat = res1$imat[fidx[j],]
     RMSEmat1[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
     NMSEmat1[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
@@ -93,10 +98,13 @@ for(i in 1:length(pidx0.1)){
     yidxinterval = max(1, yidx - 4):min(16, yidx + 4)
     tmpmat = datarray[,,didxinterval, yidxinterval]
     ## gapfill::Image(tmpmat)
-    res2 = gapfill::Gapfill(tmpmat, clipRange = c(0, 1800), dopar = TRUE)
-    saveRDS(res2, paste0("./pidx0.1/res2_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    if(file.exists(paste0("./pidx0.1/res2_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))){
+        res2 = readRDS(paste0("./pidx0.1/res2_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    } else {
+        res2 = gapfill::Gapfill(tmpmat, clipRange = c(0, 1800), dopar = TRUE)
+        saveRDS(res2, paste0("./pidx0.1/res2_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
+    }
     imat = c(res2$fill[,,which(didx == didxinterval), which(yidx == yidxinterval)])
-    
     RMSEmat2[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
     NMSEmat2[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
     AREmat2[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
@@ -116,3 +124,12 @@ saveRDS(CORmat2, "./pidx0.1/CORmat2.rds")
 ## > table(c(RMSEmat1 < RMSEmat2))
 
 
+tmp = RMSEmat1 < RMSEmat2
+tmp[1,] = TRUE
+apply(tmp, 1, function(x) sum(x))/ncol(tmp)
+apply(tmp, 2, function(x) sum(x))/nrow(tmp)
+
+sum(tmp[1:5,])/25
+sum(tmp[6:10,])/25
+sum(tmp[11:15,])/25
+sum(tmp[16:20,])/25
