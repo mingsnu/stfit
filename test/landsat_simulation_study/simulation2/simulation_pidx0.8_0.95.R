@@ -125,3 +125,5 @@ saveRDS(CORmat2, "./pidx0.8_0.95/CORmat2.rds")
 ## RMSEmat1 > RMSEmat2
 ## > table(c(RMSEmat1 < RMSEmat2))
 
+RMSEmat1 = readRDS("./pidx0.8_0.95/RMSEmat1.rds")
+RMSEmat2 = readRDS("./pidx0.8_0.95/RMSEmat2.rds")
