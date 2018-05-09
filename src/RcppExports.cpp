@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // nbr
 NumericVector nbr(int ii, int nRow, int nCol, int dRow, int dCol);
-RcppExport SEXP _Gapfill_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP dRowSEXP, SEXP dColSEXP) {
+RcppExport SEXP _stfit_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP dRowSEXP, SEXP dColSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,7 +22,7 @@ END_RCPP
 }
 // lc_cov1_
 double lc_cov1_(const NumericMatrix& X, const NumericMatrix& W, int ii, int jj, int nRow, int nCol, NumericVector& pidx);
-RcppExport SEXP _Gapfill_lc_cov1_(SEXP XSEXP, SEXP WSEXP, SEXP iiSEXP, SEXP jjSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP pidxSEXP) {
+RcppExport SEXP _stfit_lc_cov1_(SEXP XSEXP, SEXP WSEXP, SEXP iiSEXP, SEXP jjSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP pidxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -39,7 +39,7 @@ END_RCPP
 }
 // sparse_emp_cov_est
 DataFrame sparse_emp_cov_est(NumericMatrix X, int nRow, int nCol, int nnr);
-RcppExport SEXP _Gapfill_sparse_emp_cov_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+RcppExport SEXP _stfit_sparse_emp_cov_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -53,7 +53,7 @@ END_RCPP
 }
 // sparse_emp_cov_est1
 DataFrame sparse_emp_cov_est1(NumericMatrix X, int nRow, int nCol, int nnr, NumericVector pidx);
-RcppExport SEXP _Gapfill_sparse_emp_cov_est1(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP, SEXP pidxSEXP) {
+RcppExport SEXP _stfit_sparse_emp_cov_est1(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP, SEXP pidxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -68,7 +68,7 @@ END_RCPP
 }
 // sparse_lc_cov_est
 DataFrame sparse_lc_cov_est(NumericMatrix X, NumericMatrix W, int nRow, int nCol, int nnr);
-RcppExport SEXP _Gapfill_sparse_lc_cov_est(SEXP XSEXP, SEXP WSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
+RcppExport SEXP _stfit_sparse_lc_cov_est(SEXP XSEXP, SEXP WSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -83,7 +83,7 @@ END_RCPP
 }
 // sparse_lc_cov_est1
 DataFrame sparse_lc_cov_est1(NumericMatrix X, NumericMatrix W, int nRow, int nCol, int nnr, NumericVector pidx);
-RcppExport SEXP _Gapfill_sparse_lc_cov_est1(SEXP XSEXP, SEXP WSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP, SEXP pidxSEXP) {
+RcppExport SEXP _stfit_sparse_lc_cov_est1(SEXP XSEXP, SEXP WSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP nnrSEXP, SEXP pidxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -99,7 +99,7 @@ END_RCPP
 }
 // vecmin
 double vecmin(NumericVector x);
-RcppExport SEXP _Gapfill_vecmin(SEXP xSEXP) {
+RcppExport SEXP _stfit_vecmin(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -110,7 +110,7 @@ END_RCPP
 }
 // vecmax
 double vecmax(NumericVector x);
-RcppExport SEXP _Gapfill_vecmax(SEXP xSEXP) {
+RcppExport SEXP _stfit_vecmax(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -121,7 +121,7 @@ END_RCPP
 }
 // lc_cov_1d
 double lc_cov_1d(const NumericVector& ids, const NumericVector& time, const NumericVector& resid, const NumericVector& W, int t1, int t2);
-RcppExport SEXP _Gapfill_lc_cov_1d(SEXP idsSEXP, SEXP timeSEXP, SEXP residSEXP, SEXP WSEXP, SEXP t1SEXP, SEXP t2SEXP) {
+RcppExport SEXP _stfit_lc_cov_1d(SEXP idsSEXP, SEXP timeSEXP, SEXP residSEXP, SEXP WSEXP, SEXP t1SEXP, SEXP t2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -137,7 +137,7 @@ END_RCPP
 }
 // lc_cov_1d_est
 NumericMatrix lc_cov_1d_est(const NumericVector& ids, const NumericVector& time, const NumericVector& resid, const NumericVector& W, const NumericVector& tt);
-RcppExport SEXP _Gapfill_lc_cov_1d_est(SEXP idsSEXP, SEXP timeSEXP, SEXP residSEXP, SEXP WSEXP, SEXP ttSEXP) {
+RcppExport SEXP _stfit_lc_cov_1d_est(SEXP idsSEXP, SEXP timeSEXP, SEXP residSEXP, SEXP WSEXP, SEXP ttSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -152,7 +152,7 @@ END_RCPP
 }
 // mean_est
 NumericVector mean_est(NumericMatrix X, int nRow, int nCol, NumericMatrix W);
-RcppExport SEXP _Gapfill_mean_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP WSEXP) {
+RcppExport SEXP _stfit_mean_est(SEXP XSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP WSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -166,21 +166,21 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Gapfill_nbr", (DL_FUNC) &_Gapfill_nbr, 5},
-    {"_Gapfill_lc_cov1_", (DL_FUNC) &_Gapfill_lc_cov1_, 7},
-    {"_Gapfill_sparse_emp_cov_est", (DL_FUNC) &_Gapfill_sparse_emp_cov_est, 4},
-    {"_Gapfill_sparse_emp_cov_est1", (DL_FUNC) &_Gapfill_sparse_emp_cov_est1, 5},
-    {"_Gapfill_sparse_lc_cov_est", (DL_FUNC) &_Gapfill_sparse_lc_cov_est, 5},
-    {"_Gapfill_sparse_lc_cov_est1", (DL_FUNC) &_Gapfill_sparse_lc_cov_est1, 6},
-    {"_Gapfill_vecmin", (DL_FUNC) &_Gapfill_vecmin, 1},
-    {"_Gapfill_vecmax", (DL_FUNC) &_Gapfill_vecmax, 1},
-    {"_Gapfill_lc_cov_1d", (DL_FUNC) &_Gapfill_lc_cov_1d, 6},
-    {"_Gapfill_lc_cov_1d_est", (DL_FUNC) &_Gapfill_lc_cov_1d_est, 5},
-    {"_Gapfill_mean_est", (DL_FUNC) &_Gapfill_mean_est, 4},
+    {"_stfit_nbr", (DL_FUNC) &_stfit_nbr, 5},
+    {"_stfit_lc_cov1_", (DL_FUNC) &_stfit_lc_cov1_, 7},
+    {"_stfit_sparse_emp_cov_est", (DL_FUNC) &_stfit_sparse_emp_cov_est, 4},
+    {"_stfit_sparse_emp_cov_est1", (DL_FUNC) &_stfit_sparse_emp_cov_est1, 5},
+    {"_stfit_sparse_lc_cov_est", (DL_FUNC) &_stfit_sparse_lc_cov_est, 5},
+    {"_stfit_sparse_lc_cov_est1", (DL_FUNC) &_stfit_sparse_lc_cov_est1, 6},
+    {"_stfit_vecmin", (DL_FUNC) &_stfit_vecmin, 1},
+    {"_stfit_vecmax", (DL_FUNC) &_stfit_vecmax, 1},
+    {"_stfit_lc_cov_1d", (DL_FUNC) &_stfit_lc_cov_1d, 6},
+    {"_stfit_lc_cov_1d_est", (DL_FUNC) &_stfit_lc_cov_1d_est, 5},
+    {"_stfit_mean_est", (DL_FUNC) &_stfit_mean_est, 4},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_Gapfill(DllInfo *dll) {
+RcppExport void R_init_stfit(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

@@ -2,46 +2,46 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 nbr <- function(ii, nRow, nCol, dRow, dCol) {
-    .Call('_Gapfill_nbr', PACKAGE = 'Gapfill', ii, nRow, nCol, dRow, dCol)
+    .Call('_stfit_nbr', PACKAGE = 'stfit', ii, nRow, nCol, dRow, dCol)
 }
 
 lc_cov1_ <- function(X, W, ii, jj, nRow, nCol, pidx) {
-    .Call('_Gapfill_lc_cov1_', PACKAGE = 'Gapfill', X, W, ii, jj, nRow, nCol, pidx)
+    .Call('_stfit_lc_cov1_', PACKAGE = 'stfit', X, W, ii, jj, nRow, nCol, pidx)
 }
 
 sparse_emp_cov_est <- function(X, nRow, nCol, nnr) {
-    .Call('_Gapfill_sparse_emp_cov_est', PACKAGE = 'Gapfill', X, nRow, nCol, nnr)
+    .Call('_stfit_sparse_emp_cov_est', PACKAGE = 'stfit', X, nRow, nCol, nnr)
 }
 
 sparse_emp_cov_est1 <- function(X, nRow, nCol, nnr, pidx) {
-    .Call('_Gapfill_sparse_emp_cov_est1', PACKAGE = 'Gapfill', X, nRow, nCol, nnr, pidx)
+    .Call('_stfit_sparse_emp_cov_est1', PACKAGE = 'stfit', X, nRow, nCol, nnr, pidx)
 }
 
 sparse_lc_cov_est <- function(X, W, nRow, nCol, nnr) {
-    .Call('_Gapfill_sparse_lc_cov_est', PACKAGE = 'Gapfill', X, W, nRow, nCol, nnr)
+    .Call('_stfit_sparse_lc_cov_est', PACKAGE = 'stfit', X, W, nRow, nCol, nnr)
 }
 
 sparse_lc_cov_est1 <- function(X, W, nRow, nCol, nnr, pidx) {
-    .Call('_Gapfill_sparse_lc_cov_est1', PACKAGE = 'Gapfill', X, W, nRow, nCol, nnr, pidx)
+    .Call('_stfit_sparse_lc_cov_est1', PACKAGE = 'stfit', X, W, nRow, nCol, nnr, pidx)
 }
 
 vecmin <- function(x) {
-    .Call('_Gapfill_vecmin', PACKAGE = 'Gapfill', x)
+    .Call('_stfit_vecmin', PACKAGE = 'stfit', x)
 }
 
 vecmax <- function(x) {
-    .Call('_Gapfill_vecmax', PACKAGE = 'Gapfill', x)
+    .Call('_stfit_vecmax', PACKAGE = 'stfit', x)
 }
 
 lc_cov_1d <- function(ids, time, resid, W, t1, t2) {
-    .Call('_Gapfill_lc_cov_1d', PACKAGE = 'Gapfill', ids, time, resid, W, t1, t2)
+    .Call('_stfit_lc_cov_1d', PACKAGE = 'stfit', ids, time, resid, W, t1, t2)
 }
 
 lc_cov_1d_est <- function(ids, time, resid, W, tt) {
-    .Call('_Gapfill_lc_cov_1d_est', PACKAGE = 'Gapfill', ids, time, resid, W, tt)
+    .Call('_stfit_lc_cov_1d_est', PACKAGE = 'stfit', ids, time, resid, W, tt)
 }
 
 mean_est <- function(X, nRow, nCol, W) {
-    .Call('_Gapfill_mean_est', PACKAGE = 'Gapfill', X, nRow, nCol, W)
+    .Call('_stfit_mean_est', PACKAGE = 'stfit', X, nRow, nCol, W)
 }
 
