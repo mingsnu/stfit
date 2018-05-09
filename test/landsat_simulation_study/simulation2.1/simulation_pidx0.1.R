@@ -54,8 +54,13 @@ NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))
 AREmat1 = AREmat2 = matrix(NA, length(fidx), length(pidx0.1))
 CORmat1 = CORmat2 = matrix(NA, length(fidx), length(pidx0.1))
 
-for(i in 1:length(pidx0.1)){
-  for(j in 1:length(fidx)){
+## collapse the pidx and fidx for parallel
+## matrix of length(fidx) x length(pidx0.1), column stacking
+N = length(fidx)
+M = length(pidx0.1)
+res = foreach(n = 1:(M*N)) %dopar% {
+  i = (n - 1) %/% N + 1 ## COLUMN INDEX 
+  j = (n - 1) %% N + 1 ## ROW INDEX
     mat = mat0
     ## apply missing patterns to fully observed images
     missing.idx = is.na(mat[pidx0.1[i],])
@@ -70,17 +75,17 @@ for(i in 1:length(pidx0.1)){
         saveRDS(res1, paste0("./pidx0.1/res1_pidx_", pidx0.1[i], "_fidx_", fidx[j], ".rds"))
     }
     imat = res1$imat[fidx[j],]
-    RMSEmat1[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
-    NMSEmat1[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
-    AREmat1[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
-    CORmat1[j, i] = cor(fmat[j, missing.idx], imat[missing.idx])
-  }
+    c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
+      NMSE(fmat[j, missing.idx], imat[missing.idx]),
+      ARE(fmat[j, missing.idx], imat[missing.idx]),
+      cor(fmat[j, missing.idx], imat[missing.idx]))
 }
 
-saveRDS(RMSEmat1, "./pidx0.1/RMSEmat1.rds")
-saveRDS(NMSEmat1, "./pidx0.1/NMSEmat1.rds")
-saveRDS(AREmat1, "./pidx0.1/AREmat1.rds")
-saveRDS(CORmat1, "./pidx0.1/CORmat1.rds")
+saveRDS(res, "./pidx0.1/res.rds")
+## saveRDS(RMSEmat1, "./pidx0.1/RMSEmat1.rds")
+## saveRDS(NMSEmat1, "./pidx0.1/NMSEmat1.rds")
+## saveRDS(AREmat1, "./pidx0.1/AREmat1.rds")
+## saveRDS(CORmat1, "./pidx0.1/CORmat1.rds")
 ## RMSEmat1 > RMSEmat2
 ## > table(c(RMSEmat1 < RMSEmat2))
 
