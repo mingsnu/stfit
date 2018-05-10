@@ -52,3 +52,6 @@ symbols.rds
 *~
 \#*\#
 .\#*
+
+*.err
+*.out

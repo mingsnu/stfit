@@ -88,3 +88,10 @@ saveRDS(res, "./pidx0.8_0.95/res.rds")
 
 ## RMSEmat1 = readRDS("./pidx0.8_0.95/RMSEmat1.rds")
 ## RMSEmat2 = readRDS("./pidx0.8_0.95/RMSEmat2.rds")
+## res = readRDS("./pidx0.8_0.95/res.rds")
+## RMSEmat1 = matrix(unlist(lapply(res, function(x)x[1])), 20)
+## RMSEmat2 = readRDS("../simulation2/pidx0.8_0.95/RMSEmat2.rds")
+## RMSEmat1 > RMSEmat2
+## table(c(RMSEmat1 < RMSEmat2))
+## RMSEmat1.0 = readRDS("../simulation2/pidx0.8_0.95/RMSEmat1.rds")
+## RMSEmat1 > RMSEmat1.0
