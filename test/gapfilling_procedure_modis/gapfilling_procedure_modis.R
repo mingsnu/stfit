@@ -24,7 +24,7 @@ levelplot(raster(matrix(msk, 300)), margin = FALSE)
 #### 1. Overall mean estimaton ####
 ###################################
 ## when there is no repeated measures, spreg seems to work better
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+stfit::opts$set(temporal_mean_est = stfit::spreg)
 meanest = meanEst(1:365, mat, doyeval = 1:365, msk = msk)
 # saveRDS(meanest, "./output/MODIS_with_mask_mean_est.rds")
 # meanest = readRDS("./output/MODIS_with_mask_mean_est.rds")
@@ -47,7 +47,7 @@ levelplot(raster(matrix(cluster, 300)), margin=FALSE)
 #### 3. Overall mean estimaton with cluster ####
 ################################################
 ## NEVER USE smooth_spline when using clusters
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+stfit::opts$set(temporal_mean_est = stfit::spreg)
 meanest_cl = meanEst(1:365, mat, doyeval = 1:365, cluster = cluster, msk = msk)
 ## mean visulization
 mean_stack_cl = mat2stack(meanest_cl$meanmat, 300)

@@ -36,7 +36,7 @@ imat = mat
 #### 1. Overall mean estimaton ####
 ###################################
 registerDoParallel(cores = 8)
-Gapfill::opts$set(temporal_mean_est = Gapfill::spreg)
+stfit::opts$set(temporal_mean_est = stfit::spreg)
 system.time({
   meanest1 = meanEst(doy, mat, doyeval = 1:365)
 })

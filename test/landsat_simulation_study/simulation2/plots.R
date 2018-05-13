@@ -39,6 +39,20 @@ fidx4 = c(82, 293, 505, 609, 615)
 fidx = c(fidx1, fidx2, fidx3, fidx4)
 fmat = mat0[fidx, ]
 
+########## full observed images
+pdf("./plot/fully_observed.pdf")
+tmpstack = mat2stack(fmat, 31)
+levelplot(tmpstack, names.attr = c(paste0("F", 1:20)), par.settings = colthm)
+dev.off()
+########## paritally observed images
+pdf("./plot/missing_pattern.pdf")
+tmpdat = mat0[c(pidx0.1, pidx0.4_0.6, pidx0.8_0.95), ]
+tmpdat[!is.na(tmpdat)] = 1
+tmpstack = mat2stack(tmpdat, 31)
+myTheme <- rasterTheme(region=gray.colors(1)) 
+levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:15)), par.settings = myTheme)
+dev.off()
+
 ########## pidx0.1
 tmpdat = mat0[pidx0.1,]
 tmpdat[!is.na(tmpdat)] = 1
