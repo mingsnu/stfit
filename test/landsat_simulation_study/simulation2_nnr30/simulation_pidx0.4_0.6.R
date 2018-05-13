@@ -47,12 +47,6 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
 }
 stfit::opts$set(temporal_mean_est = customfun)
 
-
-###### variables used for Gapfill package ######
-doybin = findInterval(doy, seq(1,365, by=8))
-yearuni = sort(unique(year))
-doybinuni = sort(unique(doybin))
-
 registerDoParallel(16)
 ## initialize error metrics matrices
 RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
@@ -60,8 +54,11 @@ NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
 AREmat1 = AREmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
 CORmat1 = CORmat2 = matrix(NA, length(fidx), length(pidx0.4_0.6))
 
-for(i in 1:length(pidx0.4_0.6)){
-  for(j in 1:length(fidx)){
+N = length(fidx)
+M = length(pidx0.1)
+res = foreach(n = 1:(M*N)) %dopar% {
+  i = (n - 1) %/% N + 1 ## COLUMN INDEX 
+  j = (n - 1) %% N + 1 ## ROW INDEX
     mat = mat0
     ## apply missing patterns to fully observed images
     missing.idx = is.na(mat[pidx0.4_0.6[i],])
@@ -71,61 +68,29 @@ for(i in 1:length(pidx0.4_0.6)){
     if(file.exists(paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))){
         res1 <- readRDS(paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
     } else {
-        res1 <- gapfill_landsat(year, doy, mat, 31, 31,
+        res1 <- gapfill_landsat(year, doy, mat, 31, 31, nnr =30,
                             use.intermediate.result = FALSE, intermediate.save = FALSE)
         saveRDS(res1, paste0("./pidx0.4_0.6/res1_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
-    }
-
-    
+    }    
     imat = res1$imat[fidx[j],]
-    RMSEmat1[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
-    NMSEmat1[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
-    AREmat1[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
-    CORmat1[j, i] = cor(fmat[j, missing.idx], imat[missing.idx])
-    #### Gapfill package
-    datarray = array(NA, dim = c(31, 31, 46, 16), dimnames = list(1:31, 1:31, doybinuni, yearuni))
-    for(ii in 1:16){
-      for(jj in 1:46){
-        idx = year == yearuni[ii] & doybin == doybinuni[jj]
-        if(sum(idx) == 1)
-          datarray[,,jj,ii] = matrix(mat[year == yearuni[ii] & doybin == doybinuni[jj],], 31) else
-            if(sum(idx) > 1)
-              warning("Multiple matches.")
-      }
-    }
-    
-    yidx = which(year[fidx[j]] == yearuni)
-    didx = which(findInterval(doy[fidx[j]], seq(1,365, by=8)) == doybinuni)
-    didxinterval = max(1,didx-6):min(46, didx + 6)
-    yidxinterval = max(1, yidx - 4):min(16, yidx + 4)
-    tmpmat = datarray[,,didxinterval, yidxinterval]
-    ## gapfill::Image(tmpmat)
-    if(file.exists(paste0("./pidx0.4_0.6/res2_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))){
-        res2 = readRDS(paste0("./pidx0.4_0.6/res2_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
-    } else {
-        res2 = gapfill::Gapfill(tmpmat, clipRange = c(0, 1800), dopar = TRUE)
-        saveRDS(res2, paste0("./pidx0.4_0.6/res2_pidx_", pidx0.4_0.6[i], "_fidx_", fidx[j], ".rds"))
-    }
-
-    imat = c(res2$fill[,,which(didx == didxinterval), which(yidx == yidxinterval)])
-    
-    RMSEmat2[j, i] = RMSE(fmat[j, missing.idx], imat[missing.idx])
-    NMSEmat2[j, i] = NMSE(fmat[j, missing.idx], imat[missing.idx])
-    AREmat2[j, i] = ARE(fmat[j, missing.idx], imat[missing.idx])
-    CORmat2[j, i] = cor(fmat[j, missing.idx], imat[missing.idx])
-  }
+    c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
+      NMSE(fmat[j, missing.idx], imat[missing.idx]),
+      ARE(fmat[j, missing.idx], imat[missing.idx]),
+      cor(fmat[j, missing.idx], imat[missing.idx]))
 }
 
-saveRDS(RMSEmat1, "./pidx0.4_0.6/RMSEmat1.rds")
-saveRDS(RMSEmat2, "./pidx0.4_0.6/RMSEmat2.rds")
-saveRDS(NMSEmat1, "./pidx0.4_0.6/NMSEmat1.rds")
-saveRDS(NMSEmat2, "./pidx0.4_0.6/NMSEmat2.rds")
-saveRDS(AREmat1, "./pidx0.4_0.6/AREmat1.rds")
-saveRDS(AREmat2, "./pidx0.4_0.6/AREmat2.rds")
-saveRDS(CORmat1, "./pidx0.4_0.6/CORmat1.rds")
-saveRDS(CORmat2, "./pidx0.4_0.6/CORmat2.rds")
-## RMSEmat1 > RMSEmat2
-## > table(c(RMSEmat1 < RMSEmat2))
+saveRDS(res, "./pidx0.4_0.6/res.rds")
+## saveRDS(RMSEmat1, "./pidx0.4_0.6/RMSEmat1.rds")
+## saveRDS(NMSEmat1, "./pidx0.4_0.6/NMSEmat1.rds")
+## saveRDS(AREmat1, "./pidx0.4_0.6/AREmat1.rds")
+## saveRDS(CORmat1, "./pidx0.4_0.6/CORmat1.rds")
 
 ## RMSEmat1 = readRDS("./pidx0.4_0.6/RMSEmat1.rds")
 ## RMSEmat2 = readRDS("./pidx0.4_0.6/RMSEmat2.rds")
+## res = readRDS("./pidx0.4_0.6/res.rds")
+## RMSEmat1 = matrix(unlist(lapply(res, function(x)x[1])), 20)
+## RMSEmat2 = readRDS("../simulation2/pidx0.4_0.6/RMSEmat2.rds")
+## RMSEmat1 > RMSEmat2
+## table(c(RMSEmat1 < RMSEmat2))
+## RMSEmat1.0 = readRDS("../simulation2/pidx0.4_0.6/RMSEmat1.rds")
+## RMSEmat1 > RMSEmat1.0

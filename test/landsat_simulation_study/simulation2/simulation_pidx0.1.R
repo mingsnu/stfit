@@ -53,7 +53,7 @@ doybin = findInterval(doy, seq(1,365, by=8))
 yearuni = sort(unique(year))
 doybinuni = sort(unique(doybin))
 
-registerDoParallel(10)
+registerDoParallel(16)
 ## initialize error metrics matrices
 RMSEmat1 = RMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))
 NMSEmat1 = NMSEmat2 = matrix(NA, length(fidx), length(pidx0.1))
