@@ -57,10 +57,11 @@ saveRDS(gapfill_res, "./gapfill_output/gapfill_res.rds")
 ##################################
 system.time({
   registerDoParallel(8)
-  our_res <- gapfill_landsat(year, doy, mat, 31, 31, intermediate.dir = "./our_output/", outlier.tol = 0.2)
+  our_res <- gapfill_landsat(year, doy, mat, 31, 31, intermediate.dir = "./our_output/",
+                             intermediate.save = FALSE, use.intermediate.result = FALSE)
 })
 # user   system  elapsed 
-# 7836.163  486.231  481.449 
+# 2465.583   95.854  355.525 
 saveRDS(our_res, "./our_output/our_res.rds")
 
 ##########################################
