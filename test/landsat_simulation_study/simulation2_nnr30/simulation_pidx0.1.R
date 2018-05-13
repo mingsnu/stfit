@@ -95,9 +95,3 @@ saveRDS(res, "./pidx0.1/res.rds")
 ## apply(tmp, 1, function(x) sum(x))/ncol(tmp)
 ## apply(tmp, 2, function(x) sum(x))/nrow(tmp)
 
-## sum(tmp[1:5,])/25
-## sum(tmp[6:10,])/25
-## sum(tmp[11:15,])/25
-## sum(tmp[16:20,])/25
-## res = readRDS("./pidx0.1/res.rds")
-## RMSEmat1 = matrix(unlist(lapply(res, function(x)x[1])), 20)
