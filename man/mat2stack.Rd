@@ -13,7 +13,7 @@ mat2stack(mat, nrow, idx = 1:nrow(mat), ...)
 
 \item{idx}{the row indexes of the mat that will be used to make the stack object}
 
-\item{...}{other parameters passed to 'matrix' function}
+\item{...}{other parameters passed to 'raster' function}
 }
 \value{
 a stack object
