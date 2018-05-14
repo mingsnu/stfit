@@ -229,5 +229,10 @@ RMSEmat.int
 rownames(RMSEmat.int) = c("< 10%", "40%~60%", "80%~90%")
 colnames(RMSEmat.int) = c("S1", "S1", "S2", "S2", "S3", "S3", "S4", "S4")
 RMSEmat.int
+boldmat = matrix(TRUE, 3, 8)
+boldmat[, c(1,3,5,7)] = t(RMSEmat1.int < RMSEmat2.int)
+boldmat[, c(2,4,6,8)] = t(RMSEmat1.int > RMSEmat2.int)
+boldmat[is.na(boldmat)] = FALSE
+printbold(xtable::xtable(RMSEmat.int), which = boldmat, NA.string = "-")
 
 
