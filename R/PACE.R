@@ -10,7 +10,9 @@ PACE = function(mat, ev.vec, sigma2, ev.val){
   xi.mat = foreach (i = 1:nrow(mat), .combine = cbind) %dopar%{
     nonna.idx = !is.na(mat[i,])
     non.na.num = sum(nonna.idx)
-    sigma2 = max(0.5, sigma2)
+    ## could be a problem when sigma2 is small
+    ## sigma2 = max(0.5, sigma2)
+    sigma2 = max(0.0001, sigma2)
     diag.mat = diag(sigma2, non.na.num, non.na.num)
     if(length(ev.val) == 1){
       xi.result = ev.val * t(ev.vec[nonna.idx, ]) %*%

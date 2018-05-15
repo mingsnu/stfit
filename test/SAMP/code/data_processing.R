@@ -12,7 +12,7 @@ mat[mat == -9999] = NA
 h5close(file)
 yrange = range(lat,na.rm = TRUE)
 xrange = range(long,na.rm = TRUE)
-levelplot(raster(mat), xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=range[2])
+levelplot(raster(mat), xmn=xrange[1], xmx=xrange[2], ymn=yrange[1], ymx=yrange[2])
 
 ## reading one month of data and visualize ===============
 if(length(list.files("../n5eil01u.ecs.nsidc.org/SMAP/SPL3SMP.004/")) !=365)
@@ -43,11 +43,11 @@ for(j in 1:length(month)){
         mat =file["/Soil_Moisture_Retrieval_Data_AM/soil_moisture"][]
         mat[mat == -9999] = NA
         h5close(file)
-        smapdat[k,] = c(mat)
+        smapdat[k,] = c(t(mat)) ## stacking in row order
       }
     }
   }
 }
-saveRDS(smapdat, "../data/smapdat.rds")
+saveRDS(smapdat, "../data/smapdat_rowstack.rds")
 
 

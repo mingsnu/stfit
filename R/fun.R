@@ -233,15 +233,16 @@ setMethod("getMask", "matrix",
 #' @param nrow number of rows of the image
 #' @param idx the row indexes of the mat that will be used to make the stack object
 #' @param ... other parameters passed to 'raster' function
+#' @param byrow passed to matrix function
 #'
 #' @return a stack object
 #' @export
 #'
 #' @examples
-mat2stack <- function(mat, nrow, idx = 1:nrow(mat), ...){
+mat2stack <- function(mat, nrow, idx = 1:nrow(mat), byrow=FALSE, ...){
   r.list = list()
   for(i in 1:length(idx)){
-    r.list[[i]] = raster(matrix(mat[idx[i],], nrow), ...)
+    r.list[[i]] = raster(matrix(mat[idx[i],], nrow, byrow=byrow), ...)
   }
   s = stack(r.list)
   s

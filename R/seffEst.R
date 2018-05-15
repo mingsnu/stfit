@@ -92,7 +92,8 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
         covest = sparse_emp_cov_est1(rmat, img.nrow, img.ncol, nnr, pidx -
                                        1) #pidx start from 0 in C++
     }
-  
+  ## coerce NA to 0; two vectors with no overlapped observations leads to NA
+  covest$value[is.na(covest$value)] = 0
   scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
                          dims = c(N1, N1), symmetric = TRUE)
   cat("Estimating the variance function...\n")
