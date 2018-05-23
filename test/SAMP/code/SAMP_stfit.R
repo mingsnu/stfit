@@ -9,24 +9,24 @@ colthm$regions$col = rev(colthm$regions$col)
 smapdat = readRDS("../data/smapdat_rowstack.rds")
 doy = 1:365
 doyeval = 1:365
-msk0 = getMask(smapdat)
-levelplot(raster(matrix(msk0, 406, 964, byrow=TRUE), xmn=0, xmx=49, ymn=0, ymx=21))
+# msk0 = getMask(smapdat)
+# levelplot(raster(matrix(msk0, 406, 964, byrow=TRUE), xmn=0, xmx=49, ymn=0, ymx=21))
 
-msk1 = msk0
-msk1[0:405*964+400] = FALSE
-msk1[0:405*964+401] = FALSE
-msk1[0:405*964+650] = FALSE
-msk1[0:405*964+651] = FALSE
-msk1[80*964 + 1:964] = FALSE
-msk1[81*964 + 1:964] = FALSE
-msk1[161*964 + 1:964] = FALSE
-msk1[162*964 + 1:964] = FALSE
-msk1[242*964 + 1:964] = FALSE
-msk1[243*964 + 1:964] = FALSE
-msk1[323*964 + 1:964] = FALSE
-msk1[324*964 + 1:964] = FALSE
-levelplot(raster(matrix(msk1, 406, 964, byrow=TRUE), xmn=0, xmx=49, ymn=0, ymx=21))
-
+# msk1 = msk0
+# msk1[0:405*964+400] = FALSE
+# msk1[0:405*964+401] = FALSE
+# msk1[0:405*964+650] = FALSE
+# msk1[0:405*964+651] = FALSE
+# msk1[80*964 + 1:964] = FALSE
+# msk1[81*964 + 1:964] = FALSE
+# msk1[161*964 + 1:964] = FALSE
+# msk1[162*964 + 1:964] = FALSE
+# msk1[242*964 + 1:964] = FALSE
+# msk1[243*964 + 1:964] = FALSE
+# msk1[323*964 + 1:964] = FALSE
+# msk1[324*964 + 1:964] = FALSE
+# levelplot(raster(matrix(msk1, 406, 964, byrow=TRUE), xmn=0, xmx=49, ymn=0, ymx=21))
+# 
 
 ## dimention 406 964
 #############################
@@ -134,6 +134,10 @@ dev.off()
 # sum(rdiff^2, na.rm=TRUE) / sum(!is.na(rdiff))
 # ## 0.0005179786
 dat1.imp = meanest$meanmat + seffest$seffmat
+dat1[is.na(dat1)] = dat1.imp[is.na(dat1)]
+dat1s = mat2stack(dat1, nrow1, byrow=TRUE, xmn=0, xmx=49, ymn=0, ymx=21)
+levelplot(dat1s[[seq(1,365,by=30)]], par.settings=colthm)
+
 smapdat[,idx1][is.na(dat1)] = dat1.imp[is.na(dat1)]
 # tmpr = raster(matrix(smapdat[1,], 406, 964, byrow = TRUE), 
 #               xmn=0, xmx=964, ymn=0, ymx=406)
