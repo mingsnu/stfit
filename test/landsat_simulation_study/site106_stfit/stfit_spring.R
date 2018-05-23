@@ -1,4 +1,5 @@
 library(feather)
+library(dplyr)
 library(doParallel)
 library(Matrix)
 library(raster)
