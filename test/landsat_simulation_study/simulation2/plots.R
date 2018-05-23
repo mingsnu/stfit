@@ -24,35 +24,6 @@ doybin = findInterval(doy, seq(1,365, by=8))
 yearuni = sort(unique(year))
 doybinuni = sort(unique(doybin))
 
-
-#### partial missing images with different missing percentage
-#### partial missing image indexes with different missing percentage
-pidx0.1 = c(66, 75, 348, 573, 605)
-pidx0.4_0.6 = c(74, 156, 273, 285, 326)
-pidx0.8_0.95 = c(112, 184, 318, 448, 508)
-
-#### fully observed image indexes from different seasons
-fidx1 = c(261, 265, 312, 387, 581)
-fidx2 = c(145, 276, 444, 481, 587)
-fidx3 = c(198, 202, 493, 549, 557)
-fidx4 = c(82, 293, 505, 609, 615)
-fidx = c(fidx1, fidx2, fidx3, fidx4)
-fmat = mat0[fidx, ]
-
-########## full observed images
-pdf("./plot/fully_observed.pdf")
-tmpstack = mat2stack(fmat, 31)
-levelplot(tmpstack, names.attr = c(paste0("F", 1:20)), par.settings = colthm)
-dev.off()
-########## paritally observed images
-pdf("./plot/missing_pattern.pdf")
-tmpdat = mat0[c(pidx0.1, pidx0.4_0.6, pidx0.8_0.95), ]
-tmpdat[!is.na(tmpdat)] = 1
-tmpstack = mat2stack(tmpdat, 31)
-myTheme <- rasterTheme(region=gray.colors(1)) 
-levelplot(tmpstack, colorkey=FALSE, names.attr = c(paste0("P", 1:15)), par.settings = myTheme)
-dev.off()
-
 ########## pidx0.1
 tmpdat = mat0[pidx0.1,]
 tmpdat[!is.na(tmpdat)] = 1

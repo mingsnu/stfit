@@ -7,4 +7,4 @@
 #SBATCH --error=job.%J.err # tell it to store the output console text to a file
 #SBATCH --output=job.%J.out #tell it to store the error messages to a file
 module load R #load the most recent version of R available
-Rscript simulation_pidx0.1.R
+Rscript stfit_spring.R

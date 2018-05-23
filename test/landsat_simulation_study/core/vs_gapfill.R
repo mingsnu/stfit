@@ -9,7 +9,6 @@ library(stfit)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
 
-
 df = read_feather("../data/features_106_wide.feather")
 ## focus on year >= 2000 for test purpose
 df = df %>% filter(year >= 2000)
@@ -63,16 +62,6 @@ system.time({
 # user   system  elapsed 
 # 2465.583   95.854  355.525 
 saveRDS(our_res, "./our_output/our_res.rds")
-
-##########################################
-#### partial missing image selection #####
-##########################################
-missingpct = apply(mat0[res$idx$idx.partialmissing,], 1, function(x) sum(is.na(x))/length(x))
-pidx0.1 = res$idx$idx.partialmissing[which(missingpct < 0.1)]
-pidx0.1 = pidx0.1[c(1,2,7,8,9)]
-pidx0.4_0.6 = res$idx$idx.partialmissing[which(missingpct <= 0.6 & missingpct > 0.4)]
-pidx0.4_0.6 = pidx0.4_0.6[1:5]
-pidx0.8_0.95 = res$idx$idx.partialmissing[which(missingpct <= 0.95 & missingpct > 0.8)]
 
 ############################
 ##### Simulation study #####
