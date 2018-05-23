@@ -6,5 +6,5 @@
 #SBATCH --mail-user=weich@iastate.edu   # Where to send mail
 #SBATCH --error=job.%J.err # tell it to store the output console text to a file
 #SBATCH --output=job.%J.out #tell it to store the error messages to a file
-module load R #load the most recent version of R available
+module load r #load the most recent version of R available
 Rscript stfit_spring.R

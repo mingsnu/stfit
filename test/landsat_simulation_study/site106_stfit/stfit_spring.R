@@ -1,5 +1,4 @@
 library(feather)
-library(dplyr)
 library(doParallel)
 library(Matrix)
 library(raster)
@@ -27,8 +26,9 @@ pmat = readRDS("../missing_pattern/output/missing_pattern.rds")
 fidx1 = c(145, 387, 481, 581, 587)
 fidx2 = c(198, 276, 444, 493, 549)
 fidx3 = c(82, 202, 293, 505, 557) #609 
-fidx4 = c(88, 132, 261, 265, 615) 
-fmat = mat0[fidx1, ]
+fidx4 = c(88, 132, 261, 265, 615)
+fidx = fidx1
+fmat = mat0[fidx, ]
 if(!dir.exists("stfit_spring"))
   dir.create("stfit_spring")
 
