@@ -58,17 +58,18 @@ op <- par(ask=FALSE)
 yeareval = as.numeric(dimnames(teffarray)[[1]])
 doyeval = as.numeric(dimnames(teffarray)[[2]])
 plot(0, xlim = range(doyeval), ylim = range(rmat, na.rm = TRUE), type = "n")
+colors=rainbow(16)
 for(i in 1:length(yeareval)){
   ind = which(year==yeareval[i])
-  points(doy[ind], rmat[ind,1], col = i, pch=19)
-  lines(doyeval, teffarray[i,,1], col = i, lwd=3)
+  points(doy[ind], rmat[ind,1], col = colors[i], pch=19)
+  lines(doyeval, teffarray[i,,1], col = colors[i], lwd=3)
   locator(1)
 }
 par(op)
 
 ### visualization 3
 ## sequence of images for one specific year
-teffmat_stack = mat2stack(teffmat[12,,], 31)
+teffmat_stack = mat2stack(teffarray[12,,], 31)
 levelplot(teffmat_stack[[seq(1, 100, by = 5)]], par.settings = colthm)
 
 
