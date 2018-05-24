@@ -45,8 +45,8 @@ N = nrow(fmat)
 M = nrow(pmat)
 registerDoParallel(16)
 res = foreach(n = 1:(M*N)) %dopar% {
-  i = (n - 1) %/% N + 1 ## COLUMN INDEX 
-  j = (n - 1) %% N + 1 ## ROW INDEX
+  i = (n - 1) %% M + 1 ## ROW INDEX
+  j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
   ## apply missing patterns to fully observed images
   missing.idx = is.na(pmat[i,])
