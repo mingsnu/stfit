@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --nodes=1 #request one node
-#SBATCH --cpus-per-task=10 #ask for 8 cpus
+#SBATCH --cpus-per-task=16 #ask for 8 cpus
 #SBATCH --time=10:00:00 #ask that the job be allowed to run for 2 hours.
 #SBATCH --mail-type=ALL               # Mail events (NONE, BEGIN, END, FAIL, ALL)
 #SBATCH --mail-user=weich@iastate.edu   # Where to send mail
