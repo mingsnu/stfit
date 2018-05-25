@@ -52,8 +52,15 @@ teffEst <- function(ids, doy, rmat,
     
     idx1 = round(length(t.grid)/4):round(length(t.grid)/4*3)
     nugg = max(mean((sigma2[idx1]-diag(R0.hat)[idx1])), 0.0)
-    res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, yeareval)
-    res$mat
+    if(!all(yeareval %in% ids[nnaidx])){
+      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval)
+      mat = matrix(0, length(yeareval), length(doyeval))
+      mat[which(yeareval %in% idx[nnaidx])] = res$mat
+      return(mat)
+    } else{
+      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, yeareval)
+      return(res$mat)
+    }
   }
   dimnames(teffarray) = list(yeareval, doyeval, 1:ncol(rmat))
   return(teffarray)

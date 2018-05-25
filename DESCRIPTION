@@ -1,7 +1,7 @@
 Package: stfit
 Type: Package
 Title: Spatio-Temporal Functional Imputation Tool
-Version: 0.90.6
+Version: 0.90.7
 Date: 2018-04-23
 Author: c(person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre")),
 	     person("Zhonglei", "Wang"))
