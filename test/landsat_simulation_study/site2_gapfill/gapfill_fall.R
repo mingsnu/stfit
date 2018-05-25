@@ -10,7 +10,7 @@ library(abind)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
 
-df = read_feather("../../data/features_2_wide.feather")
+df = read_feather("../../data/features_106_wide.feather")
 ## focus on year >= 2000 for test purpose
 df = df %>% filter(year >= 2000)
 year = df$year
@@ -27,23 +27,17 @@ pmat = readRDS("../missing_pattern/output/missing_pattern.rds")
 fidx1 = c(13, 101, 267, 432, 479)
 fidx2 = c(21, 107, 192, 321, 493)
 fidx3 = c(33, 121, 295, 458, 563) #609 
-fidx4 = c(95, 128, 222, 261) 
+fidx4 = c(95, 128, 222, 261)
 fidx = fidx3
 fmat = mat0[fidx, ]
-if(!dir.exists("stfit_fall"))
-  dir.create("stfit_fall")
+if(!dir.exists("gapfill_fall"))
+  dir.create("gapfill_fall")
 
-###### define function used for mean estimation ######
-.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
-customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
-  nonna.idx = !is.na(y)
-  if(sum(nonna.idx) < minimum.num.obs)
-    return(rep(NA, 365))
-  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
-  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
-  return(.X %*% lmfit$coefficient)
-}
-stfit::opts$set(temporal_mean_est = customfun)
+
+###### variables used for Gapfill package ######
+doybin = findInterval(doy, seq(1,365, by=8))
+yearuni = sort(unique(year))
+doybinuni = sort(unique(doybin))
 
 ## collapse the partial and full index for parallel
 ## matrix of MxN, column stacking
@@ -58,18 +52,32 @@ res = foreach(n = 1:(M*N)) %dopar% {
   missing.idx = is.na(pmat[i,])
   mat[fidx[j], missing.idx] = NA
   
-  if(file.exists(paste0("./stfit_fall/stfit_fall_P", i, "_F_", j, ".rds"))){
-      res1 <- readRDS(paste0("./stfit_fall/stfit_fall_P", i, "_F_", j, ".rds"))
-  } else {
-      res1 <- gapfill_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000),
-                              use.intermediate.result = FALSE, intermediate.save = FALSE)
-      saveRDS(res1, paste0("./stfit_fall/stfit_fall_P", i, "_F_", j, ".rds"))
+  datarray = array(NA, dim = c(31, 31, 46, 16), dimnames = list(1:31, 1:31, doybinuni, yearuni))
+  for(ii in 1:16){
+    for(jj in 1:46){
+      idx = year == yearuni[ii] & doybin == doybinuni[jj]
+      if(sum(idx) == 1)
+        datarray[,,jj,ii] = matrix(mat[year == yearuni[ii] & doybin == doybinuni[jj],], 31) else
+          if(sum(idx) > 1)
+            warning("Multiple matches.")
+    }
   }
-  imat = res1$imat[fidx[j],]
+  yidx = which(year[fidx[j]] == yearuni)
+  didx = which(findInterval(doy[fidx[j]], seq(1,365, by=8)) == doybinuni)
+  didxinterval = max(1,didx-6):min(46, didx + 6)
+  yidxinterval = max(1, yidx - 4):min(16, yidx + 4)
+  tmpmat = datarray[,,didxinterval, yidxinterval]
+  
+  if(file.exists(paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))){
+    res1 <- readRDS(paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))
+  } else {
+    res1 = gapfill::Gapfill(tmpmat, clipRange = c(0, 3000), dopar = TRUE)
+    saveRDS(res1, paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))
+  }
+  imat = c(res1$fill[,,which(didx == didxinterval), which(yidx == yidxinterval)])
   c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
     NMSE(fmat[j, missing.idx], imat[missing.idx]),
     ARE(fmat[j, missing.idx], imat[missing.idx]),
     cor(fmat[j, missing.idx], imat[missing.idx]))
 }
-saveRDS(res, "./stfit_fall/res.rds")
-
+saveRDS(res, "./gapfill_fall/res.rds")

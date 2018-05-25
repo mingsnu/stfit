@@ -16,7 +16,7 @@ df = df %>% filter(year >= 2000)
 year = df$year
 doy = df$doy
 mat0 = as.matrix(df[,-c(1:2)])
-mat0[mat0 > 2000] = NA
+mat0[mat0 > 3000] = NA
 
 #######################################
 ##### Simulation study for winter #####
@@ -61,7 +61,7 @@ res = foreach(n = 1:(M*N)) %dopar% {
   if(file.exists(paste0("./stfit_winter/stfit_winter_P", i, "_F_", j, ".rds"))){
       res1 <- readRDS(paste0("./stfit_winter/stfit_winter_P", i, "_F_", j, ".rds"))
   } else {
-      res1 <- gapfill_landsat(year, doy, mat, 31, 31, nnr=30,
+      res1 <- gapfill_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000),
                               use.intermediate.result = FALSE, intermediate.save = FALSE)
       saveRDS(res1, paste0("./stfit_winter/stfit_winter_P", i, "_F_", j, ".rds"))
   }
