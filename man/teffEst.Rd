@@ -5,7 +5,8 @@
 \title{Temporal effect estimation}
 \usage{
 teffEst(ids, doy, rmat, doyeval = seq(min(doy), max(doy)), h.cov = 100,
-  h.sigma2 = 300, weight.cov = NULL, weight.sigma2 = NULL, pve = 0.99)
+  h.sigma2 = 300, weight.cov = NULL, weight.sigma2 = NULL, pve = 0.99,
+  t.grid = NULL, t.grid.num = 50)
 }
 \arguments{
 \item{ids}{ids for 'group', for data with repeated measurement over years, year is ids; 
@@ -26,6 +27,10 @@ for pixels belong to certain clusters, cluster is ids.}
 \item{weight.sigma2}{weight vector for sigma2 estimation; not used for now...}
 
 \item{pve}{percentage of variance explained; used for number of eigen values selection}
+
+\item{t.grid}{vector of grid points on which to calculate the covariance function}
+
+\item{t.grid.num}{number of grid points to use for covariance estimation. Ignored if `t.grid` is given.}
 }
 \description{
 Temporal effect estimation

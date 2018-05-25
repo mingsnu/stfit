@@ -4,7 +4,7 @@
 \alias{mat2stack}
 \title{Matrix to stack object}
 \usage{
-mat2stack(mat, nrow, idx = 1:nrow(mat), ...)
+mat2stack(mat, nrow, idx = 1:nrow(mat), byrow = FALSE, ...)
 }
 \arguments{
 \item{mat}{each row corresponse to an image}
@@ -12,6 +12,8 @@ mat2stack(mat, nrow, idx = 1:nrow(mat), ...)
 \item{nrow}{number of rows of the image}
 
 \item{idx}{the row indexes of the mat that will be used to make the stack object}
+
+\item{byrow}{passed to matrix function}
 
 \item{...}{other parameters passed to 'raster' function}
 }

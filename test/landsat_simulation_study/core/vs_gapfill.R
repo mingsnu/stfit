@@ -9,7 +9,7 @@ library(stfit)
 colthm = RdBuTheme()
 colthm$regions$col = rev(colthm$regions$col)
 
-df = read_feather("../data/features_106_wide.feather")
+df = read_feather("../../data/features_106_wide.feather")
 ## focus on year >= 2000 for test purpose
 df = df %>% filter(year >= 2000)
 year = df$year
