@@ -55,7 +55,7 @@ teffEst <- function(ids, doy, rmat,
     if(!all(yeareval %in% ids[nnaidx])){
       res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval)
       mat = matrix(0, length(yeareval), length(doyeval))
-      mat[which(yeareval %in% idx[nnaidx])] = res$mat
+      mat[which(yeareval %in% ids[nnaidx])] = res$mat
       return(mat)
     } else{
       res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, yeareval)
