@@ -5,7 +5,7 @@ library(Matrix)
 library(raster)
 library(rasterVis)
 library(stfit)
-df = read_feather("../data/features_106_wide.feather")
+df = read_feather("../../data/features_106_wide.feather")
 df = df %>% filter(year >= 2000)
 year = df$year
 doy = df$doy
