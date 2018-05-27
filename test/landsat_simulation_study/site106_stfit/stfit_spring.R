@@ -60,12 +60,12 @@ res = foreach(n = 1:(M*N)) %dopar% {
   missing.idx = is.na(pmat[i,])
   mat[fidx[j], missing.idx] = NA
   
-  if(file.exists(paste0("./stfit_spring/stfit_spring_P", i, "_F_", j, ".rds"))){
-      res1 <- readRDS(paste0("./stfit_spring/stfit_spring_P", i, "_F_", j, ".rds"))
+  if(file.exists(paste0("./stfit_spring/stfit_spring_P", pidx[i], "_F_", fidx[j], ".rds"))){
+      res1 <- readRDS(paste0("./stfit_spring/stfit_spring_P", pidx[i], "_F_", fidx[j], ".rds"))
   } else {
       res1 <- gapfill_landsat(year, doy, mat, 31, 31, nnr=30,
                               use.intermediate.result = FALSE, intermediate.save = FALSE)
-      saveRDS(res1, paste0("./stfit_spring/stfit_spring_P", i, "_F_", j, ".rds"))
+      saveRDS(res1, paste0("./stfit_spring/stfit_spring_P", pidx[i], "_F_", fidx[j], ".rds"))
   }
   imat = res1$imat[fidx[j],]
   c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
