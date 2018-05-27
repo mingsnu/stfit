@@ -70,11 +70,11 @@ res = foreach(n = 1:(M*N)) %dopar% {
   yidxinterval = max(1, yidx - 4):min(16, yidx + 4)
   tmpmat = datarray[,,didxinterval, yidxinterval]
   
-  if(file.exists(paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))){
-    res1 <- readRDS(paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))
+  if(file.exists(paste0("./gapfill_fall/gapfill_fall_P", pidx[i], "_F_", fidx[j], ".rds"))){
+    res1 <- readRDS(paste0("./gapfill_fall/gapfill_fall_P", pidx[i], "_F_", fidx[j], ".rds"))
   } else {
     res1 = gapfill::Gapfill(tmpmat, clipRange = c(0, 3000), dopar = TRUE)
-    saveRDS(res1, paste0("./gapfill_fall/gapfill_fall_P", i, "_F_", j, ".rds"))
+    saveRDS(res1, paste0("./gapfill_fall/gapfill_fall_P", pidx[i], "_F_", fidx[j], ".rds"))
   }
   imat = c(res1$fill[,,which(didx == didxinterval), which(yidx == yidxinterval)])
   c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
