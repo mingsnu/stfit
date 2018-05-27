@@ -47,6 +47,7 @@ print(xtable::xtable(df), include.rownames=FALSE)
 #### save missing pattern data to file  =================
 pidx = c(pidx0.3, pidx0.3_0.7, pidx0.7_0.99)
 ## [1]  68 209 352 605 624  74 156 263 273 499 184 369 508 517 565
+pidx = c(68, 209, 352, 605, 624, 74, 156, 263, 273, 499, 184, 369, 508, 517, 565)
 saveRDS(mat[pidx,], "output/missing_pattern.rds")
 
 

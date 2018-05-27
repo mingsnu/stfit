@@ -22,6 +22,8 @@ mat0[mat0 > 2000] = NA
 ##### Simulation study for spring #####
 #######################################
 #### partial missing image indexes with different missing percentage
+##### selected partially observed images indexes
+pidx = c(68, 209, 352, 605, 624, 74, 156, 263, 273, 499, 184, 369, 508, 517, 565)
 pmat = readRDS("../missing_pattern/output/missing_pattern.rds")
 #### fully observed image indexes from different seasons
 fidx1 = c(145, 387, 481, 581, 587)

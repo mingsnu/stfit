@@ -36,7 +36,7 @@ summer.idx
 fall.idx
 winter.idx
 
-##### selected fully observed images ==================
+##### selected fully observed images indexes =========
 fidx1 = c(145, 387, 481, 581, 587)
 fidx2 = c(198, 276, 444, 493, 549)
 fidx3 = c(82, 202, 293, 505, 557) #609 
