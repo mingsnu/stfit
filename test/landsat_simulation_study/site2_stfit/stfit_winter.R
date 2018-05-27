@@ -26,8 +26,8 @@ mat0[mat0 > 3000] = NA
 pidx = c(68, 209, 352, 605, 624, 74, 156, 263, 273, 499, 184, 369, 508, 517, 565)
 pmat = readRDS("../missing_pattern/output/missing_pattern.rds")
 #### fully observed image indexes from different seasons
-fidx1 = c(13, 101, 267, 432, 479)
-fidx2 = c(21, 107, 192, 321, 493)
+fidx1 = c(13, 101, 267, 432, 485)
+fidx2 = c(21, 110, 192, 280, 493)
 fidx3 = c(33, 121, 295, 458, 563) #609 
 fidx4 = c(95, 128, 222, 261) 
 fidx = fidx4
