@@ -40,7 +40,7 @@ winter.idx
 fidx1 = c(145, 387, 481, 581, 587)
 fidx2 = c(198, 276, 444, 493, 549)
 fidx3 = c(82, 202, 293, 505, 557) #609 
-fidx4 = c(132, 261, 265, 615, 338) 
+fidx4 = c(132, 261, 265, 615, 657) 
 
 ##### image information talbe =========================
 df = data.frame(year = year[c(fidx1, fidx2, fidx3, fidx4)],
