@@ -24,7 +24,7 @@ res = readRDS("../core/our_output/our_res.rds")
 ## 0~30; 30~70; 70~100
 missingpct = apply(mat[res$idx$idx.partialmissing,], 1, function(x) sum(is.na(x))/length(x))
 pidx0.3 = res$idx$idx.partialmissing[which(missingpct < 0.3)]
-pidx0.3 = pidx0.3[c(2,12,25,31,32)]
+pidx0.3 = pidx0.3[c(3,12,25,31,32)]
 pidx0.3.missingpct = apply(mat[pidx0.3,], 1, function(x) sum(is.na(x))/length(x))
 pidx0.3_0.7 = res$idx$idx.partialmissing[which(missingpct <= 0.7 & missingpct > 0.3)]
 pidx0.3_0.7 = pidx0.3_0.7[c(1,3,19, 21, 53)]
@@ -45,7 +45,9 @@ df = data.frame(pn = paste0("P", 1:15),
 print(xtable::xtable(df), include.rownames=FALSE)
 
 #### save missing pattern data to file  =================
-saveRDS(mat[c(pidx0.3, pidx0.3_0.7, pidx0.7_0.99),], "output/missing_pattern.rds")
+pidx = c(pidx0.3, pidx0.3_0.7, pidx0.7_0.99)
+## [1]  68 209 352 605 624  74 156 263 273 499 184 369 508 517 565
+saveRDS(mat[pidx,], "output/missing_pattern.rds")
 
 
 ###########################################
