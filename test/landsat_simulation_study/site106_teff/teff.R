@@ -22,13 +22,15 @@ mat0[mat0 > 2000] = NA
 ##### Simulation study for summer #####
 #######################################
 #### partial missing image indexes with different missing percentage
+##### selected partially observed images indexes
+pidx = c(68, 209, 352, 605, 624, 74, 156, 263, 273, 499, 184, 369, 508, 517, 565)
 pmat = readRDS("../missing_pattern/output/missing_pattern.rds")
 #### fully observed image indexes from different seasons
 fidx1 = c(145, 387, 481, 581, 587)
 fidx2 = c(198, 276, 444, 493, 549)
 fidx3 = c(82, 202, 293, 505, 557) #609 
-fidx4 = c(88, 132, 261, 265, 615)
-fidx = fidx2
+fidx4 = c(132, 261, 265, 615, 657) 
+fidx = c(fidx1, fidx2, fidx3, fidx4)
 fmat = mat0[fidx, ]
 if(!dir.exists("output"))
   dir.create("output")
@@ -49,8 +51,8 @@ stfit::opts$set(temporal_mean_est = customfun)
 ## matrix of MxN, column stacking
 N = nrow(fmat)
 M = nrow(pmat)
-registerDoParallel(10)
-res = foreach(n = 1:(M*N)) %dopar% {
+registerDoParallel(16)
+res1 = foreach(n = 1:(M*N)) %dopar% {
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -58,14 +60,13 @@ res = foreach(n = 1:(M*N)) %dopar% {
   missing.idx = is.na(pmat[i,])
   mat[fidx[j], missing.idx] = NA
   
-  if(file.exists(paste0("./output/P", i, "_F_", j, ".rds"))){
-    res1 <- readRDS(paste0("./output/mean_P", i, "_F_", j, ".rds"))
+  if(file.exists(paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))){
+    res1 <- readRDS(paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))
   } else {
     res1 <- gapfill_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = FALSE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
-                            intermediate.dir = paste0("./intermediate_results/P_", i,
-                                                      "_F_", j, "/"))
-    saveRDS(res1, paste0("./output/mean_P", i, "_F_", j, ".rds"))
+                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+    saveRDS(res1, paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))
   }
   imat = res1$imat[fidx[j],]
   c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
@@ -73,5 +74,29 @@ res = foreach(n = 1:(M*N)) %dopar% {
     ARE(fmat[j, missing.idx], imat[missing.idx]),
     cor(fmat[j, missing.idx], imat[missing.idx]))
 }
-saveRDS(res, "./output/mean_res.rds")
+saveRDS(res1, "./output/mean_res.rds")
+
+res2 = foreach(n = 1:(M*N)) %dopar% {
+  i = (n - 1) %% M + 1 ## ROW INDEX
+  j = (n - 1) %/% M + 1 ## COLUMN INDEX
+  mat = mat0
+  ## apply missing patterns to fully observed images
+  missing.idx = is.na(pmat[i,])
+  mat[fidx[j], missing.idx] = NA
+  
+  if(file.exists(paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))){
+    res1 <- readRDS(paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))
+  } else {
+    res1 <- gapfill_landsat(year, doy, mat, 31, 31, teff = TRUE, seff = FALSE,
+                            use.intermediate.result = TRUE, intermediate.save = TRUE,
+                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+    saveRDS(res1, paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))
+  }
+  imat = res1$imat[fidx[j],]
+  c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
+    NMSE(fmat[j, missing.idx], imat[missing.idx]),
+    ARE(fmat[j, missing.idx], imat[missing.idx]),
+    cor(fmat[j, missing.idx], imat[missing.idx]))
+}
+saveRDS(res2, "./output/teff_res.rds")
 
