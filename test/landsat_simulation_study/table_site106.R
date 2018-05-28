@@ -313,3 +313,8 @@ boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-")
 
+
+
+
+effmat = cbind(apply(RMSEmat1,1,mean), apply(RMSEmat2,1,mean), apply(RMSEmat3,1,mean))
+apply(effmat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
