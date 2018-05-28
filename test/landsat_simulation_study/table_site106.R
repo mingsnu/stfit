@@ -288,33 +288,33 @@ printbold(xtable::xtable(RMSEmat.int), which = boldmat, NA.string = "-")
 ##################
 ##### effects tables =======================
 ## Spring table ===================================
-res = readRDS("./site106_effects/output/mean_res.rds")
-RMSEmat1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
-rownames(RMSEmat1) = paste0("P", 1:15)
-res = readRDS("./site106_effects/output/teff_res.rds")
-RMSEmat2 = matrix(unlist(lapply(res, function(x)x[1])), 15)
-res = readRDS("./site106_stfit/stfit_summer/res.rds")
-RMSEmat3 = matrix(unlist(lapply(res, function(x)x[1])), 15)
+res = readRDS("./site106_teff/output/mean_res.rds")
+RMSEmat_mean1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
+rownames(RMSEmat_mean1) = paste0("P", 1:15)
+res = readRDS("./site106_teff/output/teff_res.rds")
+RMSEmat_teff1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
 
-## combine
-RMSEmat = matrix(0, 15, 15)
-RMSEmat[, seq(1, 15, 3)] = RMSEmat1
-RMSEmat[, seq(2, 15, 3)] = RMSEmat2
-RMSEmat[, seq(3, 15, 3)] = RMSEmat3
-RMSEmat
-rownames(RMSEmat) = paste0("P", 1:15)
-colnames(RMSEmat) = paste0("F", rep(1:5, each=3))
-RMSExtable = xtable::xtable(RMSEmat)
+# 
+# ## combine
+# RMSEmat = matrix(0, 15, 15)
+# RMSEmat[, seq(1, 15, 3)] = RMSEmat_mean1
+# RMSEmat[, seq(2, 15, 3)] = RMSEmat_teff1
+# RMSEmat[, seq(3, 15, 3)] = RMSEmat1
+# RMSEmat
+# rownames(RMSEmat) = paste0("P", 1:15)
+# colnames(RMSEmat) = paste0("F", rep(1:5, each=3))
+# RMSExtable = xtable::xtable(RMSEmat)
+# 
+# boldmat = matrix(TRUE, 15, 15)
+# ## table(c(RMSEmat_mean1 < RMSEmat2))
+# boldmat[, seq(1, 15, 3)] = (RMSEmat_mean1 < RMSEmat2) & (RMSEmat_mean1 < RMSEmat3)
+# boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat_mean1) & (RMSEmat2 < RMSEmat3)
+# boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat_mean1) & (RMSEmat3 < RMSEmat2)
+# printbold(RMSExtable, which = boldmat, NA.string = "-")
+RMSE_t2m_ratio = RMSEmat_teff1/RMSEmat_mean1
+RMSE_s2m_ratio = RMSEmat1/RMSEmat_mean1
+eff_mean_mat = cbind(apply(RMSE_t2m_ratio,1,mean), apply(RMSE_s2m_ratio,1,mean))
+apply(eff_mean_mat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
 
-boldmat = matrix(TRUE, 15, 15)
-## table(c(RMSEmat1 < RMSEmat2))
-boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
-boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
-boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
-printbold(RMSExtable, which = boldmat, NA.string = "-")
-
-
-
-
-effmat = cbind(apply(RMSEmat1,1,mean), apply(RMSEmat2,1,mean), apply(RMSEmat3,1,mean))
-apply(effmat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
+eff_mean_mat = cbind(apply(RMSEmat_mean1,1,mean), apply(RMSEmat_teff1,1,mean), apply(RMSEmat1,1,mean))
+apply(eff_mean_mat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)

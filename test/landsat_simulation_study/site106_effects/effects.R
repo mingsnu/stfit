@@ -100,3 +100,27 @@ res2 = foreach(n = 1:(M*N)) %dopar% {
 }
 saveRDS(res2, "./output/teff_res.rds")
 
+res3 = foreach(n = 1:(M*N)) %dopar% {
+  i = (n - 1) %% M + 1 ## ROW INDEX
+  j = (n - 1) %/% M + 1 ## COLUMN INDEX
+  mat = mat0
+  ## apply missing patterns to fully observed images
+  missing.idx = is.na(pmat[i,])
+  mat[fidx[j], missing.idx] = NA
+  
+  if(file.exists(paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))){
+    res1 <- readRDS(paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))
+  } else {
+    res1 <- gapfill_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = TRUE,
+                            use.intermediate.result = TRUE, intermediate.save = TRUE,
+                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+    saveRDS(res1, paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))
+  }
+  imat = res1$imat[fidx[j],]
+  c(RMSE(fmat[j, missing.idx], imat[missing.idx]),
+    NMSE(fmat[j, missing.idx], imat[missing.idx]),
+    ARE(fmat[j, missing.idx], imat[missing.idx]),
+    cor(fmat[j, missing.idx], imat[missing.idx]))
+}
+saveRDS(res3, "./output/seff_res.rds")
+
