@@ -16,7 +16,7 @@ df = df %>% filter(year >= 2000)
 year = df$year
 doy = df$doy
 mat0 = as.matrix(df[,-c(1:2)])
-mat0[mat0 > 2000] = NA
+mat0[mat0 > 3000] = NA
 
 #######################################
 ##### Simulation study for summer #####
