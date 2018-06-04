@@ -12,7 +12,7 @@ library(foreach)
 ## 2. Divide 300x300 image into 30x30
 ## Also take care of the case where there are "water body" in the image.
 
-dat0 = readRDS("./output/dat1.rds")
+dat0 = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_shift.rds")
 
 ## ## can use getMask function to get the mask
 ## msk0 = getMask(dat0)
@@ -25,34 +25,7 @@ year = rep(2010, 365)
 doy = 1:365
 idx = 1:365 ## doy index on which to to imputation
 
-#############################
-### Level one imputation ####
-#############################
-## systematic sampling every 50 pixels
-## Using a 24 x 24 image to represent the 1200x1200 image
-idx1 = c(t(outer(seq(25, 1200, by = 50), seq(25, 1200, by = 50),
-                 FUN = function(ridx, cidx){
-                   (ridx-1) * 1200 + cidx
-                 })))
-dat1 = dat[,idx1]
-
-## visualization of the coarse lattice
-rlist = list()
-for(i in 1:365){
-  rlist[[i]] = raster(matrix(dat1[i,], 24, 24, byrow=TRUE))
-}
-s = stack(rlist)
-
-pdf("output/lvl1/lvl1_24x24.pdf")
-for(i in 1:12){
-  print(levelplot(s[[((i-1)*30 +1):(i*30)]]))
-}
-levelplot(s[[361:365]])
-dev.off()
-
-## visualization of imputed results
-nrow = 24; ncol=24;
-registerDoParallel(cores = 6)
+registerDoParallel(cores = 16)
 ## stfit::opts$set(temporal_mean_est = stfit::spreg)
 
 .X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
@@ -65,9 +38,38 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   return(.X %*% lmfit$coefficient)
 }
 stfit::opts$set(temporal_mean_est = customfun)
-## res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/")
 
-## pdf("output/lvl1/lvl1_24x_24_partial_imputed.pdf")
+#############################
+### Level one imputation ####
+#############################
+cat("level one imputation....\n")
+## systematic sampling every 50 pixels
+## Using a 24 x 24 image to represent the 1200x1200 image
+idx1 = c(t(outer(seq(25, 1200, by = 50), seq(25, 1200, by = 50),
+                 FUN = function(ridx, cidx){
+                   (ridx-1) * 1200 + cidx
+                 })))
+dat1 = dat[,idx1]
+
+## ## visualization of the coarse lattice
+## ## rlist = list()
+## ## for(i in 1:365){
+## ##   rlist[[i]] = raster(matrix(dat1[i,], 24, 24, byrow=TRUE))
+## ## }
+## ## s = stack(rlist)
+
+## ## pdf("output/lvl1/lvl1_24x24.pdf")
+## ## for(i in 1:12){
+## ##   print(levelplot(s[[((i-1)*30 +1):(i*30)]]))
+## ## }
+## ## levelplot(s[[361:365]])
+## ## dev.off()
+
+
+nrow = 24; ncol=24;
+res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/", outlier.action = "remove")
+
+## pdf("output/lvl1/lvl1_24x_24_partial_imputed_outlier_removed.pdf")
 ## for(l in res1$idx$idx.partialmissing){
 ##   r1 = raster(matrix(dat1[l,], 24))
 ##   r2 = raster(matrix(res1$imat[l,], 24))
@@ -76,21 +78,6 @@ stfit::opts$set(temporal_mean_est = customfun)
 ## }
 ## dev.off()
 
-## na.idx1 = is.na(dat1)
-## dat[,idx1][na.idx1] = res1$imat[na.idx1]
-## saveRDS(dat, "output/lvl1_impu.rds")
-
-res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/", outlier.action = "remove")
-
-pdf("output/lvl1/lvl1_24x_24_partial_imputed_outlier_removed.pdf")
-for(l in res1$idx$idx.partialmissing){
-  r1 = raster(matrix(dat1[l,], 24))
-  r2 = raster(matrix(res1$imat[l,], 24))
-  s = stack(r1, r2)
-  print(levelplot(s))
-}
-dev.off()
-
 na.idx1 = is.na(dat1)
 dat[,idx1][na.idx1] = res1$imat[na.idx1]
 saveRDS(dat, "output/lvl1_impu_outlier_removed.rds")
@@ -98,7 +85,8 @@ saveRDS(dat, "output/lvl1_impu_outlier_removed.rds")
 #############################
 ### Level two imputation ####
 #############################
-dat = readRDS("output/lvl1_impu_outlier_removed.rds")
+cat("level two imputation....\n")
+## dat = readRDS("output/lvl1_impu_outlier_removed.rds")
 ## range(dat, na.rm=TRUE)
 ## [1] 23724 32939
 
@@ -110,7 +98,6 @@ idx2 = c(t(outer(seq(5, 300, by = 10), seq(5, 300, by = 10),
                  })))
 nrow = 30; ncol=30;
 
-registerDoParallel(cores=6)
 res2.list = foreach(n=1:16) %dopar% {
   ii = floor((n-1)/4) + 1
   jj = (n-1) %% 4 + 1
@@ -126,24 +113,24 @@ res2.list = foreach(n=1:16) %dopar% {
                 intermediate.dir = "./output/lvl2/", outlier.action = "remove")
 }
 
-## visualize the level two imputation results.
-for(n in 1:16){
-  pdf(paste0("output/lvl2/lvl2_30x_30_partial_imputed_outlier_removed_n", n, ".pdf"))
-  ii = floor((n-1)/4) + 1
-  jj = (n-1) %% 4 + 1
-  ## block index
-  bIdx = c(t(outer(seq((ii-1)*300+1, ii*300), seq((jj-1)*300+1, jj*300),
-                   FUN = function(ridx, cidx){
-                     (ridx-1) * 1200 + cidx
-                   })))
-  for(l in 1:365){
-    r1 = raster(matrix(dat[,bIdx[idx2]][l,], 30))
-    r2 = raster(matrix(res2.list[[n]]$imat[l,], 30))
-    s = stack(r1, r2)
-    print(levelplot(s))
-  }
-  dev.off()    
-}
+## ## visualize the level two imputation results.
+## for(n in 1:16){
+##   pdf(paste0("output/lvl2/lvl2_30x_30_partial_imputed_outlier_removed_n", n, ".pdf"))
+##   ii = floor((n-1)/4) + 1
+##   jj = (n-1) %% 4 + 1
+##   ## block index
+##   bIdx = c(t(outer(seq((ii-1)*300+1, ii*300), seq((jj-1)*300+1, jj*300),
+##                    FUN = function(ridx, cidx){
+##                      (ridx-1) * 1200 + cidx
+##                    })))
+##   for(l in 1:365){
+##     r1 = raster(matrix(dat[,bIdx[idx2]][l,], 30))
+##     r2 = raster(matrix(res2.list[[n]]$imat[l,], 30))
+##     s = stack(r1, r2)
+##     print(levelplot(s))
+##   }
+##   dev.off()    
+## }
 
 
 ## impute missing values at the second level 'grid points'
@@ -167,25 +154,14 @@ saveRDS(dat, "output/lvl2_impu.rds")
 ###############################
 ### Level three imputation ####
 ###############################
-dat = readRDS("output/lvl2_impu.rds")
+cat("level three imputation....\n")
+## dat = readRDS("output/lvl2_impu.rds")
 ## range(dat, na.rm=TRUE)
 ## [1] -46500.62 111518.68
 ## [1] -1638664.8   369162.9
 dat[dat<23000] = NA
 dat[dat>33000] = NA
 
-.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
-customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
-  nonna.idx = !is.na(y)
-  if(sum(nonna.idx) < minimum.num.obs)
-    return(rep(NA, 365))
-  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
-  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
-  return(.X %*% lmfit$coefficient)
-}
-stfit::opts$set(temporal_mean_est = customfun)
-
-registerDoParallel(cores=10)
 res3.list1 = foreach(n=1:8) %dopar% {
   ii = floor((n-1)/4) + 1
   jj = (n-1) %% 4 + 1
@@ -214,8 +190,9 @@ for(n in 1:8){
   dat[,bIdx] = res3.list1[[n]]$imat
 }
 
-## rm(res3.list1)
+rm(res3.list1)
 gc()
+
 res3.list2 = foreach(n=9:16) %dopar% {
   ii = floor((n-1)/4) + 1
   jj = (n-1) %% 4 + 1
