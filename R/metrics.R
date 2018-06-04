@@ -7,8 +7,9 @@
 #' @export
 #'
 #' @examples
-RMSE = function(y, ypred, ...){
-  sqrt(sum((y-ypred)^2, ...)/length(y))
+RMSE = function(y, ypred){
+  idx = !is.na(y) & !is.na(ypred)
+  sqrt(sum((y[idx]-ypred[idx])^2)/sum(idx))
 }
 
 #' Error metrics
@@ -20,8 +21,9 @@ RMSE = function(y, ypred, ...){
 #' @export
 #'
 #' @examples
-NMSE = function(y, ypred, ...){
-  sum((y-ypred)^2, ...)/sum(y^2)
+NMSE = function(y, ypred){
+  idx = !is.na(y) & !is.na(ypred)
+  sum((y[idx]-ypred[idx])^2)/sum(y[idx]^2)
 }
 
 #' Title
@@ -33,6 +35,7 @@ NMSE = function(y, ypred, ...){
 #' @export
 #'
 #' @examples
-ARE = function(y, ypred, ...){
-  mean(abs(y - ypred)/y, ...)
+ARE = function(y, ypred){
+  idx = !is.na(y) & !is.na(ypred)
+  mean(abs(y[idx] - ypred[idx])/y[idx])
 }

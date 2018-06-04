@@ -244,6 +244,9 @@ for(i in 1:3){
   }
 }
 RMSEmat1.int
+rownames(RMSEmat1.int) = c("< 30%", "30%~70%", "70%~99%")
+colnames(RMSEmat1.int) = c("Spring", "Summer", "Fall", "Winter")
+xtable(RMSEmat1.int)
 
 #### integrated RMSE matrix for gapfill
 RMSEmat2.int = matrix(NA, 3, 4)
@@ -283,16 +286,53 @@ boldmat[, seq(2,12, by=3)] = (RMSEmat2.int < RMSEmat1.int) & (RMSEmat2.int < RMS
 boldmat[, seq(3,12, by=3)] = (RMSEmat3.int < RMSEmat1.int) & (RMSEmat3.int < RMSEmat2.int)
 printbold(xtable::xtable(RMSEmat.int), which = boldmat, NA.string = "-")
 
+##########################################################
+###### Average RE by missing pattern and seasons #######
+##########################################################
+RE_21 = RMSEmat2/RMSEmat1
+RE_31 = RMSEmat3/RMSEmat1
+#### RE matrix for gapfill
+RE2 = matrix(NA, 3, 4)
+for(i in 1:3){
+  for(j in 1:4){
+      RE2[i,j] = mean(RE_21[seq((i-1)*5+1, i*5), seq((j-1)*5+1, j*5)], na.rm=TRUE)
+  }
+}
+RE2
+#### RE matrix for kriging
+RE3 = matrix(NA, 3, 4)
+for(i in 1:3){
+  for(j in 1:4){
+      RE3[i,j] = mean(RE_31[seq((i-1)*5+1, i*5), seq((j-1)*5+1, j*5)], na.rm=TRUE)
+  }
+}
+RE3
+
+RE = matrix(NA, 3, 12)
+RE[, seq(1,12, by=3)] = 1
+RE[, seq(2,12, by=3)] = RE2
+RE[, seq(3,12, by=3)] = RE3
+RE
+rownames(RE) = c("< 30%", "30%~70%", "70%~99%")
+colnames(RE) = rep(c("Spring", "Summer", "Fall", "Winter"), each=3)
+RE
+boldmat = matrix(TRUE, 3, 12)
+boldmat[, seq(1,12, by=3)] = (1 < RE2) & (1 < RE3)
+boldmat[, seq(2,12, by=3)] = (RE2 < 1) & (RE2 < RE3)
+boldmat[, seq(3,12, by=3)] = (RE3 < 1) & (RE3 < RE2)
+printbold(xtable::xtable(RE), which = boldmat, NA.string = "-")
 
 ##################
 ##################
 ##### effects tables =======================
 ## Spring table ===================================
-res = readRDS("./site106_teff/output/mean_res.rds")
+res = readRDS("./site106_effects/output/mean_res.rds")
 RMSEmat_mean1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
 rownames(RMSEmat_mean1) = paste0("P", 1:15)
-res = readRDS("./site106_teff/output/teff_res.rds")
+res = readRDS("./site106_effects/output/teff_res.rds")
 RMSEmat_teff1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
+res = readRDS("./site106_effects/output/seff_res.rds")
+RMSEmat_seff1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
 
 # 
 # ## combine
@@ -312,9 +352,12 @@ RMSEmat_teff1 = matrix(unlist(lapply(res, function(x)x[1])), 15)
 # boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat_mean1) & (RMSEmat3 < RMSEmat2)
 # printbold(RMSExtable, which = boldmat, NA.string = "-")
 RMSE_t2m_ratio = RMSEmat_teff1/RMSEmat_mean1
-RMSE_s2m_ratio = RMSEmat1/RMSEmat_mean1
-eff_mean_mat = cbind(apply(RMSE_t2m_ratio,1,mean), apply(RMSE_s2m_ratio,1,mean))
-apply(eff_mean_mat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
-
-eff_mean_mat = cbind(apply(RMSEmat_mean1,1,mean), apply(RMSEmat_teff1,1,mean), apply(RMSEmat1,1,mean))
-apply(eff_mean_mat,2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
+RMSE_s2m_ratio = RMSEmat_seff1/RMSEmat_mean1
+RMSE_st2m_ratio = RMSEmat1/RMSEmat_mean1
+eff_mat = cbind(apply(RMSE_t2m_ratio,1,mean), apply(RMSE_s2m_ratio,1,mean), apply(RMSE_st2m_ratio,1,mean))
+eff_mat = apply(eff_mat, 2, FUN = function(x) aggregate(x,by=list(rep(1:3,each=5)),mean)$x)
+eff_mat = cbind(1, eff_mat)
+rownames(eff_mat) = c("< 30%", "30%~70%", "70%~99%")
+colnames(eff_mat) = c("M", "MT", "MS", "MTS")
+eff_mat
+xtable(eff_mat)
