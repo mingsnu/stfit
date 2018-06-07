@@ -1,37 +1,36 @@
-library(dplyr)
-library(doParallel)
-library(Matrix)
-library(stfit)
-library(foreach)
-
 dat1 = readRDS("./data/MYD11A1Day2010_simulated.rds")
 dat2 = readRDS("./data/MOD11A1Day2010.rds")
 
 if(!file.exists("./data/msk.rds")){
   msk = getMask(dat2)
   saveRDS(msk, "./data/msk.rds")
+} else {
+    msk = readRDS("./data/msk.rds")
+}
+dat1[,msk] = NA
+dat2[,msk] = NA
+
+DMlm=function(x, y){
+    ##daily merge using linear regression, y is to be predict, x is predictor
+    ##x and y should be the maxtrix of the raster stack
+    Sxy=x*y
+    tmp = Sxy*0
+    Sx=x + tmp
+    Sy=y + tmp
+    Sx2=x*x + tmp
+    n = 1 + tmp
+    Sxy=rowSums(Sxy,na.rm=T)
+    Sx=rowSums(Sx,na.rm=T)
+    Sy=rowSums(Sy,na.rm=T)
+    Sx2=rowSums(Sx2,na.rm=T)
+    n=rowSums(n,na.rm=T)
+    n[n<10]=NA ##if smaller than 10 samples, not processed
+    bb=((Sxy-Sx*Sy/n)/(Sx2-Sx*Sx/n)) #slope
+    aa=(Sy/n-bb*Sx/n)##intercept
+    return(aa+bb*x)##predicted
 }
 
-registerDoParallel(16)
-dat1_imputed = foreach(i = 1:ncol(dat1), .combine = cbind) %dopar%{
-    if(msk[i])
-        return(NA) else {
-                       lmfit = lm(dat1[,i]~dat2[,i])
-                       return(predict(lmfit, newdata = data.frame(cbind(1,dat2[,i]))))
-                   }
-}
+dat1_imputed = t(DMlm(t(dat2), t(dat1)))
 tmpidx = which(is.na(dat1))
 dat1[tmpidx] = dat1_imputed[tmpidx]
-saveRDS(dat1, "./output/MYD11A1Day2010_simulated_daily_imputed.rds")
-
-## ###################################
-## #### scatterplot dat1 vs. dat2 ####
-## ###################################
-## dat0= readRDS("./data/MYD11A1Day2010_simulated.rds")
-
-## i=120000
-## lm.fit = lm(dat0[,i]~dat2[,i])
-## summary(lm.fit)
-## ypred =  predict(lm.fit, newdata = data.frame(x=dat2[,i]))
-## cor(dat0[,i], ypred, use="complete.obs")
-## cor(dat0[,i], dat1_imputed[,i], use="complete.obs")
+saveRDS(dat1, "./output/MYD11A1Day2010_simulated_daily_imputed_lm.rds")

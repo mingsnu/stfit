@@ -8,8 +8,6 @@ library(stfit)
 dat1 = readRDS("./data/MYD11A1Day2010_simulated.rds")
 dat2 = readRDS("../data/MOD11A1Day2010.rds")
 
-msk = getMask(dat1)
-
 ## Only use 1 and 3 for test purpose
 #############################################
 ###### Temporal difference estimation #######

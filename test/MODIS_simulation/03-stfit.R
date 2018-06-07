@@ -11,23 +11,14 @@ library(foreach)
 ## 1. Divide 1200x1200 image into 300x300 images
 ## 2. Divide 300x300 image into 30x30
 ## Also take care of the case where there are "water body" in the image.
-
-dat0 = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_shift.rds")
-
-## ## can use getMask function to get the mask
-## msk0 = getMask(dat0)
-## pdf("output/mask0.pdf")
-## levelplot(raster(matrix(msk0, 1200, 1200, byrow=TRUE)))
-## dev.off()
-
-dat = dat0
+dat = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_lm.rds")
+msk = readRDS("./data/msk.rds")
+dat[, msk] = NA
 year = rep(2010, 365)
 doy = 1:365
 idx = 1:365 ## doy index on which to to imputation
-
 registerDoParallel(cores = 16)
 ## stfit::opts$set(temporal_mean_est = stfit::spreg)
-
 .X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
 customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   nonna.idx = !is.na(y)
@@ -223,6 +214,7 @@ for(n in 9:16){
 saveRDS(dat, "./output/dat_imputed.rds")
 
 ## #### visualization
+## dat0 = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_shift.rds")
 ## pdf("output/lvl3_1200x_1200_imputed_1-100.pdf")
 ## for(i in 1:100){
 ##   r1 = raster(matrix(dat0[i,], 1200))
@@ -258,5 +250,4 @@ saveRDS(dat, "./output/dat_imputed.rds")
 ##   print(levelplot(s))
 ## }
 ## dev.off()
-
-
+## time used:02:32:03
