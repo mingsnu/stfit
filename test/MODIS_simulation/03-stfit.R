@@ -5,13 +5,15 @@ library(Matrix)
 library(stfit)
 library(foreach)
 
+path = "./output_nnr50/"
 ##############################
 #### Multi-lvl imputation ####
 ##############################
 ## 1. Divide 1200x1200 image into 300x300 images
 ## 2. Divide 300x300 image into 30x30
 ## Also take care of the case where there are "water body" in the image.
-dat = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_lm.rds")
+dat = readRDS("./data/MYD11A1Day2010_simulated_daily_imputed_lm.rds")
+## dat = readRDS("./data/MYD11A1Day2010_daily_imputed_lm.rds")
 msk = readRDS("./data/msk.rds")
 dat[, msk] = NA
 year = rep(2010, 365)
@@ -58,7 +60,10 @@ dat1 = dat[,idx1]
 
 
 nrow = 24; ncol=24;
-res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.dir = "./output/lvl1/", outlier.action = "remove")
+
+res1 = gapfill_modis(doy, dat1, nrow, ncol, nnr = 24,
+                     ncluster = 0, breaks=NULL, intermediate.dir = paste0(path, "lvl1/"),
+                     outlier.action = "remove")
 
 ## pdf("output/lvl1/lvl1_24x_24_partial_imputed_outlier_removed.pdf")
 ## for(l in res1$idx$idx.partialmissing){
@@ -71,7 +76,7 @@ res1 = gapfill_modis(doy, dat1, nrow, ncol, ncluster = 0, breaks=NULL, intermedi
 
 na.idx1 = is.na(dat1)
 dat[,idx1][na.idx1] = res1$imat[na.idx1]
-saveRDS(dat, "output/lvl1_impu_outlier_removed.rds")
+saveRDS(dat, paste0(path, "lvl1_impu_outlier_removed.rds"))
 
 #############################
 ### Level two imputation ####
@@ -101,7 +106,7 @@ res2.list = foreach(n=1:16) %dopar% {
   ## msk1 = getMask(dat2)
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
   gapfill_modis(doy, dat2, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.save = FALSE,
-                intermediate.dir = "./output/lvl2/", outlier.action = "remove")
+                intermediate.dir = paste0(path, "lvl2/"), outlier.action = "remove", nnr = 30)
 }
 
 ## ## visualize the level two imputation results.
@@ -138,8 +143,8 @@ for(n in 1:length(res2.list)){
   dat[,bIdx[idx2]][na.idx2] = res2.list[[n]]$imat[na.idx2]
 }
 
-saveRDS(res2.list, "output/res2.list.rds")
-saveRDS(dat, "output/lvl2_impu.rds")
+saveRDS(res2.list, paste0(path, "res2.list.rds"))
+saveRDS(dat, paste0(path, "lvl2_impu.rds"))
 
 
 ###############################
@@ -164,10 +169,10 @@ res3.list1 = foreach(n=1:8) %dopar% {
   dat2 = dat[,bIdx]
   ## msk1 = getMask(dat2)
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
-  gapfill_modis(doy, dat2, 300, 300, ncluster = 500,
-                intermediate.dir = paste0("output/lvl3/block", n, "/"))[c("imat","idx")]
+  gapfill_modis(doy, dat2, 300, 300, ncluster = 500, nnr = 30,
+                intermediate.dir = paste0(path, "lvl3/block", n, "/"))[c("imat","idx")]
 }
-saveRDS(res3.list1, "./output/res3.list1.rds")
+saveRDS(res3.list1, paste0(path, "res3.list1.rds"))
 ## res3.list1 = readRDS("./output/res3.list1.rds")
 
 for(n in 1:8){
@@ -195,10 +200,10 @@ res3.list2 = foreach(n=9:16) %dopar% {
   dat2 = dat[,bIdx]
   ## msk1 = getMask(dat2)
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
-  gapfill_modis(doy, dat2, 300, 300, ncluster = 500,
-                intermediate.dir = paste0("output/lvl3/block", n, "/"))[c("imat","idx")]
+  gapfill_modis(doy, dat2, 300, 300, ncluster = 500, nnr = 30,
+                intermediate.dir = paste0(path, "lvl3/block", n, "/"))[c("imat","idx")]
 }
-saveRDS(res3.list2, "./output/res3.list2.rds")
+saveRDS(res3.list2, paste0(path, "res3.list2.rds"))
 
 for(n in 9:16){
   ii = floor((n-1)/4) + 1
@@ -211,7 +216,7 @@ for(n in 9:16){
   dat[,bIdx] = res3.list2[[n-8]]$imat
 }
 
-saveRDS(dat, "./output/dat_imputed.rds")
+saveRDS(dat, paste0(path, "dat_imputed.rds"))
 
 ## #### visualization
 ## dat0 = readRDS("./output/MYD11A1Day2010_simulated_daily_imputed_shift.rds")

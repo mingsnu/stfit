@@ -11,6 +11,8 @@ idat = idat[tstset, evalidx]
 d = c(tdat[idx])-c(idat[idx])
 sqrt(sum(d^2, na.rm=TRUE)/sum(!is.na(d)))
 cor(c(tdat[idx]), c(idat[idx]), use = "complete.obs")
+
+####### based on shift_impu
 ## [1] 267.6731
 ## [1] 0.9773728
 ## nc1000
@@ -26,6 +28,9 @@ cor(c(tdat[idx]), c(idat[idx]), use = "complete.obs")
 ## [1] 269.1594
 ## [1] 0.9771795
 
+######## based on lm_impu
+## [1] 268.2805
+## [1] 0.9775417
 
 ## daily lm impu
 ## [1] 208.1006
