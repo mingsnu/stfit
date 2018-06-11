@@ -1,5 +1,78 @@
 library(raster)
 library(stfit)
+smoothScatter1 <- function (x, y = NULL, nbin = 128, bandwidth, colramp = colorRampPalette(c("white", 
+                                                                                             blues9)), nrpoints = 100, ret.selection = FALSE, pch = ".", 
+                            cex = 1, col = "black", transformation = function(x) x^0.25, 
+                            postPlotHook = box, xlab = NULL, ylab = NULL, xlim, ylim, 
+                            xaxs = par("xaxs"), yaxs = par("yaxs"), ...) 
+{
+  if (!is.numeric(nrpoints) || nrpoints < 0 || length(nrpoints) != 
+      1) 
+    stop("'nrpoints' should be numeric scalar with value >= 0.")
+  nrpoints <- round(nrpoints)
+  ret.selection <- ret.selection && nrpoints > 0
+  xlabel <- if (!missing(x)) 
+    deparse(substitute(x))
+  ylabel <- if (!missing(y)) 
+    deparse(substitute(y))
+  xy <- xy.coords(x, y, xlabel, ylabel)
+  xlab <- if (is.null(xlab)) 
+    xy$xlab
+  else xlab
+  ylab <- if (is.null(ylab)) 
+    xy$ylab
+  else ylab
+  x <- cbind(xy$x, xy$y)[I <- is.finite(xy$x) & is.finite(xy$y), 
+                         , drop = FALSE]
+  if (ret.selection) 
+    iS <- which(I)
+  if (!missing(xlim)) {
+    stopifnot(is.numeric(xlim), length(xlim) == 2, is.finite(xlim))
+    x <- x[I <- min(xlim) <= x[, 1] & x[, 1] <= max(xlim), 
+           , drop = FALSE]
+    if (ret.selection) 
+      iS <- iS[I]
+  }
+  else {
+    xlim <- range(x[, 1])
+  }
+  if (!missing(ylim)) {
+    stopifnot(is.numeric(ylim), length(ylim) == 2, is.finite(ylim))
+    x <- x[I <- min(ylim) <= x[, 2] & x[, 2] <= max(ylim), 
+           , drop = FALSE]
+    if (ret.selection) 
+      iS <- iS[I]
+  }
+  else {
+    ylim <- range(x[, 2])
+  }
+  map <- grDevices:::.smoothScatterCalcDensity(x, nbin, bandwidth,list(xlim, ylim)) 
+  xm <- map$x1
+  ym <- map$x2
+  dens <- map$fhat
+  dens[] <- transformation(dens)
+  image(xm, ym, z = dens, col = colramp(256), xlab = xlab, 
+        ylab = ylab, xlim = xlim, ylim = ylim, xaxs = xaxs, yaxs = yaxs, 
+        ...)
+  if (!is.null(postPlotHook)) 
+    postPlotHook()
+  if (nrpoints > 0) {
+    nrpoints <- min(nrow(x), ceiling(nrpoints))
+    stopifnot((nx <- length(xm)) == nrow(dens), (ny <- length(ym)) == 
+                ncol(dens))
+    ixm <- 1L + as.integer((nx - 1) * (x[, 1] - xm[1])/(xm[nx] - 
+                                                          xm[1]))
+    iym <- 1L + as.integer((ny - 1) * (x[, 2] - ym[1])/(ym[ny] - 
+                                                          ym[1]))
+    sel <- order(dens[cbind(ixm, iym)])[seq_len(nrpoints)]
+    x <- x[sel, , drop = FALSE]
+    points(x, pch = pch, cex = cex, col = col)
+    if (ret.selection) 
+      iS[sel]
+  }
+}
+
+
 tstset=c( 8,47,56,76,85, 99,117,139,147,170,184,197,221,239,256,282,295,313,327,346)
 mskset=c(12,42,58,67,94,110,126,129,154,174,177,199,222,232,252,285,304,306,332,342)
 dat = readRDS("./data/MYD11A1Day2010.rds")
@@ -15,7 +88,7 @@ idx = c(is.na(dat[mskset, ]))
 
 pdf("./plots/T2_scatter.pdf")
 par(mar = c(4.2, 4.2, 0.2, 0.2))
-smoothScatter(tdat[idx], idat1[idx], xlab = "Observed T2 (K)", ylab = "Predicted T2 (K)",
+smoothScatter1(tdat[idx], idat1[idx], xlab = "Observed T2 (K)", ylab = "Predicted T2 (K)",
                colramp = colorRampPalette(c("white", "blue", "green", "yellow", "orange", "red")),
               xlim = c(230, 340), ylim = c(230, 340))
 rmspe = round(stfit::RMSE(tdat[idx], idat1[idx]), 2)
@@ -50,7 +123,7 @@ idx = c(is.na(dat[mskset, ]))
 
 pdf("./plots/T4_scatter.pdf")
 par(mar = c(4.2, 4.2, 0.2, 0.2))
-smoothScatter(tdat[idx], idat1[idx], xlab = "Observed T4 (K)", ylab = "Predicted T4 (K)",
+smoothScatter1(tdat[idx], idat1[idx], xlab = "Observed T4 (K)", ylab = "Predicted T4 (K)",
               colramp = colorRampPalette(c("white", "blue", "green", "yellow", "orange", "red")),
               xlim = c(230, 340), ylim = c(230, 340))
 rmspe = round(stfit::RMSE(tdat[idx], idat1[idx]), 2)
