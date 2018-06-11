@@ -3,7 +3,7 @@ tstset=c(14,27,47,63,76,95,107,129,152,169,183, 202,218,225,255,273,289,308,316,
 mskset=c(10,31,44,52,74,94,112,138,154,170,185, 193,216,229,260,275,284,307,325,357)
 dat = readRDS("./data/MYD11A1Nit2010.rds")
 idat = readRDS("./data/MYD11A1Nit2010_simulated_daily_imputed_lm.rds")
-idat1 = readRDS("./output_nnr50_nit_sim/dat_imputed.rds")
+idat1 = readRDS("./output_nnr50_nit_sim_clip23500/dat_imputed.rds")
 
 
 #### calculate the accuracy on testset
@@ -51,5 +51,15 @@ pct2
 ## [1] 0.9880501
 ## [1] 304.0221
 ## [1] 0.9658377
+## [1] 0.4165464
+## [1] 0.9103658
+
+
+## [1] 215.9183
+## [1] 0.9815328
+## [1] 176.2332
+## [1] 0.9880501
+## [1] 303.3679
+## [1] 0.9659797
 ## [1] 0.4165464
 ## [1] 0.9103658

@@ -5,15 +5,15 @@ library(Matrix)
 library(stfit)
 library(foreach)
 
-path = "./output_nnr50_nit/"
+path = "./output_nnr50_nit_sim_clip23500/"
 ##############################
 #### Multi-lvl imputation ####
 ##############################
 ## 1. Divide 1200x1200 image into 300x300 images
 ## 2. Divide 300x300 image into 30x30
 ## Also take care of the case where there are "water body" in the image.
-## dat = readRDS("./data/MYD11A1Nit2010_simulated_daily_imputed_lm.rds")
-dat = readRDS("./data/MYD11A1Nit2010_daily_imputed_lm.rds")
+dat = readRDS("./data/MYD11A1Nit2010_simulated_daily_imputed_lm.rds")
+##dat = readRDS("./data/MYD11A1Nit2010_daily_imputed_lm.rds")
 msk = readRDS("./data/msk.rds")
 dat[, msk] = NA
 year = rep(2010, 365)
@@ -63,7 +63,7 @@ nrow = 24; ncol=24;
 
 res1 = gapfill_modis(doy, dat1, nrow, ncol, nnr = 24,
                      ncluster = 0, breaks=NULL, intermediate.dir = paste0(path, "lvl1/"),
-                     outlier.action = "remove", clipRange = c(22800,31000))
+                     outlier.action = "remove", clipRange = c(23500,31000))
 
 ## pdf("output/lvl1/lvl1_24x_24_partial_imputed_outlier_removed.pdf")
 ## for(l in res1$idx$idx.partialmissing){
@@ -107,7 +107,7 @@ res2.list = foreach(n=1:16) %dopar% {
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
   gapfill_modis(doy, dat2, nrow, ncol, ncluster = 0, breaks=NULL, intermediate.save = FALSE,
                 intermediate.dir = paste0(path, "lvl2/"), outlier.action = "remove", nnr = 30,
-                clipRange = c(22800,31000))
+                clipRange = c(23500,31000))
 }
 
 ## ## visualize the level two imputation results.
@@ -169,7 +169,7 @@ res3.list1 = foreach(n=1:8) %dopar% {
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
   gapfill_modis(doy, dat2, 300, 300, ncluster = 500, nnr = 30,
                 intermediate.dir = paste0(path, "lvl3/block", n, "/"),
-                clipRange = c(22800,31000))[c("imat","idx")]
+                clipRange = c(23500,31000))[c("imat","idx")]
 }
 saveRDS(res3.list1, paste0(path, "res3.list1.rds"))
 ## res3.list1 = readRDS("./output/res3.list1.rds")
@@ -201,7 +201,7 @@ res3.list2 = foreach(n=9:16) %dopar% {
   ## plot(raster(matrix(msk1, 300, 300, byrow=TRUE)))
   gapfill_modis(doy, dat2, 300, 300, ncluster = 500, nnr = 30,
                 intermediate.dir = paste0(path, "lvl3/block", n, "/"),
-                clipRange = c(22800,31000))[c("imat","idx")]
+                clipRange = c(23500,31000))[c("imat","idx")]
 }
 saveRDS(res3.list2, paste0(path, "res3.list2.rds"))
 
