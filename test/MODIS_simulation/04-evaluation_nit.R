@@ -1,16 +1,16 @@
 library(raster)
-tstset=c( 8,47,56,76,85, 99,117,139,147,170,184,197,221,239,256,282,295,313,327,346)
-mskset=c(12,42,58,67,94,110,126,129,154,174,177,199,222,232,252,285,304,306,332,342)
-dat = readRDS("./data/MYD11A1Day2010.rds")
-idat = readRDS("./data/MYD11A1Day2010_simulated_daily_imputed_lm.rds")
-idat1 = readRDS("./output_nnr50_sim/dat_imputed.rds")
+tstset=c(14,27,47,63,76,95,107,129,152,169,183, 202,218,225,255,273,289,308,316,353)
+mskset=c(10,31,44,52,74,94,112,138,154,170,185, 193,216,229,260,275,284,307,325,357)
+dat = readRDS("./data/MYD11A1Nit2010.rds")
+idat = readRDS("./data/MYD11A1Nit2010_simulated_daily_imputed_lm.rds")
+idat1 = readRDS("./output_nnr50_nit_sim/dat_imputed.rds")
 
 
 #### calculate the accuracy on testset
-tdat = c(dat[tstset, ])
-idat = c(idat[tstset, ])
-idat1 = c(idat1[tstset,])
-idx = c(is.na(dat[mskset, ]))
+tdat = dat[tstset, ]
+idat = idat[tstset, ]
+idat1 = idat1[tstset,]
+idx = is.na(dat[mskset, ])
 
 ## the overall accuracy
 d = c(tdat[idx])-c(idat1[idx])
@@ -35,22 +35,21 @@ pct1
 pct2 = sum(!is.na(idat1[idx]))/sum(idx)
 pct2
 
-
 ## Overall accuracy
-## [1] 232.7662
-## [1] 0.9902447
+## [1] 216.153
+## [1] 0.9814926
 ## daily lm impu
-## [1] 215.5231
-## [1] 0.9923051
+## [1] 176.2332
+## [1] 0.9880501
 ## our method only
-## [1] 269.5137
-## [1] 0.9837718
+## [1] 304.0221
+## [1] 0.9658377
 
-## [1] 232.7662
-## [1] 0.9902447
-## [1] 215.5231
-## [1] 0.9923051
-## [1] 269.5137
-## [1] 0.9837718
-## [1] 0.4300178
-## [1] 0.9169164
+## [1] 216.153
+## [1] 0.9814926
+## [1] 176.2332
+## [1] 0.9880501
+## [1] 304.0221
+## [1] 0.9658377
+## [1] 0.4165464
+## [1] 0.9103658
