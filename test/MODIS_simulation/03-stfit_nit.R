@@ -13,7 +13,7 @@ path = "./output_nnr50_nit/"
 ## 2. Divide 300x300 image into 30x30
 ## Also take care of the case where there are "water body" in the image.
 ## dat = readRDS("./data/MYD11A1Nit2010_simulated_daily_imputed_lm.rds")
-dat = readRDS("./data/MYD11A1Day2010_daily_imputed_lm.rds")
+dat = readRDS("./data/MYD11A1Nit2010_daily_imputed_lm.rds")
 msk = readRDS("./data/msk.rds")
 dat[, msk] = NA
 year = rep(2010, 365)
