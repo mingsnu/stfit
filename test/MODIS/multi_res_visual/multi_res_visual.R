@@ -71,8 +71,8 @@ rect(0,0,80,80, lwd=2)
 xx = seq(26.5,80, by=27)
 xx = seq(8.5,80, by=9)
 for(i in 1:length(xx)){
-  lines(c(0, 80), c(xx[i], xx[i]), lty=3, col=gray(0.3), lwd=2)
-  lines(c(xx[i], xx[i]), c(0,80), lty = 3, col=gray(0.3), lwd=2)
+  lines(c(0, 80), c(xx[i], xx[i]), lty=2, col="red", lwd=3)
+  lines(c(xx[i], xx[i]), c(0,80), lty = 2, col="red", lwd=3)
 }
 
 ## lvl 2 sampling points
@@ -80,20 +80,33 @@ x = seq(1,79,by=3)
 y = expand.grid(x,x)
 x1 = x[seq(2,length(x), by =3)]
 y1 = expand.grid(x1,x1)
+idx = paste(y[,1], y[,2], sep=".")
+idx1 = paste(y1[,1], y1[,2], sep=".")
+y = y[!idx %in% idx1,]
+plot(y$Var1, y$Var2, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
+points(y$Var1, y$Var2, pch=19, col = gray(0.8), cex=0.8)
+points(y1$Var1, y1$Var2, pch=15, col = gray(0.4), cex=1)
+rect(0,0,80,80, lwd=2)
+
+
+## lvl 2 image
+x = seq(1,79,by=3)
+y = expand.grid(x,x)
+x1 = x[seq(2,length(x), by =3)]
+y1 = expand.grid(x1,x1)
 idx = paste0(y[,1], y[,2])
 idx1 = paste0(y1[,1], y1[,2])
 y = y[!idx %in% idx1,]
-#plot(y$Var1, y$Var2, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
-points(y$Var1, y$Var2, pch=19, col = gray(0.8), cex=0.8)
+plot(y$Var1, y$Var2, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
 points(y1$Var1, y1$Var2, pch=15, col = gray(0.4), cex=1)
 rect(0,0,80,80, lwd=2)
 xx = seq(26.5,80, by=27)
 for(i in 1:length(xx)){
-  lines(c(0, 80), c(xx[i], xx[i]), lty= 3, col=gray(0.3), lwd=2)
-  lines(c(xx[i], xx[i]), c(0,80), lty = 3, col=gray(0.3), lwd=2)
+  lines(c(0, 80), c(xx[i], xx[i]), lty= 2, col="blue", lwd=3)
+  lines(c(xx[i], xx[i]), c(0,80), lty = 2, col="blue", lwd=3)
 }
 
-## lvl 1 sampling points
+## lvl 3 sampling points
 x = seq(1,79,by=3)
 y = expand.grid(x,x)
 x1 = x[seq(2,length(x), by =3)]
@@ -111,7 +124,7 @@ points(y2$Var1, y2$Var2, pch=17, col = gray(0.4), cex=1.2)
 rect(0,0,80,80, lwd=2)
 
 ######## illustration of multi resolution imputation
-## lvl 1 imputation
+## lvl 3 imputation
 x2 = x1[seq(2, length(x1), by = 3)]
 y2 = expand.grid(x2, x2)
 plot(0, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
@@ -132,11 +145,11 @@ points(y2$Var1, y2$Var2, pch=17, col = gray(0.4), cex=1.2)
 rect(0,0,80,80, lwd=2)
 xx = seq(26.5,80, by=27)
 for(i in 1:length(xx)){
-  lines(c(0, 80), c(xx[i], xx[i]), lty= 3, col=gray(0.3), lwd=2)
-  lines(c(xx[i], xx[i]), c(0,80), lty = 3, col=gray(0.3), lwd=2)
+  lines(c(0, 80), c(xx[i], xx[i]), lty= 2, col="blue", lwd=3)
+  lines(c(xx[i], xx[i]), c(0,80), lty = 2, col="blue", lwd=3)
 }
 
-## lvl 3 imputation
+## lvl 1 imputation
 # par(mar=rep(0,4), bg=NA)
 x = seq(1,79,by=3)
 y = expand.grid(x,x)
@@ -158,7 +171,7 @@ points(y2$Var1, y2$Var2, pch=17, col = gray(0.5), cex=1.2)
 xx = seq(26.5,80, by=27)
 xx = seq(8.5,80, by=9)
 for(i in 1:length(xx)){
-  lines(c(0, 80), c(xx[i], xx[i]), lty=3, col=gray(0.3), lwd=2)
-  lines(c(xx[i], xx[i]), c(0,80), lty = 3, col=gray(0.3), lwd=2)
+  lines(c(0, 80), c(xx[i], xx[i]), lty=2, col="red", lwd=2)
+  lines(c(xx[i], xx[i]), c(0,80), lty = 2, col="red", lwd=2)
 }
 
