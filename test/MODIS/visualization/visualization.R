@@ -23,7 +23,7 @@ for(i in 1:length(dd)){
 }
 s = stack(r.list)
 pdf(paste0("MODIS_2010.pdf"))
-print(levelplot(s, par.settings = colthm, names.attr=as.character(dd), main = paste0("MODIS MYD11A1Day 2010, ", yy),
+print(levelplot(s, par.settings = colthm, names.attr=as.character(dd), main = "MODIS MYD11A1Day 2010",
                 layout=c(5,3)))
 dev.off()
 

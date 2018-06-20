@@ -24,7 +24,18 @@ levelplot(raster(matrix(msk, 300)), margin = FALSE)
 #### 1. Overall mean estimaton ####
 ###################################
 ## when there is no repeated measures, spreg seems to work better
-stfit::opts$set(temporal_mean_est = stfit::spreg)
+## stfit::opts$set(temporal_mean_est = stfit::spreg)
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X %*% lmfit$coefficient)
+}
+stfit::opts$set(temporal_mean_est = customfun)
+
 meanest = meanEst(1:365, mat, doyeval = 1:365, msk = msk)
 # saveRDS(meanest, "./output/MODIS_with_mask_mean_est.rds")
 # meanest = readRDS("./output/MODIS_with_mask_mean_est.rds")
@@ -47,7 +58,7 @@ levelplot(raster(matrix(cluster, 300)), margin=FALSE)
 #### 3. Overall mean estimaton with cluster ####
 ################################################
 ## NEVER USE smooth_spline when using clusters
-stfit::opts$set(temporal_mean_est = stfit::spreg)
+## stfit::opts$set(temporal_mean_est = stfit::spreg)
 meanest_cl = meanEst(1:365, mat, doyeval = 1:365, cluster = cluster, msk = msk)
 ## mean visulization
 mean_stack_cl = mat2stack(meanest_cl$meanmat, 300)
@@ -66,8 +77,9 @@ imat = mat
 #########################################
 #### 2. 'temporal' effect estimation ####
 #########################################
+## as ncluster gets bigger, 'temporal' effect gets weaker
 ## remove outlier images
-outlier.img.idx = meanest$idx$idx.outlier
+outlier.img.idx = meanest_cl$idx$idx.outlier
 # ## outlier image visulization
 # outlier_img_stack = mat2stack(mat[outlier.img.idx,], 300)
 # levelplot(outlier_img_stack, par.settings = colthm)
@@ -81,20 +93,20 @@ for(i in 1:length(meanest_cl$outlier$outidx)){
 }
 
 ## calculate the residuals
-rmat = mat - meanest$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest$doyeval)),]
+rmat = mat - meanest_cl$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest_cl$doyeval)),]
 ## saveRDS(rmat, "./output/rmat4teff.rds")
 ## rmat = readRDS("./output/rmat4teff.rds")
 
-####### the results are very small.
-####### no need to do this step.
-# ## estimate the 'temporal' effect using residuals
-# ## result is a 3d array with the first dimension year, second dimension doy and third dimension pixel index
-# registerDoParallel(cores = 8)
-# cefflist = ceffEst(doy, rmat, cluster,
-#                     doyeval = 1:365, h.cov = 100, h.sigma2 = 300, max.per.cluster = 30,
-#                     t.grid.num = 50)
-# range(cefflist[[1]]$mat)
-# ## saveRDS(cefflist, "./output/cefflist.rds")
+###### the results are very small.
+###### no need to do this step.
+## estimate the 'temporal' effect using residuals
+## result is a 3d array with the first dimension year, second dimension doy and third dimension pixel index
+registerDoParallel(cores = 8)
+cefflist = ceffEst(doy, rmat, cluster,
+                    doyeval = 1:365, h.cov = 100, h.sigma2 = 300, max.per.cluster = 30,
+                    t.grid.num = 50)
+range(cefflist[[1]]$mat)
+## saveRDS(cefflist, "./output/cefflist.rds")
 
 ######################################
 #### 3. Spatial effect estimation ####
