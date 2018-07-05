@@ -1,5 +1,5 @@
 ##########################################################
-######## GAPFILLING PROCEDURE FOR LANDSAT DATA ###########
+######## GAPFILLING PROCEDURE FOR MODIS DATA ###########
 ##########################################################
 library(feather)
 library(dplyr)
