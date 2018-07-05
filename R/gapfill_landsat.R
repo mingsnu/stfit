@@ -1,7 +1,7 @@
 #' Gapfilling for repeated measurements over years
 #'
-#' @param year vecotr of year
-#' @param doy vecotr of doy
+#' @param year vector of year
+#' @param doy vector of doy
 #' @param mat matrix with number of row equals length of doy 
 #' @param img.nrow row number for the image to gapfill
 #' @param img.ncol column number for the image to gapfill
@@ -86,7 +86,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
     ######################################
     #### 3. Spatial effect estimation ####
     ######################################
-    ## claculate residuals after removing temporal effect
+    ## calculate residuals after removing temporal effect
     yearidx = unlist(lapply(year, function(x, y)
       which(y == x), y = as.numeric(dimnames(teffarray)[[1]])))
     doyidx = unlist(lapply(doy, function(x, y)
