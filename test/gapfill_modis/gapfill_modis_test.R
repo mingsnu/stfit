@@ -33,6 +33,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
 }
 stfit::opts$set(temporal_mean_est = customfun)
 
+registerDoParallel(cores = 8)
 mat_imputed = gapfill_modis(doy, mat, 300, 300, doyeval = 1:365, msk = msk,
          breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol = 30),
          outlier.action = "keep",
