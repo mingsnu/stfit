@@ -18,7 +18,17 @@ mat0 = as.matrix(df[,-c(1:2)])
 mat0[mat0 > 2000] = NA
 
 registerDoParallel(6)
-stfit::opts$set(temporal_mean_est = spreg)
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X %*% lmfit$coefficient)
+}
+stfit::opts$set(temporal_mean_est = customfun)
+
 mat = mat0
 
 pidx = c(68, 209, 352, 605, 624, 74, 156, 263, 273, 499, 184, 369, 508, 517, 565)
@@ -81,7 +91,6 @@ levelplot(raster(matrix(rmat[fidx,], 31)), par.settings = colthm, margin=FALSE)
 teffarray = teffEst(year, doy, rmat, doyeval = meanest$doyeval, h.cov = 100, h.sigma2 = 300)
 ## saveRDS(teffarray, "output/teffarray.rds")
 
-#### RMSE using mean+teffect
 mat_teff_imp = mat_mean_imp
 yearidx = unlist(lapply(year, function(x,y) which(y == x), y = as.numeric(dimnames(teffarray)[[1]])))
 doyidx = unlist(lapply(doy, function(x,y) which(y == x), y = as.numeric(dimnames(teffarray)[[2]])))
@@ -107,7 +116,39 @@ r.list[[5]] = raster(matrix(teffarray[yearidx[fidx], doyidx[fidx],], 31))
 levelplot(raster(matrix(teffarray[yearidx[fidx], doyidx[fidx],], 31)), par.settings = colthm, margin=FALSE)
 levelplot(raster(matrix(mat_teff_imp[fidx,], 31)), par.settings = colthm, margin=FALSE)
 
+### visualization 2
+pdf("output/mean_teff_pixel157.pdf", width =6, height=5.5)
+## par(mar=c(4,4,0.1,0.1))
+par(mar=c(4,4,1,1))
+yeareval = as.numeric(dimnames(teffarray)[[1]])
+doyeval = as.numeric(dimnames(teffarray)[[2]])
+## year 2004
+# yy = rmat[,157]
+# wstat = boxplot(yy)
+# idx = which(yy > wstat$stats[5] | yy < wstat$stats[1])
+# yy1 = mat[, 157]
+# plot(doy[-idx], yy1[-idx], col = gray(0.8), pch=19, ylab = "Residuals", xlab= "DOY")
+plot(doy, mat[,157], col = gray(0.8), pch=19, ylab = "y", xlab= "DOY")
+lines(doyeval, meanest$meanmat[,157], lwd = 2)
+ind = which(year==2004)
+points(doy[ind], mat[ind,157], col = 2, pch=19)
+lines(doyeval, meanest$meanmat[,157] + teffarray[5,,157], col = 2, lwd = 2, lty=2)
+dev.off()
 
+## COV
+
+weight.cov = weightVector(100)
+yeareval = sort(unique(year))
+t.grid = doyeval[unique(round(seq(1, length(doyeval), 
+                                      length.out = 50)))]
+i = 157
+resid = rmat[, i]
+nnaidx = !is.na(resid)
+R0.hat = lc_cov_1d_est(year[nnaidx], doy[nnaidx], resid[nnaidx], 
+                       weight.cov, t.grid)
+par(mar=c(0,0,0,0))
+persp(R0.hat,theta=30, phi=30, expand=0.5, col='lightblue',
+      xlab='DOY',ylab='DOY',zlab="Rs",ticktype='simple')
 ############################
 #### seffect estimation ####
 ############################
@@ -149,13 +190,17 @@ dev.off()
 pdf("output/teff_resid.pdf", width =6, height=5.5)
 levelplot(r.list[[6]], par.settings = colthm, margin = FALSE)
 dev.off()
+pdf("output/mean_teff.pdf", width =6, height=5.5)
+levelplot(r.list[[3]] + r.list[[5]], par.settings = colthm, at = seq(200, 1300, length.out = 20), margin = FALSE)
+dev.off()
 pdf("output/seff.pdf", width =6, height=5.5)
 levelplot(r.list[[7]], par.settings = colthm, margin = FALSE)
 dev.off()
 pdf("output/imputed_theoretical.pdf", width =6, height=5.5)
-levelplot(r.list[[8]], par.settings = colthm, margin = FALSE)
+levelplot(r.list[[3]] + r.list[[5]] + r.list[[7]], par.settings = colthm, 
+          at = seq(200, 1300, length.out = 20), margin = FALSE)
+#levelplot(r.list[[8]], par.settings = colthm, at = seq(200, 1300, length.out = 20), margin = FALSE)
 dev.off()
-
-
-
-          
+pdf("output/imputed.pdf", width =6, height=5.5)
+levelplot(r.list[[8]], par.settings = colthm, at = seq(200, 1300, length.out = 20), margin = FALSE)
+dev.off()
