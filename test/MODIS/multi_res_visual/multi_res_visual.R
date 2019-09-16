@@ -49,14 +49,14 @@
 par(mar=rep(0,4), bg=NA)
 x = seq(5,120,by=10)
 y = expand.grid(x,x)
-plot(y$Var1, y$Var2, xlim=c(0,120), ylim=c(0,120), axes=F, ylab="", xlab="", pch=15, col = "white", cex=0.5, type="n")
-plot(y$Var1, y$Var2, xlim=c(0,120), ylim=c(0,120), axes=F, ylab="", xlab="", pch=15, cex=1)
-rect(0,0,120,120, lwd=3)
+##plot(y$Var1, y$Var2, xlim=c(0,120), ylim=c(0,120), axes=F, ylab="", xlab="", pch=15, col = "white", cex=0.5, type="n")
+plot(y$Var1, y$Var2, xlim=c(0,120), ylim=c(0,120), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5)
+rect(0,0,120,120)
 
 xx = seq(30,90, by=30)
 for(i in 1:length(xx)){
-  lines(c(0, 120), c(xx[i], xx[i]), lty=2, lwd=3)
-  lines(c(xx[i], xx[i]), c(0,120), lty = 2, lwd=3)
+  lines(c(0, 120), c(xx[i], xx[i]), lty=2, col="gray")
+  lines(c(xx[i], xx[i]), c(0,120), lty = 2, col="gray")
 }
 
 
@@ -113,9 +113,9 @@ x1 = x[seq(2,length(x), by =3)]
 y1 = expand.grid(x1,x1)
 x2 = x1[seq(2, length(x1), by = 3)]
 y2 = expand.grid(x2, x2)
-idx = paste(y[,1], y[,2], sep = ",")
-idx1 = paste(y1[,1], y1[,2], sep = ",")
-idx2 = paste(y2[,1], y2[,2], sep = ",")
+idx = paste0(y[,1], y[,2])
+idx1 = paste0(y1[,1], y1[,2])
+idx2 = paste0(y2[,1], y2[,2])
 y = y[!idx %in% idx1,]
 y1 = y1[!idx1 %in% idx2,]
 plot(y$Var1, y$Var2, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
@@ -136,8 +136,8 @@ x1 = x[seq(2,length(x), by =3)]
 y1 = expand.grid(x1,x1)
 x2 = x1[seq(2, length(x1), by = 3)]
 y2 = expand.grid(x2, x2)
-idx1 = paste(y1[,1], y1[,2], sep = ",")
-idx2 = paste(y2[,1], y2[,2], sep = ",")
+idx1 = paste0(y1[,1], y1[,2])
+idx2 = paste0(y2[,1], y2[,2])
 y1 = y1[!idx1 %in% idx2,]
 plot(0, xlim=c(0,79), ylim=c(0,79), axes=F, ylab="", xlab="", pch=15, col = "gray", cex=0.5, type = "n")
 points(y1$Var1, y1$Var2, pch=15, col = gray(0.5), cex=1)
@@ -158,8 +158,8 @@ y1 = expand.grid(x1,x1)
 x2 = x1[seq(2, length(x1), by = 3)]
 y2 = expand.grid(x2, x2)
 idx = paste0(y[,1], y[,2])
-idx1 = paste(y1[,1], y1[,2], sep=",")
-idx2 = paste(y2[,1], y2[,2], sep=",")
+idx1 = paste0(y1[,1], y1[,2])
+idx2 = paste0(y2[,1], y2[,2])
 y = y[!idx %in% idx1,]
 y1 = y1[!idx1 %in% idx2,]
 

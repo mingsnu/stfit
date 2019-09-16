@@ -20,7 +20,7 @@
 #' @param outlier.action 
 #' @param intermediate.save TRUE or FALSE. Whether to save intermediate results.
 #' @param intermediate.dir Path to save intermediate results.
-#' @param ceff TRUE or FALSE. Whether to estimate cluster effect.
+#' @param teff TRUE or FALSE. Whether to estimate temporal effect.
 #' @param seff TRUE or FALSE. Whether to estimate spatial effect.
 #' @param use.intermediate.result whether to use the intermediate results in the 'intermediate.dir' folder instead
 #' of recalcuating 
@@ -35,7 +35,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
                           breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol = 30),
                           outlier.action = c("keep", "remove"),
                           intermediate.save = TRUE, intermediate.dir = "./output/", 
-                          use.intermediate.result = TRUE, ceff = FALSE, seff = TRUE,
+                          use.intermediate.result = TRUE, teff = FALSE, seff = TRUE,
                           clipRange = c(23000, 35000), clipMethod = "nnr"){
   
   if(intermediate.save){
@@ -101,9 +101,9 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   rmat = mat - meanest_cl$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest_cl$doyeval)),]
   
   #########################################
-  #### 2. cluster effect estimation ####
+  #### 2. 'temporal' effect estimation ####
   #########################################
-  if(ceff){
+  if(teff){
     if(use.intermediate.result & file.exists(paste0(intermediate.dir, "ceffmat.rds"))){
       ceffmat = readRDS(paste0(intermediate.dir, "ceffmat.rds"))
     } else {
@@ -173,7 +173,7 @@ gapfill_modis <- function(doy, mat, img.nrow, img.ncol, doyeval = 1:365, h.tcov 
   ## all missing images: mean + time effect
   ## first calculate the theoretically imputed mat.
   mat_imputed = meanest_cl$meanmat
-  if(ceff)
+  if(teff)
     mat_imputed = mat_imputed + ceffmat
   if(seff)
     mat_imputed = mat_imputed + seffmat
