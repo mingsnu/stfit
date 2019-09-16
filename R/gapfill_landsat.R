@@ -44,6 +44,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
   }
   
   imat = mat
+  msk <- getMask(mat)
   ###################################
   #### 1. Overall mean estimaton ####
   ###################################
@@ -51,7 +52,7 @@ gapfill_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,
     meanest = readRDS(paste0(intermediate.dir, "meanest.rds"))
   } else {
     meanest = meanEst(doy, mat, doyeval = doyeval, outlier.tol = outlier.tol, clipRange = clipRange,
-                      clipMethod = clipMethod, img.nrow = img.nrow, img.ncol = img.ncol)
+                      msk = msk, clipMethod = clipMethod, img.nrow = img.nrow, img.ncol = img.ncol)
     if(intermediate.save)
       saveRDS(meanest, paste0(intermediate.dir, "meanest.rds"))
   }

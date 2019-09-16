@@ -16,7 +16,7 @@ registerDoParallel(cores = 8)
 ####################################
 #### MODIS data test with mask #####
 #####################################
-mat = readRDS("../data/dat_300x300.rds")
+mat = readRDS("../data/MOD11A1Day2010.rds")
 doy = 1:365
 msk = getMask(mat)
 levelplot(raster(matrix(msk, 300)), margin = FALSE)
@@ -36,10 +36,10 @@ stfit::opts$set(temporal_mean_est = customfun)
 mat_imputed = gapfill_modis(doy, mat, 300, 300, doyeval = 1:365, msk = msk,
          breaks = list(block.nrow = 10, block.ncol = 10, img.nrow = 30, img.ncol = 30),
          outlier.action = "keep",
-         teff = FALSE, seff = TRUE)
+         teff = TRUE, seff = TRUE)
 saveRDS(mat_imputed, "./output/mat_imputed.rds")
 
-mat_imputed_stack = mat2stack(mat_imputed, 300)
+mat_imputed_stack = mat2stack(mat_imputed$imat, 300)
 levelplot(mat_imputed_stack[[seq(1, 365, by = 30)]], par.settings = colthm)
 mat_stack = mat2stack(mat, 300)
 levelplot(mat_stack[[seq(1, 365, by = 30)]], par.settings = colthm)

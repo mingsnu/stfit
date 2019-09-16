@@ -75,7 +75,7 @@ std::vector<int> nbr_(int ii, int nRow, int nCol, int dRow, int dCol){
 }
 
 // [[Rcpp::export]]
-NumericVector nbr(int ii, int nRow, int nCol, int dRow, int dCol){
+IntegerVector nbr(int ii, int nRow, int nCol, int dRow, int dCol){
   return wrap(nbr_(ii, nRow, nCol, dRow, dCol));
 }
 

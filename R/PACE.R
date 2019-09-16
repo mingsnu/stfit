@@ -35,7 +35,9 @@ PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval){
     stop("idseval is not in ids.")
   xi.mat = foreach(i = 1:length(idseval), .combine = cbind) %dopar%{
     id.idx = which(ids == idseval[i])
-    doy.idx = which(doyeval %in% doy[id.idx])
+    # doy.idx = which(doyeval %in% doy[id.idx])
+    # the following can work for the case when duplicates(same doy and year) in data, and not sorted necssarily
+    doy.idx <- sapply(doy[id.idx], function(x, y) {which(x == y)}, y = doyeval)
     if(length(ev.val) == 1){
       xi.result = ev.val * t(ev.vec[doy.idx, ]) %*%
         solve(ev.val* ev.vec[doy.idx, ] %*% t(ev.vec[doy.idx, ]) +  diag(nugg, length(id.idx))) %*% resid[id.idx]
