@@ -4,10 +4,20 @@
 \alias{meanEst}
 \title{Gapfill missing values for a sequence of images}
 \usage{
-meanEst(doy, mat, doyeval = seq(min(doy), max(doy)), msk = rep(FALSE,
-  ncol(mat)), outlier.tol = 0.5, minimum.num.obs = 4, cluster = NULL,
-  redo = TRUE, clipRange = c(-Inf, Inf), clipMethod = c("truncate",
-  "nnr"), img.nrow = NULL, img.ncol = NULL)
+meanEst(
+  doy,
+  mat,
+  doyeval = seq(min(doy), max(doy)),
+  msk = rep(FALSE, ncol(mat)),
+  outlier.tol = 0.5,
+  minimum.num.obs = 4,
+  cluster = NULL,
+  redo = TRUE,
+  clipRange = c(-Inf, Inf),
+  clipMethod = c("truncate", "nnr"),
+  img.nrow = NULL,
+  img.ncol = NULL
+)
 }
 \arguments{
 \item{doy}{vector of day of year (DOY) index}

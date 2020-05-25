@@ -3,8 +3,6 @@
 #' @param h 'bandwith'
 #'
 #' @return a weighting matrix
-#'
-#' @examples
 weightMatrix <- function(h){
   ## matrix(c(0.375, 0.562, 0.375, 0.562, 0.75, 0.562, 0.375, 0.562, 0.375), 3)
   if(h <=0)
@@ -22,8 +20,6 @@ weightMatrix <- function(h){
 #'
 #' @return a vector
 #' @export
-#'
-#' @examples
 weightVector <- function(h){
   if(h <=0)
     stop("bandwidth can not be non-positive.")

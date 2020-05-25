@@ -5,10 +5,10 @@
 #' @param img.nrow image row dimension
 #' @param img.ncol image column dimension
 #' @param pve percent of variance explained of the selected eigen values
-#' @param h.cov bandwidth for temporal covariance estimation; ignored if `weight.cov` is supplied
+#' @param h.cov bandwidth for spatial covariance estimation; ignored if `weight.cov` is supplied
 #' @param h.sigma2 bandwidth for sigma2 estimation
-#' @param weight.cov weight vector for temporal covariance estimation
-#' @param weight.sigma2 weight vector for sigma2 estimation; not used for now...
+#' @param weight.cov weight vector for spatial covariance estimation
+#' @param weight.sigma2 weight vector for sigma2 estimation;
 #' @param nnr maximum of nearest neibors used to calculate correlation
 #' @param method "lc" for local constant covariance estimation and "emp" for empirical covariance estimation
 #' @param msk optional logistic matrix. TRUE for mask values.
@@ -22,7 +22,6 @@
 #' `imputed.partial`
 #' 
 #' @export
-#' @examples 
 seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
                     weight.cov = NULL, weight.sigma2 = NULL,
                     nnr, method = c("lc", "emp"), keep.original = FALSE,

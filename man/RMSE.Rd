@@ -4,7 +4,7 @@
 \alias{RMSE}
 \title{Error metrics}
 \usage{
-RMSE(y, ypred, ...)
+RMSE(y, ypred)
 }
 \arguments{
 \item{y}{vector}

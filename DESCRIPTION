@@ -1,20 +1,27 @@
 Package: stfit
 Type: Package
 Title: Spatio-Temporal Functional Imputation Tool
-Version: 0.90.7
+Version: 0.91
 Date: 2018-04-23
 Author: c(person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre")),
 	     person("Zhonglei", "Wang"))
 Maintainer: Weicheng Zhu<mingsnu@gmail.com>
 Description: Tools to fill missing values in satellite data.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.12.14),
+LazyData: true
+Depends: R (>= 3.5.0)
+Imports: 
+    Rcpp,
     Matrix,
     foreach,
     abind,
-    fda
-LinkingTo: Rcpp
-Suggests: raster,
+    fda,
+    raster,
     rasterVis,
-    doParallel
-RoxygenNote: 6.0.1
+    RColorBrewer
+LinkingTo: Rcpp
+Suggests: 
+    doParallel,
+    testthat
+RoxygenNote: 7.1.0
+Encoding: UTF-8

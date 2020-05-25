@@ -1,6 +1,4 @@
 #include <Rcpp.h>
-#include <stdlib.h>
-#include <vector>
 using namespace Rcpp;
 
 double sumKernel(

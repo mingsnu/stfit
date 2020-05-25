@@ -1,30 +1,22 @@
 #include <Rcpp.h>
-#include <stdlib.h>
-#include <vector>
 using namespace Rcpp;
 
-// [[Rcpp::export]]
 double vecmin(NumericVector x) {
   // Rcpp supports STL-style iterators
   NumericVector::iterator it = std::min_element(x.begin(), x.end());
-  // we want the value so dereference 
   return *it;
 }
-// [[Rcpp::export]]
+
 double vecmax(NumericVector x) {
   // Rcpp supports STL-style iterators
   NumericVector::iterator it = std::max_element(x.begin(), x.end());
-  // we want the value so dereference 
   return *it;
 }
-double lc_cov_1d_(const NumericVector &ids, const NumericVector &time, const NumericVector &resid, 
+
+//' @rdname lc_cov_1d_est
+// [[Rcpp::export]]
+double lc_cov_1d(const NumericVector &ids, const NumericVector &time, const NumericVector &resid, 
                   const NumericVector &W, int t1, int t2){
-  // sparse local constant covariance estimation for points i and j
-  // ids: vector of ids
-  // time: vector of observed time points
-  // resid: vector of residuals
-  // W: weight vector, related to the bandwidth selection
-  // t1: first time point value; t2: second time point value
   int W_size = W.size();
   double sumEEKK = 0.0, sumKK = 0.0;
   int N = ids.size();
@@ -61,13 +53,15 @@ double lc_cov_1d_(const NumericVector &ids, const NumericVector &time, const Num
   }
 }
 
-// [[Rcpp::export]]
-double lc_cov_1d(const NumericVector &ids, const NumericVector &time, const NumericVector &resid, 
-                 const NumericVector &W, int t1, int t2){
-  return lc_cov_1d_(ids, time, resid, W, t1, t2);
-}
-
-
+//' Local constant covariance estimation
+//' @param ids a vector indicating subject/group ids
+//' @param time: integer vector of observed time points, the minimum time unit is 1
+//' @param resid: vector of residual values used for covariance calculation
+//' @param W: weight vector, it contains both kernel and bandwidth information in general 
+//' local polynomial estimation setting up
+//' @param tt: time vector
+//' @retrun a covariance matrix evaluated at time points \code{tt} on the covariance function 
+//' @export
 // [[Rcpp::export]]
 NumericMatrix lc_cov_1d_est(const NumericVector &ids, const NumericVector &time, const NumericVector &resid, 
                   const NumericVector &W, const NumericVector &tt){
@@ -80,7 +74,7 @@ NumericMatrix lc_cov_1d_est(const NumericVector &ids, const NumericVector &time,
     // if(i == 0)
     //   Rcpp::Rcout << "tt[i]: " << tt[i] << std::endl;
     for(int j = 0; j <= i; j++){
-       out(i,j) = lc_cov_1d_(ids, time, resid, W, tt[i], tt[j]);
+       out(i,j) = lc_cov_1d(ids, time, resid, W, tt[i], tt[j]);
       if(j < i)
         out(j,i) = out(i,j);
       // if(NumericVector::is_na(out(i,j)))

@@ -4,9 +4,15 @@
 \alias{doyMeanEst}
 \title{DOY mean estimation}
 \usage{
-doyMeanEst(rst, doy.idx = 1:nlayers(rst), methods = c("spreg",
-  "smooth_spline"), basis = c("fourier", "bspline"), rangeval = c(0,
-  nlayers(rst)), nbasis = 11, ...)
+doyMeanEst(
+  rst,
+  doy.idx = 1:nlayers(rst),
+  methods = c("spreg", "smooth_spline"),
+  basis = c("fourier", "bspline"),
+  rangeval = c(0, nlayers(rst)),
+  nbasis = 11,
+  ...
+)
 }
 \arguments{
 \item{rst}{a *Raster object}

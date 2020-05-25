@@ -1,0 +1,13 @@
+library(testthat)
+library(stfit)
+library(dplyr)
+library(doParallel)
+library(Matrix)
+registerDoParallel(6)
+test_that("seffEst backward compatibility check", {
+  # skip("skip this test")
+  skip_on_cran()
+  rmat = readRDS(system.file("testdata", "rmat2_B.rds", package = "stfit"))
+  seffest = seffEst(rmat, 31, 31, nnr = 30, h.cov = 2, h.sigma2 = 2)
+  expect_identical(seffest, readRDS(system.file("testdata", "seffest_B.rds", package = "stfit")))
+})

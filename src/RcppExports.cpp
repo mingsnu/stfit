@@ -97,28 +97,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// vecmin
-double vecmin(NumericVector x);
-RcppExport SEXP _stfit_vecmin(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(vecmin(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// vecmax
-double vecmax(NumericVector x);
-RcppExport SEXP _stfit_vecmax(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(vecmax(x));
-    return rcpp_result_gen;
-END_RCPP
-}
 // lc_cov_1d
 double lc_cov_1d(const NumericVector& ids, const NumericVector& time, const NumericVector& resid, const NumericVector& W, int t1, int t2);
 RcppExport SEXP _stfit_lc_cov_1d(SEXP idsSEXP, SEXP timeSEXP, SEXP residSEXP, SEXP WSEXP, SEXP t1SEXP, SEXP t2SEXP) {
@@ -172,8 +150,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_stfit_sparse_emp_cov_est1", (DL_FUNC) &_stfit_sparse_emp_cov_est1, 5},
     {"_stfit_sparse_lc_cov_est", (DL_FUNC) &_stfit_sparse_lc_cov_est, 5},
     {"_stfit_sparse_lc_cov_est1", (DL_FUNC) &_stfit_sparse_lc_cov_est1, 6},
-    {"_stfit_vecmin", (DL_FUNC) &_stfit_vecmin, 1},
-    {"_stfit_vecmax", (DL_FUNC) &_stfit_vecmax, 1},
     {"_stfit_lc_cov_1d", (DL_FUNC) &_stfit_lc_cov_1d, 6},
     {"_stfit_lc_cov_1d_est", (DL_FUNC) &_stfit_lc_cov_1d_est, 5},
     {"_stfit_mean_est", (DL_FUNC) &_stfit_mean_est, 4},

@@ -4,7 +4,7 @@
 \alias{NMSE}
 \title{Error metrics}
 \usage{
-NMSE(y, ypred, ...)
+NMSE(y, ypred)
 }
 \arguments{
 \item{y}{vector}

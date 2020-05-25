@@ -4,8 +4,16 @@
 \alias{spreg}
 \title{spline regression}
 \usage{
-spreg(x, y, x.eval, minimum.num.obs = 4, basis = c("fourier", "bspline"),
-  rangeval = c(min(x.eval) - 1, max(x.eval)), nbasis = 11, ...)
+spreg(
+  x,
+  y,
+  x.eval,
+  minimum.num.obs = 4,
+  basis = c("fourier", "bspline"),
+  rangeval = c(min(x.eval) - 1, max(x.eval)),
+  nbasis = 11,
+  ...
+)
 }
 \arguments{
 \item{x}{independent variable}

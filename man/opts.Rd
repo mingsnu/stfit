@@ -4,7 +4,9 @@
 \name{opts}
 \alias{opts}
 \title{Options for gapfill}
-\format{An object of class \code{list} of length 5.}
+\format{
+An object of class \code{list} of length 5.
+}
 \usage{
 opts
 }

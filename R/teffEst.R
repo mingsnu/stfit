@@ -7,7 +7,7 @@
 #' @param h.cov bandwidth for temporal covariance estimation; ignored if `weight.cov` is supplied
 #' @param h.sigma2 bandwidth for sigma2 estimation
 #' @param weight.cov weight vector for temporal covariance estimation
-#' @param weight.sigma2 weight vector for sigma2 estimation; not used for now...
+#' @param weight.sigma2 weight vector for sigma2 estimation
 #' @param pve percentage of variance explained; used for number of eigen values selection
 #' @param doyeval a vector on which to estimate
 #' @param t.grid vector of grid points on which to calculate the covariance function
@@ -15,8 +15,6 @@
 #'
 #' @return
 #' @export
-#'
-#' @examples
 teffEst <- function(ids, doy, rmat,
                     doyeval = seq(min(doy), max(doy)), h.cov = 100, h.sigma2 = 300,
                      weight.cov = NULL, weight.sigma2 = NULL,

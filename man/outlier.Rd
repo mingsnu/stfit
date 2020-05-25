@@ -9,6 +9,12 @@ outlier(mat)
 \arguments{
 \item{mat}{data matrix. Each row is a row stacked image.}
 }
+\value{
+a list:
+outidx: index of the outlier image
+outpct: percentage of outliers among observed pixels in the image
+outlst: a list with the same length as outidx, with outlier pixel index in each list.
+}
 \description{
 Title
 }

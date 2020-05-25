@@ -4,7 +4,7 @@
 \alias{ARE}
 \title{Title}
 \usage{
-ARE(y, ypred, ...)
+ARE(y, ypred)
 }
 \arguments{
 \item{y}{vector}

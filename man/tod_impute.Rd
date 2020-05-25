@@ -11,6 +11,9 @@ tod_impute(rst.list, sim.mat)
 measurements of the same location at different time of the day of the same day of 
 the year}
 }
+\value{
+
+}
 \description{
 Image imputation using time of the day information
 }

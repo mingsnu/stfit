@@ -4,10 +4,22 @@
 \alias{seffEst}
 \title{Gapfill missing values for a sequence of images}
 \usage{
-seffEst(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
-  weight.cov = NULL, weight.sigma2 = NULL, nnr, method = c("lc", "emp"),
-  keep.original = FALSE, pve = 0.99, msk = NULL, msk.tol = 0.95,
-  detail = FALSE)
+seffEst(
+  rmat,
+  img.nrow,
+  img.ncol,
+  h.cov = 2,
+  h.sigma2 = 2,
+  weight.cov = NULL,
+  weight.sigma2 = NULL,
+  nnr,
+  method = c("lc", "emp"),
+  keep.original = FALSE,
+  pve = 0.99,
+  msk = NULL,
+  msk.tol = 0.95,
+  detail = FALSE
+)
 }
 \arguments{
 \item{rmat}{residual matrix}
@@ -16,13 +28,13 @@ seffEst(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
 
 \item{img.ncol}{image column dimension}
 
-\item{h.cov}{bandwidth for temporal covariance estimation; ignored if `weight.cov` is supplied}
+\item{h.cov}{bandwidth for spatial covariance estimation; ignored if `weight.cov` is supplied}
 
 \item{h.sigma2}{bandwidth for sigma2 estimation}
 
-\item{weight.cov}{weight vector for temporal covariance estimation}
+\item{weight.cov}{weight vector for spatial covariance estimation}
 
-\item{weight.sigma2}{weight vector for sigma2 estimation; not used for now...}
+\item{weight.sigma2}{weight vector for sigma2 estimation;}
 
 \item{nnr}{maximum of nearest neibors used to calculate correlation}
 
