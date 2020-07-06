@@ -13,7 +13,4 @@ opts
 \description{
 Options for gapfill
 }
-\examples{
-opts$get('smooth_spline')
-}
 \keyword{datasets}

@@ -64,7 +64,7 @@
 #' 
 #' @export
 #' 
-#' @example 
+#' @example
 #' \dontrun{
 #' dfB = landsat106[landsat106$year >= 2000,]
 #' matB = as.matrix(dfB[,-c(1:2)])
@@ -246,8 +246,6 @@ meanEst <- function(doy, mat,
 #'
 #' @return predicted values at 'x.eval'
 #' @export
-#'
-#' @examples 
 smooth_spline <- function(x, y, x.eval=x, minimum.num.obs=4, ...) {
   nonna.idx = !is.na(y)
   if(sum(nonna.idx) > minimum.num.obs){
@@ -270,8 +268,6 @@ smooth_spline <- function(x, y, x.eval=x, minimum.num.obs=4, ...) {
 #'
 #' @return predicted values at 'x.eval'
 #' @export
-#'
-#' @examples
 #' 
 llreg <- function(x, y, x.eval=x, minimum.num.obs = 4, h=60, Kern=epan){
   nonna.idx = !is.na(y)
@@ -320,8 +316,6 @@ llreg <- function(x, y, x.eval=x, minimum.num.obs = 4, h=60, Kern=epan){
 #'
 #' @return predicted values at 'x.eval'
 #' @export
-#'
-#' @examples
 lpreg <- function(x, y, x.eval, minimum.num.obs = 4, span=0.3, ...){
   nonna.idx = !is.na(y)
   if(sum(nonna.idx) > minimum.num.obs){
@@ -346,8 +340,6 @@ lpreg <- function(x, y, x.eval, minimum.num.obs = 4, span=0.3, ...){
 #'
 #' @return predicted values at 'x.eval'
 #' @export
-#'
-#' @examples
 spreg <- function(x, y, x.eval, minimum.num.obs = 4, basis = c("fourier", "bspline"), 
                   rangeval = c(min(x.eval)-1, max(x.eval)), nbasis = 11, ...){
   nonna.idx = !is.na(y)

@@ -6,7 +6,7 @@
 using namespace Rcpp;
 
 // nbr
-NumericVector nbr(int ii, int nRow, int nCol, int dRow, int dCol);
+IntegerVector nbr(int ii, int nRow, int nCol, int dRow, int dCol);
 RcppExport SEXP _stfit_nbr(SEXP iiSEXP, SEXP nRowSEXP, SEXP nColSEXP, SEXP dRowSEXP, SEXP dColSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

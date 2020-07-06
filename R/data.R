@@ -5,10 +5,10 @@
 #'
 #' @docType data
 #' @format A data frame with 990 rows and 963 columns:
-#' \describe{
-#'   \item{year}{year}
-#'   \item{doy}{day of the year}
-#'   \item{pixeli} pixel value for the i-th pixel of the image
+#' \itemize{
+#'   \item year year
+#'   \item doy day of the year
+#'   \item pixeli pixel value for the i-th pixel of the image
 #' }
 #' @keywords datasets
 "landsat106"

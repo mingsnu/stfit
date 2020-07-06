@@ -42,7 +42,7 @@ teffEst <- function(ids, doy, rmat,
     resid = rmat[,i]
     nnaidx = !is.na(resid)
     if(sum(nnaidx) == 0)
-      return(matrix(NA, length(yeareval), length(doyeval)))
+      return(matrix(0, length(yeareval), length(doyeval)))
     R0.hat = lc_cov_1d_est(ids[nnaidx], doy[nnaidx], resid[nnaidx], weight.cov, t.grid)
     sigma2 = llreg(doy[nnaidx], resid[nnaidx]^2, x.eval = t.grid, h = h.sigma2)
     
@@ -56,7 +56,7 @@ teffEst <- function(ids, doy, rmat,
     ev.vec = phiInterp(doyeval, ev.vec, t.grid)
     
     idx1 = round(length(t.grid)/4):round(length(t.grid)/4*3)
-    nugg = max(mean((sigma2[idx1]-diag(R0.hat)[idx1])), 0.0)
+    nugg = max(mean((sigma2[idx1]-diag(R0.hat)[idx1])), 1e-06)
     if(!all(yeareval %in% ids[nnaidx])){
       res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, var.est = var.est)
       tmat = matrix(0, length(yeareval), length(doyeval))

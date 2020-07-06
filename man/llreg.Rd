@@ -23,6 +23,3 @@ predicted values at 'x.eval'
 \description{
 Local linear regression
 }
-\examples{
-
-}

@@ -40,7 +40,6 @@ new_defaults = function(value = list()) {
 #' Options for gapfill
 #'
 #' @export
-#' @examples opts$get('smooth_spline')
 opts = new_defaults(list(
   temporal_mean_est = smooth_spline
 ))
@@ -55,7 +54,7 @@ opts = new_defaults(list(
 #' @return a *Raster object
 #' @export
 #'
-#' @examples 
+ 
 rmOutlier <- function(rst){
   .rmOutlier <- function(x){
     na.idx = is.na(x)
@@ -74,7 +73,7 @@ rmOutlier <- function(rst){
 #' @return A vector of percent of missing values for each layer
 #' @export
 #'
-#' @examples
+
 pctMissing <- function(x, mc.cores){
   if(missing(mc.cores)) mc.cores = parallel::detectCores()
   doParallel::registerDoParallel(cores=mc.cores)
@@ -104,7 +103,7 @@ ident <- function(...) {
 #' @return index of the missing layers
 #' @export
 #'
-#' @examples
+
 getMissingLayers <- function(rst.list){
   if(inherits(rst.list, "RasterStackBrick"))
     return(which(is.infinite(rst.list@data@min) | is.na(rst.list@data@min)))
@@ -147,7 +146,7 @@ setMethod("getMask", "matrix",
 #' @return vector
 #' @export
 #'
-#' @examples
+
 epan <- function(x) {
   3 / 4 * pmax(1 - x ^ 2, 0)
 }
@@ -162,7 +161,7 @@ epan <- function(x) {
 #'
 #' @return covariance matrix interpretated on tt
 #'
-#' @examples
+
 covInterp = function(tt, phi.fun, omega, nugg.fun, t.grid) {
   m = length(tt)
   J = length(t.grid)
@@ -199,7 +198,7 @@ covInterp = function(tt, phi.fun, omega, nugg.fun, t.grid) {
 #'
 #' @return interpolated eigen function with the number of rows equal length of tt.
 #'
-#' @examples
+
 phiInterp = function(tt, phi.fun, t.grid){
   m = length(tt)
   tt = tt[tt < max(t.grid)]
