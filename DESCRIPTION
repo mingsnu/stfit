@@ -2,9 +2,8 @@ Package: stfit
 Type: Package
 Title: Spatio-Temporal Functional Imputation Tool
 Version: 0.99
-Date: 2018-04-23
-Author: c(person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre")),
-	     person("Zhonglei", "Wang"))
+Date: 2020-07-06
+Authors@R: person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre"))
 Maintainer: Weicheng Zhu<mingsnu@gmail.com>
 Description: The package provides general functional approach for imputing missing values in satellite data.
 BugReports: https://github.com/mingsnu/stfit/issues
