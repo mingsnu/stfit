@@ -5,9 +5,9 @@
 \alias{getMask,matrix-method}
 \title{Get the missing pattern (mask) of x}
 \usage{
-getMask(object, tol)
+getMask(object, ...)
 
-\S4method{getMask}{matrix}(object, tol = 0.95)
+\S4method{getMask}{matrix}(object, tol = 0.95, ...)
 }
 \arguments{
 \item{object}{each row is am image; each column is the stacked values of an image}

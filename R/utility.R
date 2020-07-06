@@ -54,7 +54,6 @@ opts = new_defaults(list(
 #' @return a *Raster object
 #' @export
 #'
- 
 rmOutlier <- function(rst){
   .rmOutlier <- function(x){
     na.idx = is.na(x)
@@ -73,7 +72,6 @@ rmOutlier <- function(rst){
 #' @return A vector of percent of missing values for each layer
 #' @export
 #'
-
 pctMissing <- function(x, mc.cores){
   if(missing(mc.cores)) mc.cores = parallel::detectCores()
   doParallel::registerDoParallel(cores=mc.cores)
@@ -103,7 +101,6 @@ ident <- function(...) {
 #' @return index of the missing layers
 #' @export
 #'
-
 getMissingLayers <- function(rst.list){
   if(inherits(rst.list, "RasterStackBrick"))
     return(which(is.infinite(rst.list@data@min) | is.na(rst.list@data@min)))
@@ -114,25 +111,24 @@ getMissingLayers <- function(rst.list){
 
 
 #' Get the missing pattern (mask) of x
-#'
-#' @param object each row is am image; each column is the stacked values of an image
-#' @param tol If the percentage of missing values for a pixel over time is greater than this
-#' value, this pixel is treated as a mask value.
-#' 
 #' @name getMask
 #' @rdname getMask
 #' @exportMethod getMask
 setGeneric (
   name = "getMask",
-  def = function(object, tol) {
+  def = function(object, ...) {
     standardGeneric("getMask")
   }
 )
 
+#' @param object each row is am image; each column is the stacked values of an image
+#' @param tol If the percentage of missing values for a pixel over time is greater than this
+#' value, this pixel is treated as a mask value.
+#'
 #' @rdname getMask
 #' @aliases getMask,matrix-method
 setMethod("getMask", "matrix",
-          definition = function(object, tol = 0.95) {
+          definition = function(object, tol = 0.95, ...) {
             return(
               apply(object, 2, function(x) {
                 sum(is.na(x))/length(x) >= tol
