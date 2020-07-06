@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{RMSE}
 \alias{RMSE}
-\title{Error metrics}
+\title{Root Mean Square Estimation}
 \usage{
 RMSE(y, ypred)
 }
@@ -15,5 +15,5 @@ RMSE(y, ypred)
 numeric number. A measure of difference between y and ypred.
 }
 \description{
-Error metrics
+Root Mean Square Estimation
 }

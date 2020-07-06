@@ -1,24 +1,31 @@
-#' Temporal effect estimation
+#' STFIT Temporal Effect Estimation
 #'
 #' @param ids ids for 'group', for data with repeated measurement over years, year is ids; 
 #' for pixels belong to certain clusters, cluster is ids.
-#' @param doy vector for day of year
-#' @param rmat residual matrix with rows corresponding to `doy` and columns corresponding to pixel index
-#' @param h.cov bandwidth for temporal covariance estimation; ignored if `weight.cov` is supplied
-#' @param h.sigma2 bandwidth for sigma2 estimation
+#' @param doy vecotr of DOY (day of the year)
+#' @param rmat residual matrix with rows corresponding to \code{doy} and columns corresponding to pixel index
+#' @param h.cov bandwidth for temporal covariance estimation; ignored if \code{weight.cov} is supplied
+#' @param h.sigma2 bandwidth for temporal variance estimation
 #' @param weight.cov weight vector for temporal covariance estimation
-#' @param weight.sigma2 weight vector for sigma2 estimation
-#' @param pve percentage of variance explained; used for number of eigen values selection
-#' @param doyeval a vector on which to estimate
-#' @param t.grid vector of grid points on which to calculate the covariance function
-#' @param t.grid.num number of grid points to use for covariance estimation. Ignored if `t.grid` is given.
+#' @param weight.sigma2 weight vector for temporal variance estimation
+#' @param pve percentage of variance explained; used for number of eigen values selection. Default is 0.99.
+#' @param doyeval a vector of DOY on which to get the temporal imputation
+#' @param t.grid a vector of grid points on which to calculate the temporal covariance function
+#' @param t.grid.num number of grid points to use for temporal covariance estimation. Ignored if \code{t.grid} is given.
+#' @param var.est Whether to estimate the variance of the temporal effect. Default is FALSE.
 #'
-#' @return
+#' @return List of length 2 with entries:
+#'   \itemize{
+#'     \item teff_array: 3-d array with first dimention 'ids', second dimention 'doy' and third
+#'     dimention pixel index.
+#'     \item teff_var_array: same structure as \code{teff_array} if \code{var.est} is TRUE,
+#'     otherwise NULL.
+#'   }
 #' @export
 teffEst <- function(ids, doy, rmat,
                     doyeval = seq(min(doy), max(doy)), h.cov = 100, h.sigma2 = 300,
-                     weight.cov = NULL, weight.sigma2 = NULL,
-                    pve = 0.99, t.grid = NULL, t.grid.num = 50){
+                    weight.cov = NULL, weight.sigma2 = NULL,
+                    pve = 0.99, t.grid = NULL, t.grid.num = 50, var.est = FALSE){
   cat("Estimating the temporal effect...\n")
   if(is.null(weight.cov))
     weight.cov = weightVector(h.cov)
@@ -26,12 +33,12 @@ teffEst <- function(ids, doy, rmat,
     weight.sigma2 = weightVector(h.sigma2)
   yeareval = sort(unique(ids))
   if(is.null(t.grid)){
-    if(t.grid.num < length(doyeval))
+    if(t.grid.num <= length(doyeval))
       t.grid = doyeval[unique(round(seq(1, length(doyeval), length.out=t.grid.num)))] else
         stop("t.grid.num is bigger than length of doyeval.")
   }
   acomb <- function(...) abind::abind(..., along=3)
-  teffarray = foreach(i = 1:ncol(rmat), .combine = "acomb", .multicombine=TRUE) %dopar% {
+  teffres = foreach(i = 1:ncol(rmat)) %dopar% {
     resid = rmat[,i]
     nnaidx = !is.na(resid)
     if(sum(nnaidx) == 0)
@@ -46,20 +53,37 @@ teffEst <- function(ids, doy, rmat,
     ## cat("The first ", ev.idx, " eigen values are used...\n")
     ev.vec = ev$vectors[, 1:ev.idx, drop=FALSE]
     ev.val = ev$values[1:ev.idx]
-    ev.vec = phi.interp(doyeval, ev.vec, t.grid)
+    ev.vec = phiInterp(doyeval, ev.vec, t.grid)
     
     idx1 = round(length(t.grid)/4):round(length(t.grid)/4*3)
     nugg = max(mean((sigma2[idx1]-diag(R0.hat)[idx1])), 0.0)
     if(!all(yeareval %in% ids[nnaidx])){
-      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval)
-      mat = matrix(0, length(yeareval), length(doyeval))
-      mat[which(yeareval %in% ids[nnaidx])] = res$mat
-      return(mat)
+      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, var.est = var.est)
+      tmat = matrix(0, length(yeareval), length(doyeval))
+      tmat[which(yeareval %in% ids[nnaidx]),] = res$tmat
+      if(var.est){
+        tvarmat = matrix(0, length(yeareval), length(doyeval))
+        tvarmat[which(yeareval %in% ids[nnaidx]),] = res$tvarmat
+      } else {
+        tvarmat = NULL
+      }
     } else{
-      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, yeareval)
-      return(res$mat)
+      res = PACE1d(ids[nnaidx], doy[nnaidx], resid[nnaidx], ev.vec, nugg, ev.val, doyeval, yeareval, var.est = var.est)
+      tmat = res$tmat
+      if(var.est){
+        tvarmat = res$tvarmat
+      } else {
+        tvarmat = NULL
+      }
     }
+    return(list(tmat = tmat, tvarmat = tvarmat))
   }
-  dimnames(teffarray) = list(yeareval, doyeval, 1:ncol(rmat))
-  return(teffarray)
+  teff_array = abind::abind(lapply(teffres, function(x) x[[1]]), along = 3)
+  dimnames(teff_array) = list(yeareval, doyeval, 1:ncol(rmat))
+  teff_var_array = NULL
+  if(var.est){
+    teff_var_array = abind::abind(lapply(teffres, function(x) x[[2]]), along = 3)
+    dimnames(teff_var_array) = list(yeareval, doyeval, 1:ncol(rmat))
+  }
+  return(list(teff_array = teff_array, teff_var_array = teff_var_array))
 }

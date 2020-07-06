@@ -2,7 +2,7 @@
 % Please edit documentation in R/stfit_landsat.R
 \name{stfit_landsat}
 \alias{stfit_landsat}
-\title{Gapfilling for repeated measurements over years}
+\title{STFIT for Landsat data}
 \usage{
 stfit_landsat(
   year,
@@ -24,24 +24,26 @@ stfit_landsat(
   teff = TRUE,
   seff = TRUE,
   doy.break = NULL,
-  b2e.con = FALSE,
+  cycle = FALSE,
+  t.grid = NULL,
   t.grid.num = 50,
   clipRange = c(0, 1800),
-  clipMethod = "nnr"
+  clipMethod = "nnr",
+  var.est = FALSE
 )
 }
 \arguments{
 \item{year}{vecotr of year}
 
-\item{doy}{vecotr of doy}
+\item{doy}{vecotr of DOY (day of the year)}
 
-\item{mat}{matrix with number of row equals length of doy}
+\item{mat}{a numeric matrix. Each row contains a row stacked image pixel values.}
 
-\item{img.nrow}{row number for the image to gapfill}
+\item{img.nrow}{number of rows of the image}
 
-\item{img.ncol}{column number for the image to gapfill}
+\item{img.ncol}{number of columns of the image}
 
-\item{doyeval}{a vector of DOY on which to perform the gapfill}
+\item{doyeval}{a vector of DOY on which to get the mean and temporal imputation}
 
 \item{h.tcov}{bandwidth for temporal covariance estimation}
 
@@ -51,33 +53,97 @@ stfit_landsat(
 
 \item{h.ssigma2}{bandwidth for spatial variance estimation}
 
-\item{nnr}{number of nearest neighbor pixels to use for spatial covariance estimation}
+\item{nnr}{maximum number of nearest neighbor pixels to use for spatial covariance estimation}
 
-\item{outlier.action}{"keep" to keep outliers; "remove" to replace outliers with gapfilled values}
+\item{outlier.action}{"keep" to keep outliers; "remove" to replace outliers with imputed values}
 
-\item{intermediate.save}{TRUE or FASLE; whether to save the intermediate results}
+\item{outlier.tol}{The threshold to use to define outlier image. Default is 0.2, i.e. images
+with more than 20\% outlier pixels are treated as outlier image.}
+
+\item{intermediate.save}{TRUE or FASLE; whether to save the intermediate results including
+mean, temporal effect and spacial effect imputation resutls. The intermediate results can be
+useful to avoid duplicating the computation for some imputation steps.}
 
 \item{intermediate.dir}{directory where to save the intermediate results}
 
-\item{use.intermediate.result}{whether to use the intermediate results in the 'intermediate.dir' folder instead
-of recalcuating}
+\item{use.intermediate.result}{whether to use the intermediate results in the 'intermediate.dir' folder. 
+Default is TRUE.}
 
-\item{teff}{TRUE or FALSE, wheter to calculate the temporal effect}
+\item{teff}{TRUE or FALSE, wheter to calculate the temporal effect. Default is TRUE.}
 
-\item{seff}{TRUE or FALSE, wheter to calculate the spatial effect}
+\item{seff}{TRUE or FALSE, wheter to calculate the spatial effect. Default is TRUE.}
 
-\item{doy.break}{a vector of break points for `doy`. spatial effect are estimated seperately on each interval}
+\item{doy.break}{a vector of break points for \code{doy} where the spatial effect are 
+estimated seperately on each interval. Default is NULL, i.e. the spatial effect is assumed
+to be the same over \code{doy}.}
 
-\item{b2e.con}{TRUE or FALSE. whether the the begining of `doy` is connected with the end of `doy`.}
+\item{cycle}{TRUE or FALSE. When \code{doy.break} is specified, whether to combine the first
+\code{doy.break} interval and the last \code{doy.break} together for spatial effect estimation.}
+
+\item{t.grid}{a vector of grid points on which to calculate the temporal covariance function}
+
+\item{t.grid.num}{number of grid points to use for temporal covariance estimation. 
+Ignored if \code{t.grid} is given.}
+
+\item{clipRange}{passed to \code{meanEst} function}
+
+\item{clipMethod}{passed to \code{meanEst} function}
+
+\item{var.est}{Whether to estimate the variance of the temporal and spatial effects. Default is FALSE.}
 }
 \value{
-List of length 3 with entries:
+List of length 4 with entries:
 \itemize{
-  \item imat imputed matrix of `mat`
-  \item idx a list of image indexes information
-  \item outlier a list of image outliers information
+  \item imat: imputed matrix of \code{mat}
+  \item smat: standard error matrix of the same size as \code{mat}
+  \item idx: a list of image indexes 
+  \itemize{
+    \item idx.allmissing: completely missing image indexes,
+    \item idx.partialmissing: partially observed image indexes,
+    \item idx.fullyobserved: fully observed image indexes,
+    \item idx.outlier: outlier image indexes.
+  }
+  \item outlier: a list of image outliers information
+  \itemize{
+    \item outidx: image index with outlier pixels,
+    \item outpct: percentage of outlier pixels corresponding to \code{outidx},
+    \item outlst: a list of the same length as \code{outidx}, with each list the missing 
+    pixel index.
+  }
 }
 }
 \description{
-Gapfilling for repeated measurements over years
+This function is used for Landsat data imputation, which includes five steps: 
+mean estimation, outlier detection, temporal effect estimation, spatial effect
+estimation and imputation. In real application, one can use this as a template
+to create a five steps imputation procedure depending on the real data structure.
+}
+\examples{
+\dontrun{
+dfB = landsat106[landsat106$year >= 2000,]
+matB = as.matrix(dfB[,-c(1:2)])
+year = dfB$year
+doy = dfB$doy
+if(require(doParallel))
+  registerDoParallel(8)
+res <- stfit_landsat(year, doy, mat, 31, 31, nnr=30,
+use.intermediate.result = FALSE, intermediate.save = TRUE, var.est = TRUE)
+## visualize the imputed results
+idx = c(res$idx$idx.allmissing[150], res$idx$idx.partialmissing[c(30, 60, 90)])
+rst_list = list()
+for(i in 1:length(idx)){
+  rst_list[(i-1)*3+1] = raster(matrix(matB[idx[i],], 31))
+  rst_list[(i-1)*3+2] = raster(matrix(res$imat[idx[i],], 31))
+  rst_list[(i-1)*3+3] = raster(matrix(res$sdmat[idx[i],], 31))
+}
+s = stack(rst_list)
+levelplot(s, index.cond=list(c(seq(1, 12, 3), seq(2, 12, 3), seq(3, 12, 3))),
+          par.setting = rasterTheme(panel.background=list(col="black"),
+                                    region = brewer.pal(9, 'YlOrRd')),
+          names.attr = c(rbind(paste0("Original ", idx), 
+                               paste0("Imputed ", idx),
+                               paste0("Std. Error ", idx))),
+          layout = c(4,3))
+
+}
 }

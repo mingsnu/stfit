@@ -1,15 +1,19 @@
-## returns outlier image index (row index of mat)
-#' Title
+#' Image Outlier Detection
 #'
 #' @param mat data matrix. Each row is a row stacked image.
 #'
-#' @return a list:
-#' outidx: index of the outlier image
-#' outpct: percentage of outliers among observed pixels in the image
-#' outlst: a list with the same length as outidx, with outlier pixel index in each list.
+#' @return a list containing the following entries:
+#' \itemize{
+#'   \item outidx: index of the outlier image
+#'   \item outpct: percentage of outlier pixels corresponding to \code{outidx},
+#'   \item outlst: a list of the same length as \code{outidx}, with each list the missing pixel index.
+#' }
 #' @export
 #'
 #' @examples
+#' dfB = landsat106[landsat106$year >= 2000,]
+#' matB = as.matrix(dfB[,-c(1:2)])
+#' outlier(matB)
 outlier <- function(mat){
   .outlier <- function(y){
     whisker = boxplot(y, plot = FALSE)$stats[c(1, 5)]

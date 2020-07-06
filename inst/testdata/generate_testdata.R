@@ -1,11 +1,14 @@
 ## Code used to generate test data
+library(dplyr)
+dfB = landsat106 %>% filter(year >= 2000)
+mat = as.matrix(dfB[,-c(1:2)])
+year = dfB$year
+doy = dfB$doy
+registerDoParallel(8)
 
 #########################################
 ## test data for lc_cov_1d* functions ###
 #########################################
-library(dplyr)
-dfB = landsat106 %>% filter(year >= 2000)
-matB = as.matrix(dfB[,-c(1:2)])
 y = matB[,3]
 nnaidx = !is.na(y)
 ids = df$year[nnaidx]
@@ -54,11 +57,6 @@ saveRDS(cov_1d_test_data, file = "inst/testdata/cov_1d_test_data.rds")
 ######################################################
 ## test data for meanEst/teffEst/seffEst functions ###
 ######################################################
-dfB = landsat106 %>% filter(year >= 2000)
-mat = as.matrix(dfB[,-c(1:2)])
-year = dfB$year
-doy = dfB$doy
-
 meanest = meanEst(doy, mat, doyeval = 1:365, clipRange = c(0,1800),
                   clipMethod = "nnr", img.nrow = 31, img.ncol = 31)
 saveRDS(meanest, file = "inst/testdata/meanest_B.rds")
@@ -98,6 +96,12 @@ saveRDS(rmat, file = "inst/testdata/rmat2_B.rds")
 seffest = seffEst(rmat, 31, 31, nnr = 30, h.cov = 2, h.sigma2 = 2)
 saveRDS(seffest, file = "inst/testdata/seffest_B.rds")
 
+###########################################
+## test data for stfit_landsat function ###
+###########################################
+res <- stfit_landsat(year, doy, mat, 31, 31, nnr=30,
+use.intermediate.result = FALSE, intermediate.save = TRUE, var.est = TRUE)
+saveRDS(res, file = "inst/testdata/stfit_landsat_B.rds")
 
 
 

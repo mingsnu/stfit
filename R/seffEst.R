@@ -1,32 +1,37 @@
-## Perform the gapfilling algorithm
-#' Gapfill missing values for a sequence of images
+#' STFIT Spatial Effect Estimation
 #' 
 #' @param rmat residual matrix
 #' @param img.nrow image row dimension
 #' @param img.ncol image column dimension
-#' @param pve percent of variance explained of the selected eigen values
-#' @param h.cov bandwidth for spatial covariance estimation; ignored if `weight.cov` is supplied
+#' @param pve percent of variance explained of the selected eigen values. Default is 0.99.
+#' @param h.cov bandwidth for spatial covariance estimation; ignored if \code{weight.cov} is supplied
 #' @param h.sigma2 bandwidth for sigma2 estimation
-#' @param weight.cov weight vector for spatial covariance estimation
-#' @param weight.sigma2 weight vector for sigma2 estimation;
-#' @param nnr maximum of nearest neibors used to calculate correlation
+#' @param weight.cov weight matrix for spatial covariance estimation
+#' @param weight.sigma2 weight vector for spatial variance estimation
+#' @param nnr maximum number of nearest neighbor pixels to use for spatial covariance estimation
 #' @param method "lc" for local constant covariance estimation and "emp" for empirical covariance estimation
-#' @param msk optional logistic matrix. TRUE for mask values.
-#' @param msk.tol if 'msk' is not given, the program will determine the mask using 'getMask'
+#' @param msk an optional logistic vector. TRUE represent the corresponding pixel is always missing.
+#' @param msk.tol if 'msk' is not given, the program will determine the mask using \code{getMask}
 #' function. If the percentage of missing values for a pixel over time is greater than this
-#' @param keep.original whether to keep the originally observed values in the resulting matrix
-#' @param detail if TRUE returns eigen values,eigen functions
-#' @return a list containing the following components:
-#' `year` same as input `year`
-#' `doy` same as input `doy`
-#' `imputed.partial`
+#' @param partial.only calculate the spatical effect for partially observed images only, default is TRUE
+#' @param var.est Whether to estimate the variance of the temporal effect. Default is FALSE.
+#' @return List of length 3 with entries:
+#'   \itemize{
+#'     \item seff_mat: estimated spatial effect matrix of the same shape as \code{rmat}.
+#'     \item seff_var_mat: estimated spatial effect variance matrix of the same shape as \code{rmat}.
+#'     \item idx: a list of two entries:
+#'     \itemize{
+#'       \item idx.allmissing: index of the completely missing images.
+#'       \item idx.imputed: index of the partially observed images, where spatial effects 
+#'       are estimated.
+#'     }
+#'   }
 #' 
 #' @export
 seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
                     weight.cov = NULL, weight.sigma2 = NULL,
-                    nnr, method = c("lc", "emp"), keep.original = FALSE,
-                    pve = 0.99, msk = NULL, msk.tol = 0.95,
-                    detail = FALSE){
+                    nnr, method = c("lc", "emp"), partial.only = TRUE,
+                    pve = 0.99, msk = NULL, msk.tol = 0.95, var.est = FALSE){
   cat("Estimating spatial effect...")
   if(is.null(weight.cov))
     weight.cov = weightMatrix(h.cov)
@@ -50,26 +55,30 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   N1 = sum(!msk) 
   
   ## initial spatial effect matrix
-  seffmat = rmat
-  seffmat[is.na(seffmat)] = 0
+  seff_mat  = matrix(0, nrow(rmat), ncol(rmat))
+  seff_mat[,msk] = NA
+  seff_var_mat = seff_mat
   
   ## no spatial effect if there are too few actual pixels in one image
-  if(N1 <= 1)
-    return(list(seffmat=seffmat,
+  if(N1 <= 1){
+    warning('Too few pixels in the image')
+    return(list(seff_mat=seff_mat,
+                seff_var_mat=seff_var_mat,
                 idx = list()))
-  
+  }
+   
   pidx = (1:N)[!msk] ## 'actual' pixel indexes
-  ## keep 'actual' pixels only, 
-  ## The i-th column in the old rmat correspones to the
-  ## `which(pidx == i)`th column in the new rmat
   rmat = rmat[,!msk, drop=FALSE] ## now 'rmat' has N1 columns
   
   ## remove images that have 100% missing pixels
   pct_missing = apply(rmat, 1, function(x) {sum(is.na(x))/N1})
   ## Index
   idx1 = idx[pct_missing == 1] ## all missing images indexes;
-  idx2 = idx[pct_missing > 0 & pct_missing < 1] ## partially missing images indexes;
-  idx3 = idx[pct_missing == 0] ## non missing images indexes;
+  if(partial.only){
+    idx2 = idx[pct_missing > 0 & pct_missing < 1] # partially missing images indexes;
+  } else {
+    idx2 = idx[pct_missing < 1] # partially missing + fully observed images indexes;
+  }
   
   ###################################################
   ######### Covariance matrix estimation ############
@@ -96,7 +105,7 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
                          dims = c(N1, N1), symmetric = TRUE)
   cat("Estimating the variance function...\n")
-  ## TODO: using local linear smoothing
+  ## using empirical variance estimation; TODO: using local constant/linear smoothing
   sigma2 = apply(rmat, 2, var, na.rm=TRUE)
   nugg = max(0, mean(sigma2 - Matrix::diag(scovest), na.rm=TRUE))
   
@@ -115,31 +124,20 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   ###############################################
   ## The following uses the sparse pca to impute the missing values.
   cat("Estimating the principal component scores for partially missing images...\n")
-  rmat_imputed_partial = PACE(rmat[idx2,, drop = FALSE], ev.vec, nugg, ev.val)
-  if(keep.original){
-    partial_miss_idx = is.na(rmat[idx2,,drop=FALSE])
-    seffmat[idx2, !msk][partial_miss_idx] = rmat_imputed_partial[partial_miss_idx]
-  } else {
-    seffmat[idx2, !msk] = rmat_imputed_partial
-  }
+  seffres = PACE2d(rmat[idx2,, drop = FALSE], ev.vec, nugg, ev.val, var.est = var.est)
+  seff_mat[idx2, !msk] = seffres$smat
+  if(var.est)
+    seff_var_mat[idx2, !msk] = seffres$svarmat 
+  else
+    seff_var_mat = NULL
 
-  if(detail){
-      return(list(
-        seffmat = seffmat,
-        idx = list(idx.allmissing = idx1,
-                   idx.partialmissing = idx2,
-                   idx.fullyobserved = idx3),
-        eigen.vec = ev.vec, 
-        nugg = nugg, 
-        eigen.val = ev.val))
-  } else {
-      return(list(
-        seffmat = seffmat,
-        idx = list(idx.allmissing = idx1,
-                   idx.partialmissing = idx2,
-                   idx.fullyobserved = idx3)
-      ))
-  }
+  return(list(
+    seff_mat = seff_mat,
+    seff_var_mat = seff_var_mat,
+    idx = list(idx.allmissing = idx1,
+               idx.imputed = idx2)
+  ))
+  
 }
 
 

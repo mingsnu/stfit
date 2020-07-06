@@ -2,7 +2,7 @@
 % Please edit documentation in R/outlier.R
 \name{outlier}
 \alias{outlier}
-\title{Title}
+\title{Image Outlier Detection}
 \usage{
 outlier(mat)
 }
@@ -10,11 +10,18 @@ outlier(mat)
 \item{mat}{data matrix. Each row is a row stacked image.}
 }
 \value{
-a list:
-outidx: index of the outlier image
-outpct: percentage of outliers among observed pixels in the image
-outlst: a list with the same length as outidx, with outlier pixel index in each list.
+a list containing the following entries:
+\itemize{
+  \item outidx: index of the outlier image
+  \item outpct: percentage of outlier pixels corresponding to \code{outidx},
+  \item outlst: a list of the same length as \code{outidx}, with each list the missing pixel index.
+}
 }
 \description{
-Title
+Image Outlier Detection
+}
+\examples{
+dfB = landsat106[landsat106$year >= 2000,]
+matB = as.matrix(dfB[,-c(1:2)])
+outlier(matB)
 }

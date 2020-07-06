@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{ARE}
 \alias{ARE}
-\title{Title}
+\title{Absolute relative error}
 \usage{
 ARE(y, ypred)
 }
@@ -15,5 +15,5 @@ ARE(y, ypred)
 numeric number. A measure of difference between y and ypred.
 }
 \description{
-Title
+Absolute relative error
 }

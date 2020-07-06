@@ -2,7 +2,7 @@
 % Please edit documentation in R/seffEst.R
 \name{seffEst}
 \alias{seffEst}
-\title{Gapfill missing values for a sequence of images}
+\title{STFIT Spatial Effect Estimation}
 \usage{
 seffEst(
   rmat,
@@ -14,11 +14,11 @@ seffEst(
   weight.sigma2 = NULL,
   nnr,
   method = c("lc", "emp"),
-  keep.original = FALSE,
+  partial.only = TRUE,
   pve = 0.99,
   msk = NULL,
   msk.tol = 0.95,
-  detail = FALSE
+  var.est = FALSE
 )
 }
 \arguments{
@@ -28,35 +28,42 @@ seffEst(
 
 \item{img.ncol}{image column dimension}
 
-\item{h.cov}{bandwidth for spatial covariance estimation; ignored if `weight.cov` is supplied}
+\item{h.cov}{bandwidth for spatial covariance estimation; ignored if \code{weight.cov} is supplied}
 
 \item{h.sigma2}{bandwidth for sigma2 estimation}
 
-\item{weight.cov}{weight vector for spatial covariance estimation}
+\item{weight.cov}{weight matrix for spatial covariance estimation}
 
-\item{weight.sigma2}{weight vector for sigma2 estimation;}
+\item{weight.sigma2}{weight vector for spatial variance estimation}
 
-\item{nnr}{maximum of nearest neibors used to calculate correlation}
+\item{nnr}{maximum number of nearest neighbor pixels to use for spatial covariance estimation}
 
 \item{method}{"lc" for local constant covariance estimation and "emp" for empirical covariance estimation}
 
-\item{keep.original}{whether to keep the originally observed values in the resulting matrix}
+\item{partial.only}{calculate the spatical effect for partially observed images only, default is TRUE}
 
-\item{pve}{percent of variance explained of the selected eigen values}
+\item{pve}{percent of variance explained of the selected eigen values. Default is 0.99.}
 
-\item{msk}{optional logistic matrix. TRUE for mask values.}
+\item{msk}{an optional logistic vector. TRUE represent the corresponding pixel is always missing.}
 
-\item{msk.tol}{if 'msk' is not given, the program will determine the mask using 'getMask'
+\item{msk.tol}{if 'msk' is not given, the program will determine the mask using \code{getMask}
 function. If the percentage of missing values for a pixel over time is greater than this}
 
-\item{detail}{if TRUE returns eigen values,eigen functions}
+\item{var.est}{Whether to estimate the variance of the temporal effect. Default is FALSE.}
 }
 \value{
-a list containing the following components:
-`year` same as input `year`
-`doy` same as input `doy`
-`imputed.partial`
+List of length 3 with entries:
+  \itemize{
+    \item seff_mat: estimated spatial effect matrix of the same shape as \code{rmat}.
+    \item seff_var_mat: estimated spatial effect variance matrix of the same shape as \code{rmat}.
+    \item idx: a list of two entries:
+    \itemize{
+      \item idx.allmissing: index of the completely missing images.
+      \item idx.imputed: index of the partially observed images, where spatial effects 
+      are estimated.
+    }
+  }
 }
 \description{
-Gapfill missing values for a sequence of images
+STFIT Spatial Effect Estimation
 }

@@ -1,4 +1,4 @@
-#' Error metrics
+#' Root Mean Square Estimation
 #'
 #' @param y vector
 #' @param ypred vecotr
@@ -12,7 +12,7 @@ RMSE = function(y, ypred){
   sqrt(sum((y[idx]-ypred[idx])^2)/sum(idx))
 }
 
-#' Error metrics
+#' Normalized Mean Square Estimation
 #'
 #' @param y vector
 #' @param ypred vector
@@ -26,7 +26,7 @@ NMSE = function(y, ypred){
   sum((y[idx]-ypred[idx])^2)/sum(y[idx]^2)
 }
 
-#' Title
+#' Absolute relative error
 #'
 #' @param y vector
 #' @param ypred vector

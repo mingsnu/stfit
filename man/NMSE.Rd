@@ -2,7 +2,7 @@
 % Please edit documentation in R/metrics.R
 \name{NMSE}
 \alias{NMSE}
-\title{Error metrics}
+\title{Normalized Mean Square Estimation}
 \usage{
 NMSE(y, ypred)
 }
@@ -15,5 +15,5 @@ NMSE(y, ypred)
 numeric number. A measure of difference between y and ypred.
 }
 \description{
-Error metrics
+Normalized Mean Square Estimation
 }

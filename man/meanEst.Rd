@@ -2,7 +2,7 @@
 % Please edit documentation in R/meanEst.R
 \name{meanEst}
 \alias{meanEst}
-\title{Gapfill missing values for a sequence of images}
+\title{STFIT Mean Estimation}
 \usage{
 meanEst(
   doy,
@@ -22,23 +22,24 @@ meanEst(
 \arguments{
 \item{doy}{vector of day of year (DOY) index}
 
-\item{mat}{data matrix. Each row is a row stacked image}
+\item{mat}{data matrix. Each row contains a row stacked image pixel values.}
 
-\item{doyeval}{vector of doy to evaluate on}
+\item{doyeval}{a vector of DOY on which to get the mean imputation}
 
-\item{msk}{optional logistic matrix. TRUE for mask values.}
+\item{msk}{an optional logistic vector. TRUE represent the corresponding pixel is always missing.}
 
 \item{outlier.tol}{the tolerance value in defining an image as outlier. The percent of 
 outlier pixels in an image exceed this value is regarded as outlier image which will not
 be used in temporal mean estimation.}
 
-\item{minimum.num.obs}{minimum number of observations needed for doing mean estimation for each pixel}
+\item{minimum.num.obs}{minimum number of observations needed for mean estimation. Too few observations
+may lead to big estimation error.}
 
-\item{cluster}{optional matrix defining clusters of pixels. If NULL, temporal mean estimation
+\item{cluster}{an optional vector defining clusters of pixels. If NULL, mean estimation
 is conducted on each pixel, otherwise all pixels from the same cluster are combined for
-temporal mean estimation.}
+mean estimation.}
 
-\item{redo}{whether to recalculate the mean estimation if there is an outlier.}
+\item{redo}{whether to recalculate the mean estimation if there is an outlier (only redo once).}
 
 \item{clipRange}{vector of length 2, specifying the minimum and maximum values of the prediction value}
 
@@ -50,10 +51,48 @@ temporal mean estimation.}
 \item{img.ncol}{number of columns for an image, only used when 'clipMethod' is "nnr"}
 }
 \value{
-a list containing the following components:
-`doyeval` same as input `doyeval`
-`meanmat` matrix with number of rows equal length of `doyeval` and number of columns equal `ncol(mat)`
+a list containing the following entries:
+  \itemize{
+    \item doyeval: same as input \code{doyeval}
+    \item meanmat: estimated mean matrix, with number of rows equals length of \code{doyeval}
+     and number of columns equal \code{ncol(mat)}
+     \item idx: a list of image indexes 
+       \itemize{
+       \item idx.allmissing: completely missing image indexes,
+       \item idx.partialmissing: partially observed image indexes,
+       \item idx.fullyobserved: fully observed image indexes,
+       \item idx.outlier: outlier image indexes.
+     }
+    \item outlier: a list of image outliers information
+      \itemize{
+        \item outidx: index of the outlier image
+        \item outpct: percentage of outlier pixels corresponding to \code{outidx},
+        \item outlst: a list of the same length as \code{outidx}, with each list the missing pixel index.
+     }
+  }
 }
 \description{
-Gapfill missing values for a sequence of images
+The function is used for pixel-wise mean estimation.
+}
+\details{
+There are several predefined methods for mean estimation: \code{smooth_spline}, 
+\code{llreg}, \code{lpreg} and \code{spreg}. User can use \code{opt$get()} to check
+the current registered method and use \code{opt$set()} function to set the method.
+For exmaple, one can run \code{opt$set(smooth_spline)} first and then run the 
+\code{meanEst} function to use smoothing spline regression for mean eatimation.
+User can also customize the methods for mean estimation. For example, mean estimation
+through fourier basis expansion:
+
+\preformatted{
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X[x.eval,] %*% lmfit$coefficient)
+}
+stfit::opts$set(temporal_mean_est = customfun)
+}
 }
