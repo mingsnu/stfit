@@ -13,7 +13,9 @@ smooth_spline(x, y, x.eval = x, minimum.num.obs = 4, ...)
 
 \item{x.eval}{vector to predict on}
 
-\item{plot}{logical. NOT IMPLEMENTED YET}
+\item{minimum.num.obs}{}
+
+\item{...}{other parameters to be passed to \code{smooth.spline} function}
 }
 \value{
 predicted values at 'x.eval'

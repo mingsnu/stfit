@@ -114,24 +114,25 @@ getMissingLayers <- function(rst.list){
 
 
 #' Get the missing pattern (mask) of x
+#'
+#' @param object each row is am image; each column is the stacked values of an image
+#' @param tol If the percentage of missing values for a pixel over time is greater than this
+#' value, this pixel is treated as a mask value.
+#' 
 #' @name getMask
 #' @rdname getMask
 #' @exportMethod getMask
 setGeneric (
   name = "getMask",
-  def = function(object, ...) {
+  def = function(object, tol) {
     standardGeneric("getMask")
   }
 )
 
-#' @param matrix each row is am image; each column is the stacked values of an image
-#' @param tol If the percentage of missing values for a pixel over time is greater than this
-#' value, this pixel is treated as a mask value.
-#'
 #' @rdname getMask
 #' @aliases getMask,matrix-method
 setMethod("getMask", "matrix",
-          definition = function(object, tol = 0.95, ...) {
+          definition = function(object, tol = 0.95) {
             return(
               apply(object, 2, function(x) {
                 sum(is.na(x))/length(x) >= tol

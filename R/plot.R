@@ -12,8 +12,10 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' landsatVis(landsat106[landsat106$year == 2015, -c(1:2)], 
 #' names.attr = as.character(landsat106$doy[landsat106$year == 2015]))
+#' }
 landsatVis <- function(mat, img.nrow = 31, byrow=FALSE,
                        colthm = rasterTheme(panel.background=list(col="black"), 
                                             region = brewer.pal(9, 'YlOrRd')), ...){

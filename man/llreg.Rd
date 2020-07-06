@@ -13,6 +13,8 @@ llreg(x, y, x.eval = x, minimum.num.obs = 4, h = 60, Kern = epan)
 
 \item{x.eval}{dnew data to predict on}
 
+\item{minimum.num.obs}{minimum number of observations needed to run the regression}
+
 \item{h}{bandwidth}
 
 \item{Kern}{Kernel}

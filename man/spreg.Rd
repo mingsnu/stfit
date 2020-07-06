@@ -22,11 +22,15 @@ spreg(
 
 \item{x.eval}{vector to predict on}
 
+\item{minimum.num.obs}{minimum number of observations needed to run the regression}
+
+\item{basis}{what basis to use, "fourier" and "bspline" are available}
+
+\item{rangeval}{see \code{fda::create.basis}}
+
 \item{nbasis}{see \code{fda::create.basis}}
 
 \item{...}{arguments passed to \code{fad::create.basis} functions}
-
-\item{rangeeval}{see \code{fda::create.basis}}
 }
 \value{
 predicted values at 'x.eval'

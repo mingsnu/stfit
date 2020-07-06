@@ -1,4 +1,3 @@
-#' PACE for spatial effect estimation
 PACE2d = function(mat, ev.vec, sigma2, ev.val, var.est=FALSE){
   res = foreach (i = 1:nrow(mat)) %dopar%{
     nonna.idx = !is.na(mat[i,])
@@ -39,7 +38,6 @@ PACE2d = function(mat, ev.vec, sigma2, ev.val, var.est=FALSE){
     xi.var.list = xi.var.list))
 }
 
-#' PACE for temporal effect estimation
 PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval, var.est){
   if(missing(idseval))
     idseval = sort(unique(ids))

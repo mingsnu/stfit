@@ -31,6 +31,8 @@ parameter of the \code{levelplot} function in the \code{rasterVis} package}
 Data visualization for landsat data
 }
 \examples{
+\dontrun{
 landsatVis(landsat106[landsat106$year == 2015, -c(1:2)], 
 names.attr = as.character(landsat106$doy[landsat106$year == 2015]))
+}
 }

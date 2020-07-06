@@ -242,7 +242,8 @@ meanEst <- function(doy, mat,
 #' @param x independent variable
 #' @param y response variable
 #' @param x.eval vector to predict on
-#' @param plot logical. NOT IMPLEMENTED YET
+#' @param minimum.num.obs 
+#' @param ... other parameters to be passed to \code{smooth.spline} function
 #'
 #' @return predicted values at 'x.eval'
 #' @export
@@ -265,6 +266,7 @@ smooth_spline <- function(x, y, x.eval=x, minimum.num.obs=4, ...) {
 #' @param h bandwidth
 #' @param Kern Kernel
 #' @param x.eval dnew data to predict on
+#' @param minimum.num.obs minimum number of observations needed to run the regression
 #'
 #' @return predicted values at 'x.eval'
 #' @export
@@ -311,6 +313,7 @@ llreg <- function(x, y, x.eval=x, minimum.num.obs = 4, h=60, Kern=epan){
 #' @param x independent variable
 #' @param y response variable
 #' @param x.eval vector to predict on
+#' @param minimum.num.obs minimum number of observations needed to run the regression
 #' @param span see 'loess' function
 #' @param ... other parameters passed to 'loess' function
 #'
@@ -334,10 +337,11 @@ lpreg <- function(x, y, x.eval, minimum.num.obs = 4, span=0.3, ...){
 #' @param x independent variable
 #' @param y response variable
 #' @param x.eval vector to predict on
-#' @param rangeeval see \code{fda::create.basis}
+#' @param minimum.num.obs minimum number of observations needed to run the regression
+#' @param basis what basis to use, "fourier" and "bspline" are available
+#' @param rangeval see \code{fda::create.basis}
 #' @param nbasis see \code{fda::create.basis}
 #' @param ... arguments passed to \code{fad::create.basis} functions
-#'
 #' @return predicted values at 'x.eval'
 #' @export
 spreg <- function(x, y, x.eval, minimum.num.obs = 4, basis = c("fourier", "bspline"), 

@@ -13,6 +13,8 @@ lpreg(x, y, x.eval, minimum.num.obs = 4, span = 0.3, ...)
 
 \item{x.eval}{vector to predict on}
 
+\item{minimum.num.obs}{minimum number of observations needed to run the regression}
+
 \item{span}{see 'loess' function}
 
 \item{...}{other parameters passed to 'loess' function}
