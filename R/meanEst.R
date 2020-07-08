@@ -242,7 +242,7 @@ meanEst <- function(doy, mat,
 #' @param x independent variable
 #' @param y response variable
 #' @param x.eval vector to predict on
-#' @param minimum.num.obs 
+#' @param minimum.num.obs minimum number of observations needed to run the regression
 #' @param ... other parameters to be passed to \code{smooth.spline} function
 #'
 #' @return predicted values at 'x.eval'

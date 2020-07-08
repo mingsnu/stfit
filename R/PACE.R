@@ -71,18 +71,6 @@ PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval, var.e
     tvarmat = t(sapply(1:length(xi.var.list), 
                        function(i) apply(ev.vec, 1, 
                                          function(x) sum(x*t(x*xi.var.list[[i]])))))
-    # doy.idx = which(doyeval %in% doy[id.idx])
-    # the following can work for the case when duplicates(same doy and year) in data, and not sorted necssarily
-    doy.idx <- sapply(doy[id.idx], function(x, y) {which(x == y)}, y = doyeval)
-    if(length(ev.val) == 1){
-      xi.result = ev.val * t(ev.vec[doy.idx, ]) %*%
-        solve(ev.val* ev.vec[doy.idx, ] %*% t(ev.vec[doy.idx, ]) +  diag(nugg, length(id.idx))) %*% resid[id.idx]
-    } else{
-      phi = ev.vec[doy.idx,, drop=FALSE]
-      tmp = t(phi) * ev.val
-      xi.result =tmp %*% solve(phi %*% tmp + diag(nugg, length(id.idx)), resid[id.idx])
-    }
-    xi.result
   }
   
   return(list(idseval = idseval,
@@ -91,4 +79,3 @@ PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval, var.e
               xi.est = xi.est,
               xi.var.list = xi.var.list))
 }
-
