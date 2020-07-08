@@ -4,7 +4,7 @@ library(dplyr)
 library(doParallel)
 registerDoParallel(6)
 test_that("teffEst backward compatibility check", {
-  skip("skip this test")
+  # skip("skip this test")
   skip_on_cran()
   dfB = landsat106 %>% filter(year >= 2000)
   year = dfB$year

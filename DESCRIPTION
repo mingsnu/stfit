@@ -1,7 +1,7 @@
 Package: stfit
 Type: Package
 Title: Spatio-Temporal Functional Imputation Tool
-Version: 0.99.1
+Version: 0.99.2
 Date: 2020-07-06
 Authors@R: person("Weicheng", "Zhu", email = "mingsnu@gmail.com", role = c("aut", "cre"))
 Maintainer: Weicheng Zhu<mingsnu@gmail.com>
@@ -13,15 +13,14 @@ Depends: R (>= 3.5.0)
 Imports: 
     Rcpp,
     Matrix,
-    foreach,
+    doParallel,
     abind,
-    fda,
+    fda
+LinkingTo: Rcpp
+Suggests: 
+    testthat,
     raster,
     rasterVis,
     RColorBrewer
-LinkingTo: Rcpp
-Suggests: 
-    doParallel,
-    testthat
 RoxygenNote: 7.1.0
 Encoding: UTF-8
