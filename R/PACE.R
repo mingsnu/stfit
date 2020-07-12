@@ -1,4 +1,5 @@
 PACE2d = function(mat, ev.vec, sigma2, ev.val, var.est=FALSE){
+  i = NULL
   res = foreach (i = 1:nrow(mat)) %dopar%{
     nonna.idx = !is.na(mat[i,])
     non.na.num = sum(nonna.idx)
@@ -43,6 +44,7 @@ PACE1d = function(ids, doy, resid, ev.vec, nugg, ev.val, doyeval, idseval, var.e
     idseval = sort(unique(ids))
   if(!all(idseval %in% ids))
     stop("idseval is not in ids.")
+  i = NULL
   res = foreach(i = 1:length(idseval)) %dopar%{
     id.idx = which(ids == idseval[i])
     doy.idx = which(doyeval %in% doy[id.idx])

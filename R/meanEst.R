@@ -218,6 +218,7 @@ meanEst <- function(doy, mat,
   if(is.null(cluster)){
     ## Estimate the overall mean curves for each pixel
     cat("Estimating the overall mean curve for each pixel...\n")
+    i = NULL
     mean.mat = foreach(i = 1:N, .combine = "cbind") %dopar% {
       temporal_mean_est(doy, mat[, i], doyeval, minimum.num.obs)
     }
