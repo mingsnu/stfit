@@ -28,19 +28,13 @@ new_defaults = function(value = list()) {
   }
   merge = function(values) merge_list(defaults, values)
   restore = function(target = value) defaults <<- target
-  append = function(...) {
-    dots = resolve(...)
-    for (i in names(dots)) dots[[i]] <- c(defaults[[i]], dots[[i]])
-    if (length(dots)) defaults <<- merge(dots)
-    invisible(NULL)
-  }
-  list(get = get, set = set, append = append, merge = merge, restore = restore)
+  list(get = get, set = set, restore = restore)
 }
 
-#' Options for gapfill
+#' Options for stfit
 #'
 #' @export
-opts = new_defaults(list(
+opts_stfit = new_defaults(list(
   temporal_mean_est = smooth_spline
 ))
 

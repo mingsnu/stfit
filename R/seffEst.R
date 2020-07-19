@@ -32,7 +32,7 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
                     weight.cov = NULL, weight.sigma2 = NULL,
                     nnr, method = c("lc", "emp"), partial.only = TRUE,
                     pve = 0.99, msk = NULL, msk.tol = 0.95, var.est = FALSE){
-  cat("Estimating spatial effect...")
+  message("Estimating spatial effect...")
   if(is.null(weight.cov))
     weight.cov = weightMatrix(h.cov)
   if(is.null(weight.sigma2))
@@ -83,7 +83,7 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   ###################################################
   ######### Covariance matrix estimation ############
   ###################################################
-  cat("Estimating the covariance matrix...\n")
+  message("Estimating the covariance matrix...\n")
   ## using fully observed + partially observed images for covariance estimation
   method <- match.arg(method)
   if(method == "lc"){
@@ -104,18 +104,18 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   covest$value[is.na(covest$value)] = 0
   scovest = sparseMatrix(covest$ridx, covest$cidx, x = covest$value, 
                          dims = c(N1, N1), symmetric = TRUE)
-  cat("Estimating the variance function...\n")
+  message("Estimating the variance function...\n")
   ## using empirical variance estimation; TODO: using local constant/linear smoothing
   sigma2 = apply(rmat, 2, var, na.rm=TRUE)
   nugg = max(0, mean(sigma2 - Matrix::diag(scovest), na.rm=TRUE))
   
-  cat("Doing eigen decomposition on covariance matrix...\n")
+  message("Doing eigen decomposition on covariance matrix...\n")
   ## Eigen decomposition of the covariance matrix; may be improved later using rARPACK
   ev = eigen(scovest)
   ev$values[ev$values < 0] = 0
   
   ev.idx = which.min(cumsum(ev$values)/sum(ev$values) < pve)
-  cat("Spatial effect covariance estimation: the first ", ev.idx, " eigen values are used...\n")
+  message("Spatial effect covariance estimation: the first ", ev.idx, " eigen values are used...\n")
   ev.vec = ev$vectors[, 1:ev.idx, drop=FALSE]
   ev.val = ev$values[1:ev.idx]
   
@@ -123,7 +123,7 @@ seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
   ######### Missing value imputation ############
   ###############################################
   ## The following uses the sparse pca to impute the missing values.
-  cat("Estimating the principal component scores for partially missing images...\n")
+  message("Estimating the principal component scores for partially missing images...\n")
   seffres = PACE2d(rmat[idx2,, drop = FALSE], ev.vec, nugg, ev.val, var.est = var.est)
   seff_mat[idx2, !msk] = seffres$smat
   if(var.est)

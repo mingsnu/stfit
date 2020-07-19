@@ -96,7 +96,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
 }
 ## Use 'customfun' function for mean estimation
 ## default is using 'smooth_spline' function
-stfit::opts$set(temporal_mean_est = customfun)
+stfit::opts_stfit$set(temporal_mean_est = customfun)
 
 ## Create the artifically dataset 'mat' based on 'matB'
 mat = matB

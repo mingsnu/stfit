@@ -20,7 +20,7 @@
 #'   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
 #'   return(.X[x.eval,] %*% lmfit$coefficient)
 #' }
-#' stfit::opts$set(temporal_mean_est = customfun)
+#' stfit::opts_stfit$set(temporal_mean_est = customfun)
 #' }
 #' 
 #' @param doy vector of day of year (DOY) index
@@ -131,7 +131,7 @@ meanEst <- function(doy, mat,
   idx3 = setdiff(idx[pct_missing == 0], idx0)
   
   ## Outliers are relaced with NA
-  cat("Outlier pixels are replaced with NAs...\n")
+  message("Outlier pixels are replaced with NAs...\n")
   ## use NA instead of the outlier pixel values both in original data
   for(i in 1:length(outlier.res$outidx)){
     mat[outlier.res$outidx[i], outlier.res$outlst[[i]]] = NA
@@ -147,7 +147,7 @@ meanEst <- function(doy, mat,
       " outlier images are removed in the mean estimation procedure."))
   if(redo){
     if(length(outlier.res$outidx) > 0){
-      cat("Redo mean estimation after removing outliers...\n")
+      message("Redo mean estimation after removing outliers...\n")
       mean.mat = matrix(NA, M, N)
       if(is.null(cluster)){
         if(length(idx0) > 0)
@@ -165,7 +165,7 @@ meanEst <- function(doy, mat,
   ######### Mean value correction ###########
   ###########################################
   ## Correct values that beyond clipRange or missing values in mean.mat
-  cat("Doing mean value correction...\n")
+  message("Doing mean value correction...\n")
   if(clipMethod == "truncate"){
     mean.mat[mean.mat < clipRange[1]] = clipRange[1]
     mean.mat[mean.mat > clipRange[2]] = clipRange[2]
@@ -209,7 +209,7 @@ meanEst <- function(doy, mat,
 
 .pixelwiseMeanEst <- function(doy, mat, doyeval, minimum.num.obs, cluster){
   idx = 1:length(doy) ## idx is the index of image, 1, 2, 3,...
-  temporal_mean_est = stfit::opts$get("temporal_mean_est")
+  temporal_mean_est = stfit::opts_stfit$get("temporal_mean_est")
   N = ncol(mat) ## number of pixels
   M = length(doyeval) ## number of doy to evaluate on
   if(length(doy) != nrow(mat))
@@ -217,7 +217,7 @@ meanEst <- function(doy, mat,
   mean.mat = matrix(NA, M, N)
   if(is.null(cluster)){
     ## Estimate the overall mean curves for each pixel
-    cat("Estimating the overall mean curve for each pixel...\n")
+    message("Estimating the overall mean curve for each pixel...\n")
     i = NULL
     mean.mat = foreach(i = 1:N, .combine = "cbind") %dopar% {
       temporal_mean_est(doy, mat[, i], doyeval, minimum.num.obs)
@@ -229,7 +229,7 @@ meanEst <- function(doy, mat,
       stop("cluster dimension is not correct.")
     uc = unique(cluster) ## unique clusters w/o msk cluster
     ## Estimate the mean curves for each cluster
-    cat("Estimating mean curves for each cluster...\n")
+    message("Estimating mean curves for each cluster...\n")
     for(cl in uc){
       clidx = cluster == cl
       mean.mat[, clidx] = temporal_mean_est(rep(doy, sum(clidx)), c(mat[, clidx]), doyeval)

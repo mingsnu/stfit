@@ -96,7 +96,7 @@ stfit_landsat <- function(year, doy, mat, img.nrow, img.ncol, doyeval = 1:365,  
                             clipRange = c(0, 1800), clipMethod = "nnr", var.est = FALSE){
   if(intermediate.save){
     if(!dir.exists(intermediate.dir)){
-      cat(paste0("Folder", intermediate.dir, "is created to save intermediate results."))
+      message(paste0("Folder", intermediate.dir, "is created to save intermediate results."))
       dir.create(intermediate.dir, recursive = TRUE)
     }
   }

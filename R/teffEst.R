@@ -26,7 +26,7 @@ teffEst <- function(ids, doy, rmat,
                     doyeval = seq(min(doy), max(doy)), h.cov = 100, h.sigma2 = 300,
                     weight.cov = NULL, weight.sigma2 = NULL,
                     pve = 0.99, t.grid = NULL, t.grid.num = 50, var.est = FALSE){
-  cat("Estimating the temporal effect...\n")
+  message("Estimating the temporal effect...\n")
   if(is.null(weight.cov))
     weight.cov = weightVector(h.cov)
   if(is.null(weight.sigma2))
@@ -51,7 +51,7 @@ teffEst <- function(ids, doy, rmat,
     ev = eigen(R0.hat)
     ev$values[ev$values < 0] = 0
     ev.idx = max(which.min(cumsum(ev$values)/sum(ev$values) < pve), 2) ## select at least 2 eigen components
-    ## cat("The first ", ev.idx, " eigen values are used...\n")
+    ## message("The first ", ev.idx, " eigen values are used...\n")
     ev.vec = ev$vectors[, 1:ev.idx, drop=FALSE]
     ev.val = ev$values[1:ev.idx]
     ev.vec = phiInterp(doyeval, ev.vec, t.grid)
