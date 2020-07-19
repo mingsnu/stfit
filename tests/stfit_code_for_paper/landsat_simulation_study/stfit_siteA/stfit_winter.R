@@ -41,7 +41,8 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
     return(rep(NA, 365))
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X[x.eval,] %*% lmfit$coefficient)
-}opts$set(temporal_mean_est = customfun)
+}
+opts_stfit$set(temporal_mean_est = customfun)
 
 ## collapse the partial and full index for parallel
 ## matrix of MxN, column stacking

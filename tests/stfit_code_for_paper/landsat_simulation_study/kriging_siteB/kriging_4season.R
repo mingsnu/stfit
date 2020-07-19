@@ -27,6 +27,20 @@ fmat = mat0[fidx, ]
 if(!dir.exists("output"))
   dir.create("output")
 
+###### Detrend images with the same mean estimation procedure as STFIT first #####
+###### define function used for mean estimation ######
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  ## lmfit = lm.fit(.X[unlist(lapply(x, function(x) which(x == x.eval))),], y[nonna.idx])
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X[x.eval,] %*% lmfit$coefficient)
+}
+stfit::opts_stfit$set(temporal_mean_est = customfun)
+registerDoParallel(16)
+
 RMSEmat = matrix(NA, nrow(pmat), length(fidx))
 NMSEmat = matrix(NA, nrow(pmat), length(fidx))
 AREmat = matrix(NA, nrow(pmat), length(fidx))
@@ -36,15 +50,25 @@ for(i in 1:nrow(pmat)){
     fmatj = fmat[j,]
     ## apply missing patterns to fully observed images
     missing.idx = is.na(pmat[i,])
+    mat[fidx[j], missing.idx] = NA
     fmatj[missing.idx] = NA
-    gdata = as.geodata(cbind(expand.grid(seq(1,31), seq(1, 31)), fmatj))
+    
+    ## detrend by using mean estimation
+    meanest = meanEst(doy, mat, doyeval = 1:365, outlier.tol = 0.2, clipRange = c(0, 1800),
+                      clipMethod = "nnr", img.nrow = 31, img.ncol = 31)
+    ## remove outlier pixels
+    if(fidx[j] %in% meanest$outlier$outidx)
+      fmatj[meanest$outlier$outlst[[which(fidx[j] == meanest$outlier$outidx)]]] = NA
+    rmatj = fmatj - meanest$meanmat[which(doy[fidx[j]] == meanest$doyeval),]
+    
+    gdata = as.geodata(cbind(expand.grid(seq(1,31), seq(1, 31)), rmatj))
     vario = variog(gdata)
-    wls = variofit(vario, ini = c(40000, 40))
+    wls = variofit(vario, ini = c(150000, 35))
     loci <- expand.grid(seq(0,1,l=31), seq(0,1,l=31))
     # predicting by ordinary kriging
     kc <- krige.conv(gdata, loc=expand.grid(seq(1,31), seq(1, 31)),
                      krige=krige.control(cov.pars= wls$cov.pars))
-    imat = kc$predict
+    imat = meanest$meanmat[which(doy[fidx[j]] == meanest$doyeval),] + kc$predict
     # image(kc, main="kriging estimates")
     # image(matrix(fmatj, 31))
     #### proposed method
