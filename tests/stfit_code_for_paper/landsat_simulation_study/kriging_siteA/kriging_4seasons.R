@@ -3,6 +3,7 @@ library(dplyr)
 library(geoR)
 library(raster)
 library(rasterVis)
+library(stfit)
 
 df = landsat2 %>% filter(year >= 2000)
 year = df$year
