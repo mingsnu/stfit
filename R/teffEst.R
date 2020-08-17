@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' STFIT Temporal Effect Estimation
 #'
 #' @param ids ids for 'group', for data with repeated measurement over years, year is ids; 

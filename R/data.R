@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' Landsat data example
 #'
 #' A dataset containing observation values of a 31x31 pixcels 

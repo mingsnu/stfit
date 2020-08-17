@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' STFIT for Landsat data
 #'
 #' This function is used for Landsat data imputation, which includes five steps: 

@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' stfit: Spatial-Temporal Functional Imputation Tool
 #'
 #' The stfit package provides functions to impute missing values for a 

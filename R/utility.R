@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 merge_list = function(x, y) {
   x[names(y)] = y
   x

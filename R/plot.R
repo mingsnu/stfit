@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' Data visualization for landsat data
 #'
 #' @param mat A matrix, each row corresponds to a vectorized image pixel values.

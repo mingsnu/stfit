@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 #' Image Outlier Detection
 #'
 #' @param mat data matrix. Each row is a row stacked image.

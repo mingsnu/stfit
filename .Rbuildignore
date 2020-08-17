@@ -11,3 +11,4 @@ stfit.Rproj
 ^\.travis\.yml$     # Used for continuous integration testing with travi
 inst/testdata
 tests
+^LICENSE\.md$

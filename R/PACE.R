@@ -1,3 +1,4 @@
+## Copyright 2011 – 2020  Center for Survey Statistics and Methodology at Iowa State University   All Rights Reserved
 PACE2d = function(mat, ev.vec, sigma2, ev.val, var.est=FALSE){
   i = NULL
   res = foreach (i = 1:nrow(mat)) %dopar%{
