@@ -47,7 +47,7 @@ stfit::opts_stfit$set(temporal_mean_est = customfun)
 N = nrow(fmat)
 M = nrow(pmat)
 registerDoParallel(10)
-res = foreach(n = 1:(M*N)) %dopar% {
+res = foreach(n = 1:(M*N)) %do% {
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0

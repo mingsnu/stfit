@@ -48,7 +48,9 @@ stfit::opts_stfit$set(temporal_mean_est = customfun)
 N = nrow(fmat)
 M = nrow(pmat)
 registerDoParallel(16)
-res1 = foreach(n = 1:(M*N)) %dopar% {
+
+res1 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -59,7 +61,7 @@ res1 = foreach(n = 1:(M*N)) %dopar% {
   if(file.exists(paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))){
     res1 <- readRDS(paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))
   } else {
-    res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = FALSE,
+    res1 <- stfit_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000), teff = FALSE, seff = FALSE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
                             intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))
@@ -72,7 +74,8 @@ res1 = foreach(n = 1:(M*N)) %dopar% {
 }
 saveRDS(res1, "./output/mean_res.rds")
 
-res2 = foreach(n = 1:(M*N)) %dopar% {
+res2 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -83,7 +86,7 @@ res2 = foreach(n = 1:(M*N)) %dopar% {
   if(file.exists(paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))){
     res1 <- readRDS(paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))
   } else {
-    res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = TRUE, seff = FALSE,
+    res1 <- stfit_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000), teff = TRUE, seff = FALSE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
                             intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))
@@ -96,7 +99,8 @@ res2 = foreach(n = 1:(M*N)) %dopar% {
 }
 saveRDS(res2, "./output/teff_res.rds")
 
-res3 = foreach(n = 1:(M*N)) %dopar% {
+res3 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -107,7 +111,7 @@ res3 = foreach(n = 1:(M*N)) %dopar% {
   if(file.exists(paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))){
     res1 <- readRDS(paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))
   } else {
-    res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = TRUE,
+    res1 <- stfit_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000), teff = FALSE, seff = TRUE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
                             intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))

@@ -7,8 +7,6 @@ library(rasterVis)
 library(fda)
 library(stfit)
 library(abind)
-colthm = RdBuTheme()
-colthm$regions$col = rev(colthm$regions$col)
 
 df = landsat106 %>% filter(year >= 2000)
 year = df$year
@@ -42,6 +40,7 @@ customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
   lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
   return(.X[x.eval,] %*% lmfit$coefficient)
 }
+
 stfit::opts_stfit$set(temporal_mean_est = customfun)
 
 ## collapse the partial and full index for parallel
@@ -49,7 +48,9 @@ stfit::opts_stfit$set(temporal_mean_est = customfun)
 N = nrow(fmat)
 M = nrow(pmat)
 registerDoParallel(16)
-res1 = foreach(n = 1:(M*N)) %dopar% {
+
+res1 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -62,7 +63,7 @@ res1 = foreach(n = 1:(M*N)) %dopar% {
   } else {
     res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = FALSE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
-                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+                            intermediate.dir = paste0("./intermediate_results/P", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/mean_P", pidx[i], "_F", fidx[j], ".rds"))
   }
   imat = res1$imat[fidx[j],]
@@ -73,7 +74,8 @@ res1 = foreach(n = 1:(M*N)) %dopar% {
 }
 saveRDS(res1, "./output/mean_res.rds")
 
-res2 = foreach(n = 1:(M*N)) %dopar% {
+res2 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -86,7 +88,7 @@ res2 = foreach(n = 1:(M*N)) %dopar% {
   } else {
     res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = TRUE, seff = FALSE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
-                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+                            intermediate.dir = paste0("./intermediate_results/P", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/teff_P", pidx[i], "_F", fidx[j], ".rds"))
   }
   imat = res1$imat[fidx[j],]
@@ -97,7 +99,8 @@ res2 = foreach(n = 1:(M*N)) %dopar% {
 }
 saveRDS(res2, "./output/teff_res.rds")
 
-res3 = foreach(n = 1:(M*N)) %dopar% {
+res3 = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0
@@ -110,7 +113,7 @@ res3 = foreach(n = 1:(M*N)) %dopar% {
   } else {
     res1 <- stfit_landsat(year, doy, mat, 31, 31, teff = FALSE, seff = TRUE,
                             use.intermediate.result = TRUE, intermediate.save = TRUE,
-                            intermediate.dir = paste0("./intermediate_results/P_", pidx[i], "_F", fidx[j], "/"))
+                            intermediate.dir = paste0("./intermediate_results/P", pidx[i], "_F", fidx[j], "/"))
     saveRDS(res1, paste0("./output/seff_P", pidx[i], "_F", fidx[j], ".rds"))
   }
   imat = res1$imat[fidx[j],]
