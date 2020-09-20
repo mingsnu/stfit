@@ -10,5 +10,5 @@ stfit.Rproj
 ^NEWS\.md$          # A news file written in Markdown
 ^\.travis\.yml$     # Used for continuous integration testing with travi
 inst/testdata
-^tests/stfit_code_for_paper/.*\.rds$
+^tests$
 ^LICENSE\.md$

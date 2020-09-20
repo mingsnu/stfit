@@ -50,6 +50,7 @@ N = nrow(fmat)
 M = nrow(pmat)
 registerDoParallel(16)
 res = foreach(n = 1:(M*N)) %do% {
+  cat('n = ', n, '\n')
   i = (n - 1) %% M + 1 ## ROW INDEX
   j = (n - 1) %/% M + 1 ## COLUMN INDEX
   mat = mat0

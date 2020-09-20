@@ -56,7 +56,14 @@ res = foreach(n = 1:(M*N)) %do% {
   mat[fidx[j], missing.idx] = NA
   
   if(file.exists(paste0("./stfit_summer/stfit_summer_P", pidx[i], "_F", fidx[j], ".rds"))){
-      res1 <- readRDS(paste0("./stfit_summer/stfit_summer_P", pidx[i], "_F", fidx[j], ".rds"))
+      tryresult <-try(res1 <- readRDS(paste0("./stfit_summer/stfit_summer_P", pidx[i], "_F", fidx[j], ".rds")))
+      if(inherits(tryresult, "try-error")){
+        cat('Have problem in loading', paste0("./stfit_summer/stfit_summer_P", pidx[i], "_F", fidx[j], ".rds"), 
+            '; Recalculating...\n')
+        res1 <- stfit_landsat(year, doy, mat, 31, 31, nnr=30,
+                              use.intermediate.result = FALSE, intermediate.save = FALSE)
+        saveRDS(res1, paste0("./stfit_summer/stfit_summer_P", pidx[i], "_F", fidx[j], ".rds"))
+      }
   } else {
       res1 <- stfit_landsat(year, doy, mat, 31, 31, nnr=30,
                               use.intermediate.result = FALSE, intermediate.save = FALSE)
