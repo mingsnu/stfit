@@ -6,6 +6,9 @@
 #'
 #' @return numeric number. A measure of difference between y and ypred.
 #' @export
+#' @example 
+#' ypred = smooth_spline(cars$dist, cars$speed)
+#' RMSE(cars$speed, ypred)
 RMSE = function(y, ypred){
   idx = !is.na(y) & !is.na(ypred)
   sqrt(sum((y[idx]-ypred[idx])^2)/sum(idx))
@@ -18,6 +21,9 @@ RMSE = function(y, ypred){
 #'
 #' @return numeric number. A measure of difference between y and ypred.
 #' @export
+#' @example 
+#' ypred = smooth_spline(cars$dist, cars$speed)
+#' NMSE(cars$speed, ypred)
 NMSE = function(y, ypred){
   idx = !is.na(y) & !is.na(ypred)
   sum((y[idx]-ypred[idx])^2)/sum(y[idx]^2)
@@ -30,6 +36,9 @@ NMSE = function(y, ypred){
 #'
 #' @return numeric number. A measure of difference between y and ypred.
 #' @export
+#' @example 
+#' ypred = smooth_spline(cars$dist, cars$speed)
+#' ARE(cars$speed, ypred)
 ARE = function(y, ypred){
   idx = !is.na(y) & !is.na(ypred)
   mean(abs(y[idx] - ypred[idx])/y[idx])

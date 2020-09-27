@@ -23,6 +23,20 @@
 #'     otherwise NULL.
 #'   }
 #' @export
+#' @example 
+#' \donttest{
+#' dfB = landsat106[landsat106$year >= 2000,]
+#' matB = as.matrix(dfB[,-c(1:2)])
+#' year = dfB$year
+#' doy = dfB$doy
+#' ## Speed up the calculation by using multi-cores if doParallel package is installed
+#' if(require(doParallel))
+#'   registerDoParallel(8)
+#' meanest = meanEst(doy, matB, 1:365)
+#' rmat = mat - meanest$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest$doyeval)),]
+#' teffres = teffEst(year, doy, rmat, doyeval = meanest$doyeval)
+#' plot(teffres$teff_array[1,,1],type = 'l')
+#' }
 teffEst <- function(ids, doy, rmat,
                     doyeval = seq(min(doy), max(doy)), h.cov = 100, h.sigma2 = 300,
                     weight.cov = NULL, weight.sigma2 = NULL,

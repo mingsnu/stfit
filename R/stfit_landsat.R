@@ -62,7 +62,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' dfB = landsat106[landsat106$year >= 2000,]
 #' matB = as.matrix(dfB[,-c(1:2)])
 #' year = dfB$year

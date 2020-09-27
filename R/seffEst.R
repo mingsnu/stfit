@@ -29,6 +29,21 @@
 #'   }
 #' 
 #' @export
+#' @example 
+#' \donttest{
+#' dfB = landsat106[landsat106$year >= 2000,]
+#' matB = as.matrix(dfB[,-c(1:2)])
+#' year = dfB$year
+#' doy = dfB$doy
+#' ## Speed up the calculation by using multi-cores if doParallel package is installed
+#' if(require(doParallel))
+#'   registerDoParallel(8)
+#' meanest = meanEst(doy, matB, 1:365)
+#' rmat = mat - meanest$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest$doyeval)),]
+#' seffres = seffEst(rmat, 31, 31, nnr = 30)
+#' idx = c(1:nrow(rmat))[apply(rmat, 1, function(x) {!all(is.na(x)) & sum(is.na(x)) != 0})]
+#' landsatVis(seffres$seff_mat[idx[1:16],])
+#' }
 seffEst <- function(rmat, img.nrow, img.ncol, h.cov = 2, h.sigma2 = 2,
                     weight.cov = NULL, weight.sigma2 = NULL,
                     nnr, method = c("lc", "emp"), partial.only = TRUE,

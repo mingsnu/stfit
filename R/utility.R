@@ -132,17 +132,6 @@ epan <- function(x) {
   3 / 4 * pmax(1 - x ^ 2, 0)
 }
 
-#' Covariance matrix interpolation
-#'
-#' @param tt time vector to interpolate on
-#' @param phi.fun eigen function
-#' @param omega eigen value
-#' @param nugg.fun nugget function
-#' @param t.grid time vector on which the covariance matrix was calculated
-#'
-#' @return covariance matrix interpretated on tt
-#'
-
 covInterp = function(tt, phi.fun, omega, nugg.fun, t.grid) {
   m = length(tt)
   J = length(t.grid)
@@ -171,15 +160,6 @@ covInterp = function(tt, phi.fun, omega, nugg.fun, t.grid) {
   return(Vmat)
 }
 
-#' Eigen function interpolation
-#'
-#' @param tt time vector to interpolate on
-#' @param phi.fun eigen function
-#' @param t.grid time vector on which the eigen function was calculated
-#'
-#' @return interpolated eigen function with the number of rows equal length of tt.
-#'
-
 phiInterp = function(tt, phi.fun, t.grid){
   m = length(tt)
   tt = tt[tt < max(t.grid)]
@@ -197,6 +177,8 @@ phiInterp = function(tt, phi.fun, t.grid){
 #'
 #' @return a weighting matrix
 #' @export
+#' @example 
+#' weightMatrix(3)
 weightMatrix <- function(h){
   if(h <=0)
     stop("bandwidth can not be non-positive.")
@@ -213,6 +195,8 @@ weightMatrix <- function(h){
 #'
 #' @return a vector
 #' @export
+#' @example 
+#' weightVector(5)
 weightVector <- function(h){
   if(h <=0)
     stop("bandwidth can not be non-positive.")
