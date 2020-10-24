@@ -119,15 +119,19 @@ estimation and imputation. In real application, one can use this as a template
 to create a five steps imputation procedure depending on the real data structure.
 }
 \examples{
-\dontrun{
+\donttest{
+library(doParallel)
+library(raster)
+library(rasterVis)
+library(RColorBrewer)
 dfB = landsat106[landsat106$year >= 2000,]
 matB = as.matrix(dfB[,-c(1:2)])
 year = dfB$year
 doy = dfB$doy
 if(require(doParallel))
-  registerDoParallel(8)
-res <- stfit_landsat(year, doy, mat, 31, 31, nnr=30,
-use.intermediate.result = FALSE, intermediate.save = TRUE, var.est = TRUE)
+  registerDoParallel(1)
+res <- stfit_landsat(year, doy, matB, 31, 31, nnr=30,
+use.intermediate.result = FALSE, intermediate.save = FALSE, var.est = TRUE)
 ## visualize the imputed results
 idx = c(res$idx$idx.allmissing[150], res$idx$idx.partialmissing[c(30, 60, 90)])
 rst_list = list()

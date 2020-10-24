@@ -25,15 +25,19 @@
 #' @export
 #' @example 
 #' \donttest{
+#' library(doParallel)
+#' library(raster)
+#' library(rasterVis)
+#' library(RColorBrewer)
 #' dfB = landsat106[landsat106$year >= 2000,]
 #' matB = as.matrix(dfB[,-c(1:2)])
 #' year = dfB$year
 #' doy = dfB$doy
 #' ## Speed up the calculation by using multi-cores if doParallel package is installed
 #' if(require(doParallel))
-#'   registerDoParallel(8)
+#'   registerDoParallel(1)
 #' meanest = meanEst(doy, matB, 1:365)
-#' rmat = mat - meanest$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest$doyeval)),]
+#' rmat = matB - meanest$meanmat[unlist(lapply(doy, function(x,y) which(y == x), y = meanest$doyeval)),]
 #' teffres = teffEst(year, doy, rmat, doyeval = meanest$doyeval)
 #' plot(teffres$teff_array[1,,1],type = 'l')
 #' }
