@@ -195,7 +195,7 @@ R0.hat = lc_cov_1d_est(year[nnaidx], doy[nnaidx], resid[nnaidx],
 pdf("output/fig_08_left.pdf", width =6, height=5.5)
 par(mar=c(0,0,0,0))
 persp(R0.hat,theta=30, phi=30, expand=0.5, col='lightblue',
-      xlab='DOY',ylab='DOY',zlab="Rs",ticktype='simple')
+      xlab='DOY',ylab='DOY',zlab="Cov",ticktype='simple')
 dev.off()
 
 
@@ -273,18 +273,6 @@ pdf("output/fig_09_right.pdf", width =6, height=5.5)
 print(levelplot(rst_lst[[9]], par.settings = colthm1, at = seq(-245, 245, length.out = 20), margin = FALSE))
 dev.off()
 
-# pdf("output/fig_10_left.pdf", width =6, height=5.5)
-# print(levelplot(rst_lst[[3]] + rst_lst[[5]] + rst_lst[[7]], par.settings = colthm,
-#           at = seq(200, 1300, length.out = 20), margin = FALSE))
-# dev.off()
-# # pdf("output/imputed.pdf", width =6, height=5.5)
-# # print(levelplot(rst_lst[[8]], par.settings = colthm, at = seq(200, 1300, length.out = 20), margin = FALSE))
-# # dev.off()
-# pdf("output/fig_10_right.pdf", width =6, height=5.5)
-# ## range(values(rst_lst[[10]]))
-# print(levelplot(rst_lst[[10]], par.settings = colthm, margin = FALSE))
-# dev.off()
-
 ################ Imputation  with stfit_landsat function ###############
 pidx1 = pidx[c(6,8,14,15)]
 pmat1 = pmat[c(6,8,14,15),]
@@ -308,49 +296,35 @@ for(i in 1:4){
                             use.intermediate.result = FALSE, intermediate.save = FALSE, var.est = TRUE)
     saveRDS(res1, paste0("output/tmp/res_P", pidx1[i], "_F", fidx[i], ".rds"))
   }
-  # rst_list1[[(i-1)*3+1]] = raster(matrix(matB[fidx[i],], 31))
-  # rst_list1[[(i-1)*3+2]] = raster(matrix(mat[fidx[i],], 31))
-  # rst_list1[[(i-1)*3+3]] = raster(matrix(res1$imat[fidx[i],], 31))
   rst_list1[[(i-1)*4+1]] = raster(matrix(matB[fidx[i],], 31))
   rst_list1[[(i-1)*4+2]] = raster(matrix(mat[fidx[i],], 31))
   rst_list1[[(i-1)*4+3]] = raster(matrix(res1$imat[fidx[i],], 31))
   rst_list1[[(i-1)*4+4]] = raster(matrix(res1$sdmat[fidx[i],], 31))
 }
 
-s = stack(rst_list1)
-pdf("output/fig_10.pdf", width =6, height=5.5)
-# levelplot(s,par.settings = colthm, index.cond=list(c(1,4,7,10,2,5,8,11,3,6,9,12)),
-#           names.attr = c(rbind(paste0("F", c(3,7,14,18)), paste0("F", c(3,7,14,18), "P", c(6,8,14,15)),
-#                                paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " impu"))))
-# levelplot(s, par.settings = colthm, index.cond=list(c(seq(1, 16, 4), seq(2, 16, 4), seq(3, 16, 4), seq(4, 16, 4))),
+pdf("output/fig_10_up.pdf", width =6, height=5.5)
+print(levelplot(stack(rst_list1[c(1:3,5:7, 9:11, 13:15)]), 
+                                par.settings = rasterTheme(panel.background=list(col="black"),
+                                              region = brewer.pal(9, 'YlOrRd')[1:7]),
+                index.cond=list(c(seq(1, 12, 3), seq(2, 12, 3), seq(3, 12, 3))),
+                names.attr = c(rbind(paste0("F", c(3,7,14,18)),
+                                     paste0("F", c(3,7,14,18), "P", c(6,8,14,15)),
+                                     paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " impu"))),
+                layout = c(4,3), zscaleLog = TRUE))
+# print(levelplot(stack(rst_list1), par.settings = rasterTheme(panel.background=list(col="black"),
+#                                         region = brewer.pal(9, 'YlOrRd')[1:7]),
+#           index.cond=list(c(seq(1, 16, 4), seq(2, 16, 4), seq(3, 16, 4), seq(4, 16, 4))),
 #           names.attr = c(rbind(paste0("F", c(3,7,14,18)),
 #                                paste0("F", c(3,7,14,18), "P", c(6,8,14,15)),
 #                                paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " impu"),
 #                                paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " sd"))),
-#           layout = c(4,4), zscaleLog = TRUE)
-print(levelplot(s, par.settings = rasterTheme(panel.background=list(col="black"),
-                                        region = brewer.pal(9, 'YlOrRd')[1:7]),
-          index.cond=list(c(seq(1, 16, 4), seq(2, 16, 4), seq(3, 16, 4), seq(4, 16, 4))),
-          names.attr = c(rbind(paste0("F", c(3,7,14,18)),
-                               paste0("F", c(3,7,14,18), "P", c(6,8,14,15)),
-                               paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " impu"),
-                               paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " sd"))),
-          layout = c(4,4), zscaleLog = TRUE))
-
+#           layout = c(4,4), zscaleLog = TRUE))
 dev.off()
 
-# levelplot(stack(rst_list1[seq(1, 16, 4)]), par.settings = colthm, layout=c(4,1),
-#           names.attr = paste0("F", c(3,7,14,18)))
-# levelplot(stack(rst_list1[seq(2, 16, 4)]), par.settings = colthm, layout=c(4,1),
-#           names.attr = paste0("F", c(3,7,14,18), "P", c(6,8,14,15)))
-# pdf("output/fig_12.pdf", width =6, height=5.5)
-# print(levelplot(stack(rst_list1[seq(4, 16, 4)]), par.settings = colthm, layout=c(4,1),
-#           names.attr = paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " sd")))
-# dev.off()
-# levelplot(stack(rst_list1[c(seq(2, 16, 4), seq(4, 16, 4))]), par.settings = colthm,
-#           layout=c(4,2))
-
-sapply(seq(4, 16, 4), function(i) sd(values(rst_list1[[i]])))
+pdf("output/fig_10_down.pdf", width =6, height=5.5)
+print(levelplot(stack(rst_list1[seq(4, 16, 4)]), par.settings = colthm, layout=c(4,1),
+          names.attr = paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " sd")))
+dev.off()
 
 ################ Supplementary #################
 
@@ -384,6 +358,27 @@ print(xtable::xtable(
              pct=apply(pmat, 1,
                        function(x) round(sum(is.na(x))/length(x), 2)))), 
   include.rownames=FALSE, file = "output/tab_S2.txt")
+
+
+###
+# index = apply(dfA[,-c(1,2)], 1, function(x) sum(is.na(x))/length(x)) < 0.01
+# print(landsatVis(dfA[index, -c(1:2)], 
+#                  names.attr = as.character(dfA$doy[index])),
+#       at = seq(200, 2000, length.out = 20))
+# 
+# index = apply(dfB[,-c(1,2)], 1, function(x) sum(is.na(x))/length(x)) < 0.01
+# print(landsatVis(dfB[index, -c(1:2)], 
+#                  names.attr = as.character(dfB$doy[index])))
+# 
+# 
+# s = stack(lapply(1:nrow(matA[fidxa,]), function(i) raster(matrix(matA[fidxa,][i, 
+#                                                             ], nrow = 31, byrow = FALSE))))
+# levelplot(s, par.settings = rasterTheme(panel.background = list(col = "black"), 
+#                                         region = brewer.pal(9, "YlOrRd")), 
+#           at = seq(200, 2000, length.out = 20), layout = c(5,4))
+
+
+
 
 
 

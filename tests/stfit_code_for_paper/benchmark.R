@@ -22,7 +22,15 @@ for(ii in 1:16){
   }
 }
 
-
+.X = fda::eval.basis(1:365, fda::create.fourier.basis(rangeval=c(0,365), nbasis=11))
+customfun <- function(x, y, x.eval=1:365, minimum.num.obs = 10){
+  nonna.idx = !is.na(y)
+  if(sum(nonna.idx) < minimum.num.obs)
+    return(rep(NA, 365))
+  lmfit = lm.fit(.X[x[nonna.idx],], y[nonna.idx])
+  return(.X[x.eval,] %*% lmfit$coefficient)
+}
+stfit::opts_stfit$set(temporal_mean_est = customfun)
 registerDoParallel(16)
 microbenchmark("gapfill" = {
   res1 = gapfill::Gapfill(datarray, clipRange = c(0, 3000), dopar = TRUE)
@@ -35,4 +43,4 @@ times = 5)
 # Unit: seconds
 # expr       min        lq      mean    median        uq      max neval
 # gapfill 1552.5008 1580.4793 1769.5675 1633.1508 1645.4840 2436.223     5
-# stfit  146.3683  170.3213  182.5146  172.0806  181.5236  242.279     5
+# stfit   115.267   115.4007  117.8956  117.7408  118.3663  122.7031     5

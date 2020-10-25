@@ -55,7 +55,7 @@ for(i in 1:nrow(pmat)){
     fmatj[missing.idx] = NA
     
     ## detrend by using mean estimation
-    meanest = meanEst(doy, mat, doyeval = 1:365, outlier.tol = 0.2, clipRange = c(0, 1800),
+    meanest = meanEst(doy, mat, doyeval = 1:365, outlier.tol = 0.2, clipRange= c(0,3000),
                       clipMethod = "nnr", img.nrow = 31, img.ncol = 31)
     ## remove outlier pixels
     if(fidx[j] %in% meanest$outlier$outidx)

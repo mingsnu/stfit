@@ -128,7 +128,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S3.txt")
+          include.rownames=TRUE, file = "output/tab_S3.txt")
 
 ########################################################
 ###### Table S4: Three methods' RMSEs for summer #######
@@ -151,7 +151,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S4.txt")
+          include.rownames=TRUE, file = "output/tab_S4.txt")
 
 ######################################################
 ###### Table S5: Three methods' RMSEs for fall #######
@@ -174,7 +174,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S5.txt")
+          include.rownames=TRUE, file = "output/tab_S5.txt")
 
 ########################################################
 ###### Table S6: Three methods' RMSEs for winter #######
@@ -197,7 +197,7 @@ boldmat[, seq(1, 12, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 12, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 12, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S6.txt")
+          include.rownames=TRUE, file = "output/tab_S6.txt")
 
 ########################################################
 ###### Table S7: Three methods' RMSEs for spring #######
@@ -220,7 +220,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S7.txt")
+          include.rownames=TRUE, file = "output/tab_S7.txt")
 
 ########################################################
 ###### Table S8: Three methods' RMSEs for summer #######
@@ -243,7 +243,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S8.txt")
+          include.rownames=TRUE, file = "output/tab_S8.txt")
 
 ######################################################
 ###### Table S9: Three methods' RMSEs for fall #######
@@ -266,7 +266,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S9.txt")
+          include.rownames=TRUE, file = "output/tab_S9.txt")
 
 ########################################################
 ###### Table S10: Three methods' RMSEs for winter #######
@@ -289,7 +289,7 @@ boldmat[, seq(1, 15, 3)] = (RMSEmat1 < RMSEmat2) & (RMSEmat1 < RMSEmat3)
 boldmat[, seq(2, 15, 3)] = (RMSEmat2 < RMSEmat1) & (RMSEmat2 < RMSEmat3)
 boldmat[, seq(3, 15, 3)] = (RMSEmat3 < RMSEmat1) & (RMSEmat3 < RMSEmat2)
 printbold(RMSExtable, which = boldmat, NA.string = "-",
-          include.rownames=FALSE, file = "output/tab_S10.txt")
+          include.rownames=TRUE, file = "output/tab_S10.txt")
 
 ###################################################################
 ###### Table 1: Average RMSE by missing pattern and seasons #######
