@@ -1,0 +1,14 @@
+% latex table generated in R 4.0.0 by xtable 1.8-4 package
+% Sat Sep 11 10:03:57 2021
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrr}
+  \hline
+Spring & Summer & Fall & Winter & Spring & Summer & Fall & Winter \\ 
+  \hline
+69.12 & 60.99 & 74.50 & 111.12 & 76.65 & 67.94 & 68.95 & 122.84 \\ 
+  69.07 & 63.69 & 74.36 & 111.99 & 76.16 & 59.06 & 64.31 & 117.22 \\ 
+  71.81 & 64.34 & 74.95 & 114.01 & 80.89 & 70.12 & 74.16 & 119.12 \\ 
+   \hline
+\end{tabular}
+\end{table}
