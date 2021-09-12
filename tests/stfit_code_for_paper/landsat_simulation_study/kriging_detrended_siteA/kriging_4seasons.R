@@ -4,6 +4,7 @@ library(geoR)
 library(raster)
 library(rasterVis)
 library(stfit)
+library(doParallel)
 
 df = landsat2 %>% filter(year >= 2000)
 year = df$year
@@ -51,6 +52,7 @@ for(i in 1:nrow(pmat)){
     fmatj = fmat[j,]
     ## apply missing patterns to fully observed images
     missing.idx = is.na(pmat[i,])
+    mat = mat0
     mat[fidx[j], missing.idx] = NA
     fmatj[missing.idx] = NA
     
@@ -64,7 +66,7 @@ for(i in 1:nrow(pmat)){
     
     gdata = as.geodata(cbind(expand.grid(seq(1,31), seq(1, 31)), rmatj))
     vario = variog(gdata)
-    wls = variofit(vario, ini = c(150000, 35))
+    wls = variofit(vario, ini = c(9000, 35), nugget = 6000)
     loci <- expand.grid(seq(0,1,l=31), seq(0,1,l=31))
     # predicting by ordinary kriging
     kc <- krige.conv(gdata, loc=expand.grid(seq(1,31), seq(1, 31)),

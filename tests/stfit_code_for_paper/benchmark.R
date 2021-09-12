@@ -44,3 +44,11 @@ times = 5)
 # expr       min        lq      mean    median        uq      max neval
 # gapfill 1552.5008 1580.4793 1769.5675 1633.1508 1645.4840 2436.223     5
 # stfit   115.267   115.4007  117.8956  117.7408  118.3663  122.7031     5
+
+library(profvis)
+profvis({
+  stfit_landsat(year, doy, mat, 31, 31, nnr=30, clipRange= c(0,3000),
+                use.intermediate.result = FALSE, intermediate.save = FALSE)
+})
+## 40360/42960
+

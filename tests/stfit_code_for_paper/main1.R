@@ -193,9 +193,9 @@ R0.hat = lc_cov_1d_est(year[nnaidx], doy[nnaidx], resid[nnaidx],
                        weight.cov, t.grid)
 ## Fig 8 left
 pdf("output/fig_08_left.pdf", width =6, height=5.5)
-par(mar=c(0,0,0,0))
+par(mar=c(2,0,2,0))
 persp(R0.hat,theta=30, phi=30, expand=0.5, col='lightblue',
-      xlab='DOY',ylab='DOY',zlab="Cov",ticktype='simple')
+      xlab='DOY',ylab='DOY',zlab="Cov",ticktype='simple', cex.lab=1.5, font.lab = 2)
 dev.off()
 
 
@@ -281,7 +281,7 @@ fidx = fidxb[c(3,7,14,18)]
 if(!dir.exists("output/tmp"))
   dir.create("output/tmp")
 
-registerDoParallel(10)
+registerDoParallel(6)
 rst_list1 = list()
 for(i in 1:4){
   mat = matB
@@ -321,10 +321,24 @@ print(levelplot(stack(rst_list1[c(1:3,5:7, 9:11, 13:15)]),
 #           layout = c(4,4), zscaleLog = TRUE))
 dev.off()
 
-pdf("output/fig_10_down.pdf", width =6, height=5.5)
+pdf("output/fig_10_mid.pdf", width =6, height=5.5)
+levelplot(stack(lapply(seq(1, 16, 4), function(i) rst_list1[[i]] - rst_list1[[i+2]])), 
+          par.settings = colthm1, layout=c(4,1),
+          names.attr = paste0("F", c(3,7,14,18), " - F", c(3,7,14,18),"P", c(6,8,14,15), " impu"),
+          par.strip.text = list(cex=0.7))
+dev.off()
+
+pdf("output/fig_10_bot.pdf", width =6, height=5.5)
 print(levelplot(stack(rst_list1[seq(4, 16, 4)]), par.settings = colthm, layout=c(4,1),
           names.attr = paste0("F", c(3,7,14,18), "P", c(6,8,14,15), " sd")))
 dev.off()
+
+## check on CI
+rst_diff = lapply(seq(1, 16, 4), function(i) rst_list1[[i]] - rst_list1[[i+2]])
+rst_sdf = rst_list1[seq(4, 16, 4)]
+res = lapply(1:4, function(i) {rst_diff[[i]] > -1.96*rst_sdf[[i]] & 
+    rst_diff[[i]] < 1.96*rst_sdf[[i]]})
+table(unlist(lapply(res, values)), useNA="ifany")
 
 ################ Supplementary #################
 
