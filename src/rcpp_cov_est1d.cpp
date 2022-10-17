@@ -42,12 +42,12 @@ double lc_cov_1d(const NumericVector &ids, const NumericVector &time, const Nume
   int k2_stop = std::min(t2 + W_size/2 + 1, time_max);
 
   for(int i = 0; i < N; i++){
-    if((time[i] >= k1_start) & (time[i] < k1_stop)){
+    if((time[i] >= k1_start) && (time[i] < k1_stop)){
       for(int j = 0; j < N; j++){
         if(i == j)
           continue;
         if(ids[i] == ids[j]){
-          if((time[j] >= k2_start) & (time[j] < k2_stop)){
+          if((time[j] >= k2_start) && (time[j] < k2_stop)){
             sumEEKK += resid[i]*resid[j]*W[time[i] - t1 + W_size/2]*W[time[j] - t2 + W_size/2];
             sumKK += W[time[i] - t1 + W_size/2]*W[time[j] - t2 + W_size/2];
           }
